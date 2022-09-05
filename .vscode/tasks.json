@@ -1,0 +1,19 @@
+{
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "Build ecs",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "command": "./build.bat",
+      "args": [
+        "${config:launchOption.currentConfig.BuildType}",
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+    },
+  ]
+}
