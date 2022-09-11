@@ -26,6 +26,11 @@ namespace ecs
     const Destructor destructor = nullptr;
     const UserFunctions userFunctions;
   };
+  template <typename T>
+  struct TypeIndex
+  {
+    inline static int value = -1;
+  };
   int type_name_to_index(const char *name);
   const ecs::vector<TypeAnnotation> &get_all_registered_types();
 }

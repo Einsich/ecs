@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <any>
+#include <algorithm>
 #include <assert.h>
 
 namespace ecs
@@ -14,6 +15,14 @@ namespace ecs
 
   using any = std::any;
 
+  using uint = unsigned int;
+  using byte = unsigned char;
+
+  template <class _RanIt, class _Pr>
+  inline void sort(const _RanIt _First, const _RanIt _Last, _Pr _Pred) 
+  {
+    std::sort(_First, _Last, _Pred);
+  }
 } // namespace ecs
 
 #define ECS_ASSERT assert

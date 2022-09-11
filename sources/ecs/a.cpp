@@ -8,6 +8,7 @@
 #include <ecs/time_profiler.h>
 
 #include <ecs/c.h>
+#include <ecs/archetype.h>
 
 struct Point4
 {

@@ -31,11 +31,7 @@ namespace ecs
     ((T *)raw_memory)->~T();
   }
 
-  template <typename T>
-  struct TypeIndex
-  {
-    inline static int value = -1;
-  };
+
 
   template <typename T>
   const TypeAnnotation *get_type_annotation()

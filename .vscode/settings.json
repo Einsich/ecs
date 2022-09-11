@@ -68,6 +68,9 @@
     "xstring": "cpp",
     "xtr1common": "cpp",
     "algorithm": "cpp",
-    "string": "cpp"
+    "string": "cpp",
+    "any": "cpp",
+    "xtree": "cpp",
+    "map": "cpp"
   }
 }
