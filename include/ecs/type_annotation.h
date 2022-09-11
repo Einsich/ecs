@@ -7,11 +7,13 @@
 
 #include USER_FUNCTION_HEADER
 
+struct ComponentPrefab;
 namespace ecs
 {
   using DefaultConstructor = void (*)(void *);
   using CopyConstructor = void (*)(void *, const void *);
   using MoveConstructor = void (*)(void *, void *);
+  using SpecialConstructor = void (*)(void *, const ComponentPrefab &);
   using Destructor = void (*)(void *);
 
   struct TypeAnnotation
@@ -20,6 +22,7 @@ namespace ecs
     const DefaultConstructor defaultConstructor = nullptr;
     const CopyConstructor copyConstructor = nullptr;
     const MoveConstructor moveConstructor = nullptr;
+    const SpecialConstructor specialConstructor = nullptr;
     const Destructor destructor = nullptr;
     const UserFunctions userFunctions;
   };

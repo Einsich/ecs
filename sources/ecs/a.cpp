@@ -14,9 +14,22 @@ struct Point4
   float x = 0, y = 0, z = 0, w = 0;
 };
 
-ECS_TYPE_REGISTRATION(Point4, "Point4", false, false, false, false, {})
-ECS_TYPE_REGISTRATION(ecs::vector<Point4>, "vector<p4>", false, false, false, false, {})
+ECS_TYPE_REGISTRATION(Point4, "Point4", false, false, false, false, false, {})
+ECS_TYPE_REGISTRATION(ecs::vector<Point4>, "vector<p4>", false, false, false, false, false, {})
 
+struct ResourceRequest
+{
+  const char *name;
+};
+
+class ResourceAcquirer
+{
+  ResourceAcquirer(const ecs::ComponentPrefab &prefab)
+  {
+    auto name = prefab.get<ResourceRequest>()->name;
+    printf("%s\n", name);
+  }
+};
 void f()
 {
 
@@ -72,7 +85,8 @@ void f()
     }
   }
 
+  ecs::vector<ecs::ComponentPrefab> q =
+      {{"aa", 10}, {"bb", 1.f}, {"resource", ecs::ComponentInitializer<ResourceAcquirer, ResourceRequest>({"nana"})}};
   printf("))) ");
   std::cout << std::endl;
-  /// dfff
 }
