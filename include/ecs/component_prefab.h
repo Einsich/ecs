@@ -70,7 +70,7 @@ namespace ecs
       raw_component.~any();
     }
   };
-  void sort_prefabs_by_names(ecs::vector<ComponentPrefab> &prefabs)
+  inline void sort_prefabs_by_names(ecs::vector<ComponentPrefab> &prefabs)
   {
     ecs::sort(prefabs.begin(), prefabs.end(), [](const auto &a, const auto &b)
               { return a.description.name < b.description.name; });
