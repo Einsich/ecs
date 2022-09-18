@@ -19,12 +19,47 @@ namespace ecs
   struct TypeAnnotation
   {
     const ecs::string name;
+    const uint sizeOf;
     const DefaultConstructor defaultConstructor = nullptr;
     const CopyConstructor copyConstructor = nullptr;
     const MoveConstructor moveConstructor = nullptr;
     const SpecialConstructor specialConstructor = nullptr;
     const Destructor destructor = nullptr;
     const UserFunctions userFunctions;
+
+    void ECS_INLINE construct(void *data) const
+    {
+      if (defaultConstructor)
+        defaultConstructor(data);
+      else
+        memset(data, 0, sizeOf);
+    }
+    void ECS_INLINE copy(void *dst, const void *src) const
+    {
+      if (copyConstructor)
+        copyConstructor(dst, src);
+      else
+        memcpy(dst, src, sizeOf);
+    }
+    void ECS_INLINE move(void *dst, void *src) const
+    {
+      if (moveConstructor)
+        moveConstructor(dst, src);
+      else
+      {
+        memcpy(dst, src, sizeOf);
+        memset(src, 0, sizeOf);
+      }
+    }
+    void ECS_INLINE destruct(void *dst) const
+    {
+      if (destructor)
+        destructor(dst);
+#if ECS_OPTIMIZED_DESTRUCTION == 0
+      else
+        memset(dst, ECS_CLEAR_MEM_PATTERN, sizeOf);
+#endif
+    }
   };
   template <typename T>
   struct TypeIndex

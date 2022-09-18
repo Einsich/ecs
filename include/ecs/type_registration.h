@@ -31,8 +31,6 @@ namespace ecs
     ((T *)raw_memory)->~T();
   }
 
-
-
   template <typename T>
   const TypeAnnotation *get_type_annotation()
   {
@@ -68,7 +66,7 @@ namespace ecs
     extern void register_type(int, TypeAnnotation);
 
     TypeIndex<T>::value = get_next_type_index();
-    register_type(TypeIndex<T>::value, TypeAnnotation{type_name, ctor, copyCtor, moveCtor, specialCtor, dtor, user_functions});
+    register_type(TypeIndex<T>::value, TypeAnnotation{type_name, sizeof(T), ctor, copyCtor, moveCtor, specialCtor, dtor, user_functions});
   }
   template <typename T,
             bool trivial_ctor = false,
