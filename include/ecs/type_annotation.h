@@ -7,9 +7,9 @@
 
 #include USER_FUNCTION_HEADER
 
-struct ComponentPrefab;
 namespace ecs
 {
+  struct ComponentPrefab;
   using DefaultConstructor = void (*)(void *);
   using CopyConstructor = void (*)(void *, const void *);
   using MoveConstructor = void (*)(void *, void *);

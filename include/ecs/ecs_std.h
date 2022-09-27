@@ -26,6 +26,8 @@ namespace ecs
 } // namespace ecs
 
 #define ECS_ASSERT assert
+#define ECS_LOG printf
+#define ECS_ERROR printf
 
 #define __CONCAT_HELPER__(x, y) x##y
 #define __CONCAT__(x, y) __CONCAT_HELPER__(x, y)

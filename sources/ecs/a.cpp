@@ -15,6 +15,8 @@ struct Point4
   float x = 0, y = 0, z = 0, w = 0;
 };
 
+ECS_TYPE_REGISTRATION(float, "float", false, false, false, false, false, {})
+ECS_TYPE_REGISTRATION(int, "int", false, false, false, false, false, {})
 ECS_TYPE_REGISTRATION(Point4, "Point4", false, false, false, false, false, {})
 ECS_TYPE_REGISTRATION(ecs::vector<Point4>, "vector<p4>", false, false, false, false, false, {})
 
@@ -25,12 +27,16 @@ struct ResourceRequest
 
 class ResourceAcquirer
 {
+public:
+  ResourceAcquirer() = default;
   ResourceAcquirer(const ecs::ComponentPrefab &prefab)
   {
     auto name = prefab.get<ResourceRequest>()->name;
     printf("%s\n", name);
   }
 };
+ECS_TYPE_REGISTRATION(ResourceAcquirer, "ResourceAcquirer", false, false, false, false, true, {})
+
 void f()
 {
 
