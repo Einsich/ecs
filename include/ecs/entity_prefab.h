@@ -7,6 +7,7 @@ namespace ecs
   {
     ecs::string name;
     ecs::vector<ComponentPrefab> components;
+    EntityPrefab() = default;
     EntityPrefab(const char *name, ecs::vector<ComponentPrefab> &&components)
         : name(name), components(std::move(components))
     {

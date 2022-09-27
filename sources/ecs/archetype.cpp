@@ -32,10 +32,10 @@ namespace ecs
   void Archetype::add_entity(const EntityPrefab &prefabs_list, EntityPrefab &&overrides_list)
   {
     const auto &types = get_all_registered_types();
-    entityCount++;
     uint chunk, offset;
     get_chunk_offset(entityCount, chunk, offset);
-
+    entityCount++;
+    update_capacity();
     uint j = 0;
     const auto &prefabs = prefabs_list.components;
     auto &&overrides = overrides_list.components;
@@ -43,15 +43,15 @@ namespace ecs
     {
       const ComponentPrefab &component = prefabs[i];
       byte *memory = components[i].get(chunk, offset);
-      ECS_ASSERT(component.description.nameHash == components[i].description.nameHash);
-      if (j < m && overrides[j].description.nameHash == component.description.nameHash)
+      ECS_ASSERT(component.nameHash == components[i].description.nameHash);
+      if (j < m && overrides[j].nameHash == component.nameHash)
       {
-        types[component.description.typeIndex].move(memory, overrides[j].raw_pointer);
+        types[component.typeIndex].move(memory, overrides[j].raw_pointer);
         j++;
       }
       else
       {
-        types[component.description.typeIndex].copy(memory, component.raw_pointer);
+        types[component.typeIndex].copy(memory, component.raw_pointer);
       }
     }
   }

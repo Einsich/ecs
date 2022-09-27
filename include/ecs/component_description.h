@@ -16,5 +16,13 @@ namespace ecs
     {
       ECS_ASSERT(type_index >= 0);
     }
+    bool fastCompare(const ComponentDescription &other) const
+    {
+      return nameHash == other.nameHash && typeIndex == other.typeIndex;
+    }
+    bool slowCompare(const ComponentDescription &other) const
+    {
+      return name == other.name && typeIndex == other.typeIndex;
+    }
   };
 }

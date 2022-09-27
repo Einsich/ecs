@@ -21,6 +21,10 @@ int main()
       {}, // tags
       &test_system));
 
+  ecs::EntityPrefab p("lol", {{"x", 1.f}, {"y", 2.f}, {"z", 3}});
+
+  ecs::create_entity_immediate(p);
+
   ecs::perform_systems();
   f();
   return 0;

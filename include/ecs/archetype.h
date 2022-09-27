@@ -2,16 +2,9 @@
 #include <ecs/ecs_std.h>
 #include <ecs/hash.h>
 #include <ecs/entity_prefab.h>
-
+#include <ecs/chunk_policy.h>
 namespace ecs
 {
-  enum class SizePolicy
-  {
-    Singleton = 0u,
-    Dozens = 3u,
-    Hundreds = 6u,
-    Thousands = 9u
-  };
 
   inline void sort_descriptions_by_names(ecs::vector<ComponentDescription> &descriptions)
   {
