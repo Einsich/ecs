@@ -13,15 +13,13 @@ namespace ecs
     ReadOnly,
     ReadWrite
   };
-  struct ArgumentDescription
+  struct ArgumentDescription : public ComponentDescription
   {
-    ComponentDescription description;
     AccessType accessType;
     bool optional;
 
-    template <typename T>
-    ArgumentDescription(const char *name, AccessType access_type, bool optional)
-        : description(name, TypeIndex<T>::value), accessType(access_type), optional(optional)
+    ArgumentDescription(const char *name, int type_idx, AccessType access_type, bool optional)
+        : ComponentDescription(name, type_idx), accessType(access_type), optional(optional)
     {
     }
   };

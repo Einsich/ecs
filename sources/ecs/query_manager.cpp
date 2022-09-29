@@ -1,5 +1,6 @@
 #include <ecs/query_manager.h>
 #include <ecs/ska/flat_hash_map.hpp>
+#include <ecs/archetype_manager.h>
 
 namespace ecs
 {
@@ -37,7 +38,7 @@ namespace ecs
         }
         else
         {
-          ECS_ERROR("%s didn't exist for before %s", before.c_str(), queries[i]->name.c_str());
+          ECS_ERROR("%s doesn't exist for before %s\n", before.c_str(), queries[i]->name.c_str());
         }
       }
       for (const string &after : queries[i]->after)
@@ -49,7 +50,7 @@ namespace ecs
         }
         else
         {
-          ECS_ERROR("%s didn't exist for after %s", after.c_str(), queries[i]->name.c_str());
+          ECS_ERROR("%s doesn't exist for after %s\n", after.c_str(), queries[i]->name.c_str());
         }
       }
     }
@@ -145,5 +146,46 @@ namespace ecs
     {
       system->system();
     }
+  }
+
+  static void update_cache(const Archetype &archetype, uint idx, const QueryDescription &desription, QueryCache &cache)
+  {
+    for (const auto &d : desription.requiredComponents)
+      if (archetype.findComponentIndex(d) == -1)
+        return;
+    for (const auto &d : desription.requiredNotComponents)
+      if (archetype.findComponentIndex(d) != -1)
+        return;
+
+    ecs::vector<int> indexes(desription.arguments.size(), -1);
+    for (uint i = 0, n = desription.arguments.size(); i < n; i++)
+    {
+      const auto &d = desription.arguments[i];
+      int ind = archetype.findComponentIndex(d);
+
+      if (ind >= 0 || d.optional)
+        indexes[i] = ind;
+      else
+        return;
+    }
+    auto &cachedArchetype = cache.archetypes.emplace_back();
+    cachedArchetype.archetypeIndex = idx;
+    cachedArchetype.componentIndexes = std::move(indexes);
+  }
+
+  void QueryManager::addArchetypeToCache(uint archetype_idx)
+  {
+    update();
+    const Archetype &archetype = get_archetype_manager().archetypes[archetype_idx];
+    for (auto &q : queries)
+      update_cache(archetype, archetype_idx, q, *q.cache);
+    for (auto &q : activeSystems)
+      update_cache(archetype, archetype_idx, *q, *q->cache);
+    for (auto &e : activeEvents)
+      for (auto &q : e)
+        update_cache(archetype, archetype_idx, *q, *q->cache);
+    for (auto &e : activeRequests)
+      for (auto &q : e)
+        update_cache(archetype, archetype_idx, *q, *q->cache);
   }
 }

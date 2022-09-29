@@ -16,6 +16,29 @@ namespace ecs
     }
   }
 
+  int Archetype::findComponentIndex(const ComponentDescription &descr) const
+  {
+    if (components.empty())
+      return -1;
+    uint l = 0, r = components.size();
+
+    while (r - l > 1)
+    { // divide and conquer, find half that contains answer
+      uint m = (l + r) / 2u;
+      if (component_comparator(descr, components[m].description))
+      {
+        r = m;
+      }
+      else
+      {
+        l = m;
+      }
+    }
+    if (components[l].description.slowCompare(descr))
+      return l;
+    else
+      return -1;
+  }
   void Archetype::update_capacity()
   {
     const auto &types = get_all_registered_types();

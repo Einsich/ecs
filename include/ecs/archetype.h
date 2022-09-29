@@ -5,11 +5,14 @@
 #include <ecs/chunk_policy.h>
 namespace ecs
 {
+  inline static bool component_comparator(const ComponentDescription &a, const ComponentDescription &b)
+  {
+    return a.name < b.name;
+  };
 
   inline void sort_descriptions_by_names(ecs::vector<ComponentDescription> &descriptions)
   {
-    ecs::sort(descriptions.begin(), descriptions.end(), [](const auto &a, const auto &b)
-              { return a.name < b.name; });
+    ecs::sort(descriptions.begin(), descriptions.end(), component_comparator);
   }
 
   struct ComponentContainer
@@ -55,6 +58,8 @@ namespace ecs
     void destroy_entity(uint idx);
 
     void destroy_all_entities();
+
+    int findComponentIndex(const ComponentDescription &descr) const;
   };
 
 }

@@ -26,6 +26,8 @@ namespace ecs
     void rebuildDependencyGraph();
     // should check all changes and update invalidated structures
     void update();
+
+    void addArchetypeToCache(uint archetype_idx);
   };
   QueryManager &get_query_manager();
 }

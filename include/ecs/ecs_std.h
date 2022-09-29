@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <array>
 #include <any>
 #include <algorithm>
 #include <assert.h>
@@ -12,6 +13,8 @@ namespace ecs
 
   template <typename T>
   using vector = std::vector<T>;
+  template <typename T, std::size_t N>
+  using array = std::array<T, N>;
 
   using any = std::any;
 
