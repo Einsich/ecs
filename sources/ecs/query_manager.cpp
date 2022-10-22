@@ -137,11 +137,20 @@ namespace ecs
   void QueryManager::update()
   {
     rebuildDependencyGraph();
+    for (int i = 0, n = eventsQueue.size(); i < n; i++)
+    {
+      eventsQueue.front()();
+      eventsQueue.pop();
+    }
+  }
+
+  void update_query_manager()
+  {
+    get_query_manager().update();
   }
 
   void perform_systems()
   {
-    get_query_manager().update();
     for (auto *system : get_query_manager().activeSystems)
     {
       system->system();
@@ -187,5 +196,21 @@ namespace ecs
     for (auto &e : activeRequests)
       for (auto &q : e)
         update_cache(archetype, archetype_idx, *q, *q->cache);
+  }
+
+  void QueryManager::send_event_immediate(const ecs::Event &event, event_t event_id) const
+  {
+    for (const EventDescription *descr : activeEvents[event_id])
+    {
+      descr->broadcastEventHandler(event);
+    }
+  }
+
+  void QueryManager::send_event_immediate(EntityId eid, const ecs::Event &event, event_t event_id) const
+  {
+    for (const EventDescription *descr : activeEvents[event_id])
+    {
+      descr->unicastEventHandler(eid, event);
+    }
   }
 }

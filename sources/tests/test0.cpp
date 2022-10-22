@@ -56,7 +56,25 @@ int main()
 
   ecs::create_entity_immediate(p);
 
+  ecs::update_query_manager();
   ecs::perform_systems();
   f();
   return 0;
 }
+
+struct A
+{
+};
+
+struct B
+{
+  char b;
+};
+struct C
+{
+  int c;
+};
+
+static_assert(ecs::is_zero_sizeof<A> == true);
+static_assert(ecs::is_zero_sizeof<B> == false);
+static_assert(ecs::is_zero_sizeof<C> == false);

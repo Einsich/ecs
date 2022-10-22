@@ -3,8 +3,10 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <queue>
 #include <any>
 #include <algorithm>
+#include <functional> //only for eventsQueue
 #include <assert.h>
 
 namespace ecs
@@ -13,6 +15,8 @@ namespace ecs
 
   template <typename T>
   using vector = std::vector<T>;
+  template <typename T>
+  using queue = std::queue<T>;
   template <typename T, std::size_t N>
   using array = std::array<T, N>;
 
@@ -26,9 +30,24 @@ namespace ecs
   {
     std::sort(_First, _Last, _Pred);
   }
+
+  template <typename T>
+  struct is_zero_sizeof_t : T
+  {
+    int x;
+  };
+  template <typename T>
+  inline constexpr bool is_zero_sizeof = sizeof(int) == sizeof(is_zero_sizeof_t<T>);
+
 } // namespace ecs
 
 #define ECS_ASSERT assert
+#define ECS_ASSERT_RETURN(assertion, ret_value) \
+  if (!(assertion))                             \
+  {                                             \
+    assert(assertion);                          \
+    return ret_value;                           \
+  }
 #define ECS_LOG printf
 #define ECS_ERROR printf
 

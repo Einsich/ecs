@@ -65,6 +65,7 @@ namespace ecs
     extern int get_next_type_index();
     extern void register_type(int, TypeAnnotation);
 
+    ECS_ASSERT(TypeIndex<T>::value == -1);
     TypeIndex<T>::value = get_next_type_index();
     register_type(TypeIndex<T>::value, TypeAnnotation{type_name, sizeof(T), ctor, copyCtor, moveCtor, specialCtor, dtor, user_functions});
   }

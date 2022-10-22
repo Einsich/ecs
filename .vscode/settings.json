@@ -71,6 +71,7 @@
     "string": "cpp",
     "any": "cpp",
     "xtree": "cpp",
-    "map": "cpp"
+    "map": "cpp",
+    "array": "cpp"
   }
 }
