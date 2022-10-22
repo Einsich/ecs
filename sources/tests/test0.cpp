@@ -58,6 +58,9 @@ int main()
 
   ecs::update_query_manager();
   ecs::perform_systems();
+
+  void events_testing();
+  events_testing();
   f();
   return 0;
 }
@@ -78,3 +81,49 @@ struct C
 static_assert(ecs::is_zero_sizeof<A> == true);
 static_assert(ecs::is_zero_sizeof<B> == false);
 static_assert(ecs::is_zero_sizeof<C> == false);
+
+struct MyEvent : ecs::Event
+{
+  int x;
+};
+
+ecs::QueryCache event_cache;
+
+static void test_event(const MyEvent &e, float y)
+{
+  printf("test_event %d %f\n", e.x, y);
+}
+
+static void test_event_handler(const ecs::Event &event)
+{
+  ecs::perform_event(reinterpret_cast<const MyEvent &>(event), cache, test_event);
+}
+
+static void test_event_eid_handler(ecs::EntityId /* eid */, const ecs::Event & /* event */)
+{
+}
+
+void events_testing()
+{
+  ecs::register_event<MyEvent>("MyEvent", true);
+  ecs::register_event(ecs::EventDescription("test0.cpp",
+                                            "test_event",
+                                            &event_cache,
+                                            {{"y", ecs::TypeIndex<float>::value, ecs::AccessType::ReadOnly, false}}, // args
+                                            {},                                                                      // req
+                                            {},                                                                      // req_not
+                                            {},                                                                      // before
+                                            {},                                                                      // after
+                                            {},                                                                      // tags
+                                            &test_event_handler,
+                                            &test_event_eid_handler),
+                      ecs::EventIndex<MyEvent>::value);
+
+  ecs::update_query_manager(); // after register_event
+  MyEvent m;
+  m.x = 69;
+  ecs::send_event_immediate(m);
+  m.x = 96;
+  ecs::send_event(m);
+  ecs::update_query_manager();
+}

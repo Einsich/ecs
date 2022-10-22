@@ -16,28 +16,28 @@ namespace ecs
   template <typename E>
   std::enable_if_t<std::is_base_of_v<ecs::Event, E>, void> send_event_immediate(const E &event)
   {
-    ECS_ASSERT_RETURN(EventIndex<T>::value != -1, );
-    get_query_manager().send_event_immediate(event, EventIndex<T>::value);
+    ECS_ASSERT_RETURN(EventIndex<E>::value != -1, );
+    get_query_manager().send_event_immediate(event, EventIndex<E>::value);
   }
 
   template <typename E>
   std::enable_if_t<std::is_base_of_v<ecs::Event, E>, void> send_event_immediate(ecs::EntityId eid, const E &event)
   {
-    ECS_ASSERT_RETURN(EventIndex<T>::value != -1, );
-    get_query_manager().send_event_immediate(eid, event, EventIndex<T>::value);
+    ECS_ASSERT_RETURN(EventIndex<E>::value != -1, );
+    get_query_manager().send_event_immediate(eid, event, EventIndex<E>::value);
   }
 
   template <typename E>
   std::enable_if_t<std::is_base_of_v<ecs::Event, E>, void> send_event(const E &event)
   {
-    ECS_ASSERT_RETURN(EventIndex<T>::value != -1, );
-    get_query_manager().send_event_deffered(event, EventIndex<T>::value);
+    ECS_ASSERT_RETURN(EventIndex<E>::value != -1, );
+    get_query_manager().send_event_deffered(event, EventIndex<E>::value);
   }
 
   template <typename E>
   std::enable_if_t<std::is_base_of_v<ecs::Event, E>, void> send_event(ecs::EntityId eid, const E &event)
   {
-    ECS_ASSERT_RETURN(EventIndex<T>::value != -1, );
-    get_query_manager().send_event_deffered(eid, event, EventIndex<T>::value);
+    ECS_ASSERT_RETURN(EventIndex<E>::value != -1, );
+    get_query_manager().send_event_deffered(eid, event, EventIndex<E>::value);
   }
 }

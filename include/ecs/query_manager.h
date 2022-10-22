@@ -37,13 +37,13 @@ namespace ecs
     template <typename T>
     void send_event_deffered(const T &event, event_t event_id)
     {
-      eventsQueue.push([event, event_id]()
+      eventsQueue.push([event, event_id, this]()
                        { send_event_immediate(event, event_id); });
     }
     template <typename T>
     void send_event_deffered(EntityId eid, const T &event, event_t event_id)
     {
-      eventsQueue.push([eid, event, event_id]()
+      eventsQueue.push([eid, event, event_id, this]()
                        { send_event_immediate(eid, event, event_id); });
     }
   };

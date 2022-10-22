@@ -40,28 +40,32 @@ namespace ecs
   };
 }
 
-#define USE_DESCRIPTION_STORAGE(T,                              \
-                                register_type_func,             \
-                                type_name_to_index_func,        \
-                                get_all_registered_types_func,  \
-                                get_next_type_index_func)       \
-  namespace ecs                                                 \
-  {                                                             \
-    static ecs::DescriptionStorage<T> storage;                  \
-    void register_type_func(int type_index, T annotation)       \
-    {                                                           \
-      storage.register_type(type_index, std::move(annotation)); \
-    }                                                           \
-    int type_name_to_index_func(const char *name)               \
-    {                                                           \
-      return storage.type_name_to_index(name);                  \
-    }                                                           \
-    const ecs::vector<T> &get_all_registered_types_func()       \
-    {                                                           \
-      return storage.get_all_registered_types();                \
-    }                                                           \
-    int get_next_type_index_func()                              \
-    {                                                           \
-      return storage.get_next_type_index();                     \
-    }                                                           \
+#define USE_DESCRIPTION_STORAGE(T,                                    \
+                                register_type_func,                   \
+                                type_name_to_index_func,              \
+                                get_all_registered_types_func,        \
+                                get_next_type_index_func)             \
+  namespace ecs                                                       \
+  {                                                                   \
+    static DescriptionStorage<T> &get_storage()                       \
+    {                                                                 \
+      static DescriptionStorage<T> storage;                           \
+      return storage;                                                 \
+    }                                                                 \
+    void register_type_func(int type_index, T annotation)             \
+    {                                                                 \
+      get_storage().register_type(type_index, std::move(annotation)); \
+    }                                                                 \
+    int type_name_to_index_func(const char *name)                     \
+    {                                                                 \
+      return get_storage().type_name_to_index(name);                  \
+    }                                                                 \
+    const ecs::vector<T> &get_all_registered_types_func()             \
+    {                                                                 \
+      return get_storage().get_all_registered_types();                \
+    }                                                                 \
+    int get_next_type_index_func()                                    \
+    {                                                                 \
+      return get_storage().get_next_type_index();                     \
+    }                                                                 \
   }
