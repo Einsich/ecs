@@ -46,6 +46,8 @@ namespace ecs
       eventsQueue.push([eid, event, event_id, this]()
                        { send_event_immediate(eid, event, event_id); });
     }
+    void send_request(ecs::Request &request, request_t request_id) const;
+    void send_request(EntityId eid, ecs::Request &request, request_t request_id) const;
   };
   QueryManager &get_query_manager();
 

@@ -8,14 +8,16 @@ namespace ecs
   {
     return query_manager;
   }
+  void update_cache(QueryDescription &desription);
+
   void register_query(QueryDescription &&query)
   {
-    query_manager.queries.emplace_back(std::move(query));
+    update_cache(query_manager.queries.emplace_back(std::move(query)));
     query_manager.queryInvalidated = true;
   }
   void register_system(SystemDescription &&system)
   {
-    query_manager.systems.emplace_back(std::move(system));
+    update_cache(query_manager.systems.emplace_back(std::move(system)));
     query_manager.systemsInvalidated = true;
   }
   void register_event(EventDescription &&event, event_t event_id)
@@ -23,7 +25,7 @@ namespace ecs
     if (event_id >= query_manager.events.size())
       query_manager.events.resize(event_id + 1);
 
-    query_manager.events[event_id].emplace_back(std::move(event));
+    update_cache(query_manager.events[event_id].emplace_back(std::move(event)));
     query_manager.eventsInvalidated = true;
   }
   void register_request(RequestDescription &&request, request_t request_id)
@@ -31,7 +33,8 @@ namespace ecs
     if (request_id >= query_manager.requests.size())
       query_manager.requests.resize(request_id + 1);
 
-    query_manager.requests[request_id].emplace_back(std::move(request));
+    update_cache(query_manager.requests[request_id].emplace_back(std::move(request)));
+
     query_manager.requestsInvalidated = true;
   }
 }

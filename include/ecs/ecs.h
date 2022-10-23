@@ -40,4 +40,18 @@ namespace ecs
     ECS_ASSERT_RETURN(EventIndex<E>::value != -1, );
     get_query_manager().send_event_deffered(eid, event, EventIndex<E>::value);
   }
+
+  template <typename R>
+  std::enable_if_t<std::is_base_of_v<ecs::Request, R>, void> send_request(R &request)
+  {
+    ECS_ASSERT_RETURN(RequestIndex<R>::value != -1, );
+    get_query_manager().send_request(request, RequestIndex<R>::value);
+  }
+
+  template <typename R>
+  std::enable_if_t<std::is_base_of_v<ecs::Request, R>, void> send_request(ecs::EntityId eid, R &request)
+  {
+    ECS_ASSERT_RETURN(RequestIndex<R>::value != -1, );
+    get_query_manager().send_request(eid, request, RequestIndex<R>::value);
+  }
 }

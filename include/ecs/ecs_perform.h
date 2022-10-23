@@ -90,6 +90,12 @@ namespace ecs
     perform_query<Args...>(cache, [&](Args... args)
                            { function(event, args...); });
   }
+  template <typename R, typename Request, typename... Args>
+  void __forceinline perform_request(R &request, const QueryCache &cache, void (*function)(Request, Args...))
+  {
+    perform_query<Args...>(cache, [&](Args... args)
+                           { function(request, args...); });
+  }
 
   template <typename... Args, typename Callable>
   void __forceinline perform_query(const QueryCache &cache, EntityId eid, Callable function)

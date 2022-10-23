@@ -38,7 +38,7 @@ namespace ecs
   {
     EventRegistrationHelper(const char *name, bool trivial_ctor = false)
     {
-      register_event<T>(name, user_functions);
+      register_event<T>(name, trivial_ctor);
     }
   };
 }

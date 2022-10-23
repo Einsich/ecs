@@ -197,6 +197,17 @@ namespace ecs
       for (auto &q : e)
         update_cache(archetype, archetype_idx, *q, *q->cache);
   }
+  
+
+  void update_cache(QueryDescription &desription)
+  {
+    uint idx = 0;
+    for (const Archetype &archetype : get_archetype_manager().archetypes)
+    {
+      update_cache(archetype, idx, desription, *desription.cache);
+      idx++;
+    }
+  }
 
   void QueryManager::send_event_immediate(const ecs::Event &event, event_t event_id) const
   {
@@ -211,6 +222,22 @@ namespace ecs
     for (const EventDescription *descr : activeEvents[event_id])
     {
       descr->unicastEventHandler(eid, event);
+    }
+  }
+  void QueryManager::send_request(ecs::Request &request, request_t request_id) const
+  {
+
+    for (const RequestDescription *descr : activeRequests[request_id])
+    {
+      descr->broadcastRequestHandler(request);
+    }
+  }
+  void QueryManager::send_request(EntityId eid, ecs::Request &request, request_t request_id) const
+  {
+
+    for (const RequestDescription *descr : activeRequests[request_id])
+    {
+      descr->unicastRequestHandler(eid, request);
     }
   }
 }
