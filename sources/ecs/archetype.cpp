@@ -52,7 +52,7 @@ namespace ecs
     }
   }
 
-  void Archetype::add_entity(const EntityPrefab &prefabs_list, EntityPrefab &&overrides_list)
+  void Archetype::add_entity(const EntityPrefab &prefabs_list, ecs::vector<ComponentPrefab> &&overrides_list)
   {
     const auto &types = get_all_registered_types();
     uint chunk, offset;
@@ -61,20 +61,21 @@ namespace ecs
     update_capacity();
     uint j = 0;
     const auto &prefabs = prefabs_list.components;
-    auto &&overrides = overrides_list.components;
-    for (uint i = 0, n = prefabs.size(), m = overrides.size(); i < n; ++i)
+    for (uint i = 0, n = prefabs.size(), m = overrides_list.size(); i < n; ++i)
     {
       const ComponentPrefab &component = prefabs[i];
-      byte *memory = components[i].get(chunk, offset);
+      const auto &type = types[component.typeIndex];
+      byte *memory = components[i].data[chunk] + offset * type.sizeOf;
       ECS_ASSERT(component.nameHash == components[i].description.nameHash);
-      if (j < m && overrides[j].nameHash == component.nameHash)
+      if (j < m && overrides_list[j].nameHash == component.nameHash)
       {
-        types[component.typeIndex].move(memory, overrides[j].raw_pointer);
+        type.move(memory, overrides_list[j].raw_pointer);
+        float x = *(float *)memory;
         j++;
       }
       else
       {
-        types[component.typeIndex].copy(memory, component.raw_pointer);
+        type.copy(memory, component.raw_pointer);
       }
     }
   }

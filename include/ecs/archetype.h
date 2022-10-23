@@ -53,7 +53,7 @@ namespace ecs
       offset = idx & chunkMask;
     }
 
-    void add_entity(const EntityPrefab &prefabs_list, EntityPrefab &&overrides_list);
+    void add_entity(const EntityPrefab &prefabs_list, ecs::vector<ComponentPrefab> &&overrides_list);
 
     void destroy_entity(uint idx);
 
