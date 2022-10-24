@@ -55,3 +55,8 @@ namespace ecs
     get_query_manager().send_request(eid, request, RequestIndex<R>::value);
   }
 }
+
+#define SYSTEM(...) static void
+#define QUERY(...)
+#define EVENT(...) static void
+#define REQUEST(...) static void

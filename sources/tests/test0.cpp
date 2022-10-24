@@ -113,17 +113,18 @@ static void test_event_eid_handler(ecs::EntityId /* eid */, const ecs::Event & /
 void events_testing()
 {
   ecs::register_event<MyEvent>("MyEvent", true);
-  ecs::register_event(ecs::EventDescription("test0.cpp",
-                                            "test_event",
-                                            &event_cache,
-                                            {{"y", ecs::TypeIndex<float>::value, ecs::AccessType::ReadOnly, false}}, // args
-                                            {},                                                                      // req
-                                            {},                                                                      // req_not
-                                            {},                                                                      // before
-                                            {},                                                                      // after
-                                            {},                                                                      // tags
-                                            &test_event_handler,
-                                            &test_event_eid_handler),
+  ecs::register_event(ecs::EventDescription(
+                          "test0.cpp",
+                          "test_event",
+                          &event_cache,
+                          {{"y", ecs::TypeIndex<float>::value, ecs::AccessType::ReadOnly, false}}, // args
+                          {},                                                                      // req
+                          {},                                                                      // req_not
+                          {},                                                                      // before
+                          {},                                                                      // after
+                          {},                                                                      // tags
+                          &test_event_handler,
+                          &test_event_eid_handler),
                       ecs::EventIndex<MyEvent>::value);
 
   ecs::update_query_manager(); // after register_event

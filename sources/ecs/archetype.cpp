@@ -70,7 +70,6 @@ namespace ecs
       if (j < m && overrides_list[j].nameHash == component.nameHash)
       {
         type.move(memory, overrides_list[j].raw_pointer);
-        float x = *(float *)memory;
         j++;
       }
       else

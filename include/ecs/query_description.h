@@ -11,7 +11,8 @@ namespace ecs
   enum class AccessType
   {
     ReadOnly,
-    ReadWrite
+    ReadWrite,
+    Copy
   };
   struct ArgumentDescription : public ComponentDescription
   {

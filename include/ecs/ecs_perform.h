@@ -117,11 +117,25 @@ namespace ecs
        }
      } */
   }
-
+#define UNUSED(x) (void)(x)
   template <typename E, typename Event, typename... Args>
-  void perform_event(const E &event, const QueryCache &cache, EntityId eid, void (*function)(Event, Args...))
+  void perform_event(EntityId eid, const E &event, const QueryCache &cache, void (*function)(Event, Args...))
   { /*
      perform_query<Args...>(cache, eid, [&](Args... args)
                             { function(event, args...); }); */
+    UNUSED(eid);
+    UNUSED(event);
+    UNUSED(cache);
+    UNUSED(function);
+  }
+  template <typename R, typename Request, typename... Args>
+  void __forceinline perform_request(EntityId eid, R &request, const QueryCache &cache, void (*function)(Request, Args...))
+  { /*
+     perform_query<Args...>(cache, [&](Args... args)
+                            { function(request, args...); }); */
+    UNUSED(eid);
+    UNUSED(request);
+    UNUSED(cache);
+    UNUSED(function);
   }
 } // namespace ecs
