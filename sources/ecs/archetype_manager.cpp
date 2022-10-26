@@ -59,7 +59,7 @@ namespace ecs
     }
     return idx;
   }
-  void create_entity_immediate(const EntityPrefab &prefabs_list, ecs::vector<ComponentPrefab> &&overrides_list, SizePolicy chunk_power)
+  EntityId create_entity_immediate(const EntityPrefab &prefabs_list, ecs::vector<ComponentPrefab> &&overrides_list, SizePolicy chunk_power)
   {
     uint archetype = add_archetype(prefabs_list.components, chunk_power);
     // need to validate components with async creation here.
@@ -67,16 +67,52 @@ namespace ecs
     auto entity = get_archetype_manager().entityPool.allocate_entity();
     entity->archetype = archetype;
     get_archetype_manager().archetypes[archetype].add_entity(entity, prefabs_list, std::move(overrides_list));
+    return EntityId(entity);
   }
 
-  void destroy_entity_immediate(EntityId eid)
+  static void destroy_entity_immediate(EntityId eid)
   {
     uint archetype, index;
     EntityState state;
-    if (eid.get_info(archetype, index, state))
+    if (eid.get_info(archetype, index, state) || state == EntityState::InDestroyQueue)
     {
       get_archetype_manager().archetypes[archetype].destroy_entity(index);
       get_archetype_manager().entityPool.deallocate_entity(eid);
     }
+  }
+
+  void destroy_entity(EntityId eid)
+  {
+    uint archetype, index;
+    EntityState state;
+    if (eid.get_info(archetype, index, state) || state == EntityState::CreatedNotInited)
+    {
+      get_archetype_manager().entityPool.add_entity_to_destroy_queue(eid);
+    }
+    // may be need to destroy immediate if entity not inited yet
+    // if (state == EntityState::CreatedNotInited)
+    //   destroy_entity_immediate(eid);
+  }
+
+  static void destroy_queued_entities()
+  {
+    auto &destroyQueue = get_archetype_manager().entityPool.entitiesToDestroy;
+    for (uint i = 0, n = destroyQueue.size(); i < n; i++)
+    {
+      EntityId eid = destroyQueue.front();
+      destroyQueue.pop();
+      destroy_entity_immediate(eid);
+    }
+  }
+
+  void destroy_all_entities()
+  {
+    for (auto &archetype : get_archetype_manager().archetypes)
+      archetype.destroy_all_entities(get_archetype_manager().entityPool);
+  }
+
+  void update_archetype_manager()
+  {
+    destroy_queued_entities();
   }
 }

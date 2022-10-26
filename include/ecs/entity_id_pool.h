@@ -10,6 +10,7 @@ namespace ecs
   struct EntityPool
   {
     ecs::vector<EntityDescription *> entities;
+    ecs::queue<EntityId> entitiesToDestroy;
 
     uint allocated = 0;
     uint used = 0;
@@ -22,7 +23,7 @@ namespace ecs
       {
         for (uint i = 0, n = std::min(entityBinSize, last); i < n; i++)
         {
-          // ECS_ASSERT(batch[i].state == EntityState::Destoyed);
+          ECS_ASSERT(batch[i].state == EntityState::Destoyed);
         }
         last -= entityBinSize;
 
@@ -56,6 +57,7 @@ namespace ecs
 
     void deallocate_entity(EntityDescription *entity)
     {
+      ECS_ASSERT(entity->valid_for_destroy());
       entity->archetype = -1;
       entity->index = -1;
       entity->state = EntityState::Destoyed;
@@ -64,8 +66,14 @@ namespace ecs
 
     void deallocate_entity(EntityId eid)
     {
-      ECS_ASSERT(eid.valid());
+      ECS_ASSERT(eid.description);
       deallocate_entity((EntityDescription *)eid.description);
+    }
+
+    void add_entity_to_destroy_queue(EntityId eid)
+    {
+      ((EntityDescription *)eid.description)->state = EntityState::InDestroyQueue;
+      entitiesToDestroy.push(eid);
     }
   };
 }

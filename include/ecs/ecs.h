@@ -12,9 +12,11 @@ namespace ecs
   void perform_systems();
   uint add_archetype(ecs::vector<ComponentDescription> &&descriptions, SizePolicy chunk_power);
   uint add_archetype(const ecs::vector<ComponentPrefab> &descriptions, SizePolicy chunk_power);
-  void create_entity_immediate(const EntityPrefab &prefabs_list, ecs::vector<ComponentPrefab> &&overrides_list = {}, SizePolicy chunk_power = SizePolicy::Hundreds);
+  EntityId create_entity_immediate(const EntityPrefab &prefabs_list, ecs::vector<ComponentPrefab> &&overrides_list = {}, SizePolicy chunk_power = SizePolicy::Hundreds);
 
-  void destroy_entity_immediate(EntityId eid);
+  void destroy_entity(EntityId eid);
+  void destroy_all_entities();
+  void update_archetype_manager();
 
   template <typename E>
   std::enable_if_t<std::is_base_of_v<ecs::Event, E>, void> send_event_immediate(const E &event)

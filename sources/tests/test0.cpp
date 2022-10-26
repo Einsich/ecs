@@ -14,12 +14,16 @@ int main()
 
   ecs::EntityPrefab p("lol", {{"x", 1.f}, {"y", 2.f}, {"z", 3}});
 
-  ecs::create_entity_immediate(p);
-  ecs::create_entity_immediate(p, {{"x", 2.f}, {"y", -2.f}});
-  ecs::create_entity_immediate(p, {{"x", 3.f}, {"z", -2.f}});
-  ecs::create_entity_immediate(p, {{"x", 4.f}, {"x", -4.f}});
+  auto eid1 = ecs::create_entity_immediate(p);
+  auto eid2 = ecs::create_entity_immediate(p, {{"x", 2.f}, {"y", -2.f}});
+  auto eid3 = ecs::create_entity_immediate(p, {{"x", 3.f}, {"z", -2.f}});
+  auto eid4 = ecs::create_entity_immediate(p, {{"x", 4.f}, {"x", -4.f}});
 
   ecs::update_query_manager();
+  ecs::perform_systems();
+
+  ecs::destroy_entity(eid3);
+  ecs::update_archetype_manager();
   ecs::perform_systems();
 
   void events_testing();
@@ -27,6 +31,7 @@ int main()
   void requests_testing();
   requests_testing();
   f();
+  ecs::destroy_all_entities();
   return 0;
 }
 

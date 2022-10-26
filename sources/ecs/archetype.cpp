@@ -1,6 +1,6 @@
 #include <ecs/archetype.h>
 #include <ecs/type_annotation.h>
-#include <ecs/entity_id.h>
+#include <ecs/entity_id_pool.h>
 namespace ecs
 {
   Archetype::Archetype(ecs::vector<ComponentDescription> &&descriptions, SizePolicy chunk_power)
@@ -76,7 +76,8 @@ namespace ecs
       {
         if (component.typeIndex != overrides_list[j].typeIndex)
         {
-          ECS_ERROR("component %s has type missmatch, in prefab <%s> in ovveride list <%s>\n",
+          ECS_ERROR("prefab \"%s\" has type missmatch for component \"%s\", it's <%s> in prefab and <%s> in override\n",
+                    prefabs_list.name.c_str(),
                     component.name.c_str(),
                     type_name(component.typeIndex),
                     type_name(overrides_list[j].typeIndex));
@@ -98,7 +99,7 @@ namespace ecs
 
   void Archetype::destroy_entity(uint idx)
   {
-    ECS_ASSERT(entityCount == 0);
+    ECS_ASSERT(entityCount > 0);
     const auto &types = get_all_registered_types();
     uint chunk, offset;
     get_chunk_offset(idx, chunk, offset);
@@ -120,9 +121,32 @@ namespace ecs
     }
   }
 
-  void Archetype::destroy_all_entities()
+  void Archetype::destroy_all_entities(EntityPool &entity_pool)
   {
     const auto &types = get_all_registered_types();
+
+    {
+      uint liveEntity = entityCount;
+      uint eidSizeof = types[TypeIndex<EntityId>::value].sizeOf;
+      for (auto &chunk : eidContainer->data)
+      {
+        uint entitiesInChunk = chunkSize;
+        if (liveEntity >= chunkSize)
+        {
+          liveEntity -= chunkSize;
+        }
+        else
+        {
+          entitiesInChunk = liveEntity;
+          liveEntity = 0;
+        }
+        for (uint offset = 0; offset < entitiesInChunk; offset++)
+        {
+          EntityId *eid = (EntityId *)(chunk + offset * eidSizeof);
+          entity_pool.deallocate_entity(*eid);
+        }
+      }
+    }
 
     for (ComponentContainer &container : components)
     {

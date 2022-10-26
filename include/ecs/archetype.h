@@ -7,6 +7,7 @@
 namespace ecs
 {
   struct EntityDescription;
+  struct EntityPool;
   inline static bool component_comparator(const ComponentDescription &a, const ComponentDescription &b)
   {
     return a.name < b.name;
@@ -61,7 +62,7 @@ namespace ecs
 
     void destroy_entity(uint idx);
 
-    void destroy_all_entities();
+    void destroy_all_entities(EntityPool &entity_pool);
 
     int findComponentIndex(const ComponentDescription &descr) const;
   };

@@ -16,6 +16,11 @@ namespace ecs
     uint archetype = -1;
     uint index = -1;
     EntityState state = EntityState::Invalid;
+
+    bool valid_for_destroy() const
+    {
+      return state == EntityState::CreatedAndInited || state == EntityState::CreatedNotInited || state == EntityState::InDestroyQueue;
+    }
   };
   struct EntityId
   {
@@ -28,12 +33,14 @@ namespace ecs
 
     bool valid() const
     {
-      return description ? description->state != EntityState::Invalid : false;
+      return description
+                 ? description->state == EntityState::CreatedAndInited
+                 : false;
     }
 
     bool get_info(uint &archetype, uint &index, EntityState &state)
     {
-      if (valid())
+      if (description)
       {
         archetype = description->archetype;
         index = description->index;
