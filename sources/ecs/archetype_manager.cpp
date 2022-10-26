@@ -61,6 +61,8 @@ namespace ecs
   }
   EntityId create_entity_immediate(const EntityPrefab &prefabs_list, ecs::vector<ComponentPrefab> &&overrides_list, SizePolicy chunk_power)
   {
+    if (prefabs_list.components.empty())
+      return EntityId();
     uint archetype = add_archetype(prefabs_list.components, chunk_power);
     // need to validate components with async creation here.
     // also added async creation
