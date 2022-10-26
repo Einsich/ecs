@@ -356,6 +356,25 @@ static void query_definition(std::ofstream &outFile, const std::vector<ParserSys
   }
 }
 
+static void single_query_definition(std::ofstream &outFile, const std::vector<ParserSystemDescription> &descr)
+{
+  for (auto &query : descr)
+  {
+    const char *name = query.sys_name.c_str();
+    write(outFile,
+          "template<typename Callable>\n"
+          "static void %s(ecs::EntityId eid, Callable lambda)\n"
+          "{\n"
+          "  ecs::perform_query<",
+          name);
+    template_arguments(outFile, query.args);
+    write(outFile,
+          ">(%s__cache__, eid, lambda);\n"
+          "}\n\n",
+          name);
+  }
+}
+
 static void system_definition(std::ofstream &outFile, const std::vector<ParserSystemDescription> &descr)
 {
   for (auto &query : descr)
@@ -590,7 +609,7 @@ void process_inl_file(const fs::path &path)
   declare_caches(outFile, requestDescriptions);
 
   query_definition(outFile, queriesDescriptions);
-  // query_definition(outFile, singlqueriesDescriptions);
+  single_query_definition(outFile, singlqueriesDescriptions);
   system_definition(outFile, systemsDescriptions);
   event_definition(outFile, eventsDescriptions);
   request_definition(outFile, requestDescriptions);
@@ -598,6 +617,7 @@ void process_inl_file(const fs::path &path)
   outFile << "void registration_pull_" << path.stem().string() << "()\n{\n";
 
   register_queries(outFile, queriesDescriptions);
+  register_queries(outFile, singlqueriesDescriptions);
   register_systems(outFile, systemsDescriptions);
   register_events(outFile, eventsDescriptions);
   register_requests(outFile, requestDescriptions);

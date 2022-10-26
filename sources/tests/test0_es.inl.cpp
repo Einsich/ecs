@@ -2,7 +2,7 @@
 #include <ecs/ecs_perform.h>
 //Code-generator production
 
-ecs::QueryCache test_query__cache__;
+ecs::QueryCache test_single_query__cache__;
 
 ecs::QueryCache test__cache__;
 
@@ -11,9 +11,9 @@ ecs::QueryCache test_event__cache__;
 ecs::QueryCache test_request__cache__;
 
 template<typename Callable>
-static void test_query(Callable lambda)
+static void test_single_query(ecs::EntityId eid, Callable lambda)
 {
-  ecs::perform_query<int&, float&>(test_query__cache__, lambda);
+  ecs::perform_query<int&, float&>(test_single_query__cache__, eid, lambda);
 }
 
 static void test_implementation()
@@ -45,8 +45,8 @@ void registration_pull_test0_es()
 {
   ecs::register_query(ecs::QueryDescription(
   "",
-  "test_query",
-  &test_query__cache__,
+  "test_single_query",
+  &test_single_query__cache__,
   {
     {"z", ecs::TypeIndex<int>::value, ecs::AccessType::ReadWrite, false},
     {"y", ecs::TypeIndex<float>::value, ecs::AccessType::ReadWrite, false}

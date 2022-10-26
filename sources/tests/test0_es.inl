@@ -2,7 +2,7 @@
 #include "test0.h"
 
 template <typename C>
-static void test_query(C);
+static void test_single_query(ecs::EntityId eid, C c);
 
 SYSTEM()
 test(const float &x, const float &y, const int &z, ecs::EntityId eid)
@@ -18,11 +18,10 @@ test(const float &x, const float &y, const int &z, ecs::EntityId eid)
   {
     printf("eid invalid\n");
   }
-  bool one_time = false;
 
   QUERY()
-  test_query([&](int &z, float &y)
-             { if (one_time) return; y+=10; z-=10; one_time = true; });
+  test_single_query(eid, [&](int &z, float &y)
+                    { y+=10; z-=10; });
 
   printf("bye %f %f %d\n", x, y, z);
 }
