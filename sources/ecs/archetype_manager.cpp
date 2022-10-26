@@ -76,7 +76,7 @@ namespace ecs
   {
     uint archetype, index;
     EntityState state;
-    if (eid.get_info(archetype, index, state) || state == EntityState::InDestroyQueue)
+    if (eid.get_info(archetype, index, state) && (state == EntityState::CreatedAndInited || state == EntityState::InDestroyQueue))
     {
       get_archetype_manager().archetypes[archetype].destroy_entity(index);
       get_archetype_manager().entityPool.deallocate_entity(eid);

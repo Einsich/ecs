@@ -23,6 +23,8 @@ int main()
   ecs::perform_systems();
 
   ecs::destroy_entity(eid3);
+  ecs::destroy_entity(eid3);
+  ecs::destroy_entity(eid3);
   ecs::update_archetype_manager();
   ecs::perform_systems();
 
