@@ -67,5 +67,6 @@ namespace ecs
     inline static int value = -1;
   };
   int type_name_to_index(const char *name);
+  const char *type_name(uint type_idx);
   const ecs::vector<TypeAnnotation> &get_all_registered_types();
 }

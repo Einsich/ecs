@@ -69,6 +69,14 @@ namespace ecs
       ECS_ASSERT(component.nameHash == components[i].description.nameHash);
       if (j < m && overrides_list[j].nameHash == component.nameHash)
       {
+        if (component.typeIndex != overrides_list[j].typeIndex)
+        {
+          ECS_ERROR("component %s has type missmatch, in prefab <%s> in ovveride list <%s>\n",
+                    component.name.c_str(),
+                    type_name(component.typeIndex),
+                    type_name(overrides_list[j].typeIndex));
+          continue;
+        }
         type.move(memory, overrides_list[j].raw_pointer);
         j++;
       }
