@@ -7,6 +7,7 @@
 
 namespace ecs
 {
+  void init(UserFunctions entity_id_functions = {});
   void update_query_manager();
   void perform_systems();
   uint add_archetype(ecs::vector<ComponentDescription> &&descriptions, SizePolicy chunk_power);
