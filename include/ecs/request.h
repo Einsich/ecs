@@ -36,7 +36,7 @@ namespace ecs
   {
     RequestRegistrationHelper(const char *name)
     {
-      register_event<T>(name);
+      register_request<T>(name);
     }
   };
 }

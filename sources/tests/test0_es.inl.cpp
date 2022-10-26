@@ -62,7 +62,8 @@ void registration_pull_test0_es()
   {
     {"x", ecs::TypeIndex<float>::value, ecs::AccessType::ReadOnly, false},
     {"y", ecs::TypeIndex<float>::value, ecs::AccessType::ReadOnly, false},
-    {"z", ecs::TypeIndex<int>::value, ecs::AccessType::ReadOnly, false}
+    {"z", ecs::TypeIndex<int>::value, ecs::AccessType::ReadOnly, false},
+    {"eid", ecs::TypeIndex<ecs::EntityId>::value, ecs::AccessType::Copy, false}
   },
   {},
   {},

@@ -64,6 +64,19 @@ namespace ecs
     uint archetype = add_archetype(prefabs_list.components, chunk_power);
     // need to validate components with async creation here.
     // also added async creation
-    get_archetype_manager().archetypes[archetype].add_entity(prefabs_list, std::move(overrides_list));
+    auto entity = get_archetype_manager().entityPool.allocate_entity();
+    entity->archetype = archetype;
+    get_archetype_manager().archetypes[archetype].add_entity(entity, prefabs_list, std::move(overrides_list));
+  }
+
+  void destroy_entity_immediate(EntityId eid)
+  {
+    uint archetype, index;
+    EntityState state;
+    if (eid.get_info(archetype, index, state))
+    {
+      get_archetype_manager().archetypes[archetype].destroy_entity(index);
+      get_archetype_manager().entityPool.deallocate_entity(eid);
+    }
   }
 }

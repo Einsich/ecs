@@ -3,8 +3,10 @@
 #include <ecs/hash.h>
 #include <ecs/entity_prefab.h>
 #include <ecs/chunk_policy.h>
+
 namespace ecs
 {
+  struct EntityDescription;
   inline static bool component_comparator(const ComponentDescription &a, const ComponentDescription &b)
   {
     return a.name < b.name;
@@ -43,6 +45,8 @@ namespace ecs
     uint entityCount = 0; //==chunkSize * chunkCount + countInLastChunk
     uint totalCapacity = 0;
     ecs::vector<ComponentContainer> components;
+    ComponentContainer *eidContainer = nullptr; // ptr to components
+
     Archetype(ecs::vector<ComponentDescription> &&descriptions, SizePolicy chunk_power);
 
     void update_capacity();
@@ -53,7 +57,7 @@ namespace ecs
       offset = idx & chunkMask;
     }
 
-    void add_entity(const EntityPrefab &prefabs_list, ecs::vector<ComponentPrefab> &&overrides_list);
+    void add_entity(EntityDescription *entity, const EntityPrefab &prefabs_list, ecs::vector<ComponentPrefab> &&overrides_list);
 
     void destroy_entity(uint idx);
 

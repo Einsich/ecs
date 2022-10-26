@@ -1,19 +1,24 @@
 #include <ecs/archetype.h>
 #include <ecs/type_annotation.h>
-
+#include <ecs/entity_id.h>
 namespace ecs
 {
   Archetype::Archetype(ecs::vector<ComponentDescription> &&descriptions, SizePolicy chunk_power)
       : chunkPower((uint)chunk_power), chunkMask((1u << (uint)chunk_power) - 1u), chunkSize(1u << (uint)chunk_power)
   {
     components.resize(descriptions.size());
+    ComponentDescription eidDescr("eid", TypeIndex<EntityId>::value);
+
     sort_descriptions_by_names(descriptions);
     int i = 0;
     for (ComponentContainer &container : components)
     {
       container.description = std::move(descriptions[i]);
+      if (container.description.fastCompare(eidDescr))
+        eidContainer = &container;
       i++;
     }
+    ECS_ASSERT(eidContainer);
   }
 
   int Archetype::findComponentIndex(const ComponentDescription &descr) const
@@ -52,7 +57,7 @@ namespace ecs
     }
   }
 
-  void Archetype::add_entity(const EntityPrefab &prefabs_list, ecs::vector<ComponentPrefab> &&overrides_list)
+  void Archetype::add_entity(EntityDescription *entity, const EntityPrefab &prefabs_list, ecs::vector<ComponentPrefab> &&overrides_list)
   {
     const auto &types = get_all_registered_types();
     uint chunk, offset;
@@ -85,6 +90,10 @@ namespace ecs
         type.copy(memory, component.raw_pointer);
       }
     }
+    entity->index = entityCount - 1;
+    entity->state = EntityState::CreatedAndInited;
+    EntityId *eid = (EntityId *)(eidContainer->data[chunk] + offset * types[TypeIndex<EntityId>::value].sizeOf);
+    new (eid) EntityId(entity);
   }
 
   void Archetype::destroy_entity(uint idx)
@@ -105,7 +114,7 @@ namespace ecs
       // relocate last entity to new place
       if (idx != entityCount)
       {
-        type.move(component, container.data[chunkLast] + offsetLast);
+        type.move(component, container.data[chunkLast] + offsetLast * type.sizeOf);
         // TODO handle eid
       }
     }

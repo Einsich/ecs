@@ -14,6 +14,8 @@ namespace ecs
   uint add_archetype(const ecs::vector<ComponentPrefab> &descriptions, SizePolicy chunk_power);
   void create_entity_immediate(const EntityPrefab &prefabs_list, ecs::vector<ComponentPrefab> &&overrides_list = {}, SizePolicy chunk_power = SizePolicy::Hundreds);
 
+  void destroy_entity_immediate(EntityId eid);
+
   template <typename E>
   std::enable_if_t<std::is_base_of_v<ecs::Event, E>, void> send_event_immediate(const E &event)
   {
