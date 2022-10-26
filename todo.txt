@@ -1,0 +1,8 @@
+1) ecs::EntityId
+2) ecs::destroy_entity
+3) ecs::create_entity (deffered)
+4) validate that we don't copy more than sizeof(float) * 4 components and not trivial copy ctor
+5) validate that no similar names in prefabs
+6) single query and event handling
+7) recreate entity - add, remove components
+8) add line showing in code_gen
