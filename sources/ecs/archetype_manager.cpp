@@ -4,10 +4,10 @@
 namespace ecs
 {
   template <typename Description>
-  static int find_archetype(const ecs::vector<Description> &descriptions)
+  static int find_archetype(const ecs::vector<Description> &descriptions, const ecs::vector<ecs::Archetype> &archetypes)
   {
     int result = 0;
-    for (const auto &archetype : get_archetype_manager().archetypes)
+    for (const auto &archetype : archetypes)
     {
       result++;
       if (archetype.components.size() != descriptions.size())
@@ -20,56 +20,82 @@ namespace ecs
     return -1;
   }
 
-  uint add_archetype(const ecs::vector<ComponentPrefab> &prefabs, SizePolicy chunk_power)
+  uint add_archetype(
+      ecs::vector<ecs::Archetype> &archetypes,
+      const ecs::vector<ComponentPrefab> &prefabs,
+      SizePolicy chunk_power)
   {
-    int idx = find_archetype(prefabs);
+    int idx = find_archetype(prefabs, archetypes);
     if (idx < 0)
     {
       ecs::vector<ComponentDescription> descriptions(prefabs.size());
       for (uint i = 0, n = prefabs.size(); i < n; i++)
         descriptions[i] = prefabs[i];
-      idx = get_archetype_manager().archetypes.size();
-      get_archetype_manager().archetypes.emplace_back(std::move(descriptions), chunk_power);
+      idx = archetypes.size();
+      archetypes.emplace_back(std::move(descriptions), chunk_power);
       get_query_manager().addArchetypeToCache(idx);
     }
     else
     {
-      if (get_archetype_manager().archetypes[idx].chunkPower != (uint)chunk_power)
+      if (archetypes[idx].chunkPower != (uint)chunk_power)
       {
         ECS_ERROR("missmatch in chunk sizes");
       }
     }
     return idx;
   }
-  uint add_archetype(ecs::vector<ComponentDescription> &&descriptions, SizePolicy chunk_power)
+
+  static archetype_id get_archetype_id(const EntityPrefab &prefab, prefab_id id, ecs::ArchetypeManager &manager)
   {
-    int idx = find_archetype(descriptions);
-    if (idx < 0)
+    archetype_id archetype = manager.get_archetype_for_prefab(id);
+    if (archetype == invalidArchetypeId)
     {
-      idx = get_archetype_manager().archetypes.size();
-      get_archetype_manager().archetypes.emplace_back(std::move(descriptions), chunk_power);
-      get_query_manager().addArchetypeToCache(idx);
+      archetype = add_archetype(manager.archetypes, prefab.components, prefab.chunkPower);
+      manager.add_prefab_archetype_cache(id, archetype);
     }
-    else
-    {
-      if (get_archetype_manager().archetypes[idx].chunkPower != (uint)chunk_power)
-      {
-        ECS_ERROR("missmatch in chunk sizes");
-      }
-    }
-    return idx;
+    return archetype;
   }
-  EntityId create_entity_immediate(const EntityPrefab &prefabs_list, ecs::vector<ComponentPrefab> &&overrides_list, SizePolicy chunk_power)
+
+  EntityId create_entity_immediate(prefab_id id, ecs::vector<ComponentPrefab> &&overrides_list)
   {
-    if (prefabs_list.components.empty())
+    if (id == invalidPrefabId)
       return EntityId();
-    uint archetype = add_archetype(prefabs_list.components, chunk_power);
-    // need to validate components with async creation here.
-    // also added async creation
+    const EntityPrefab &prefab = get_prefab(id);
+    archetype_id archetype = get_archetype_id(prefab, id, get_archetype_manager());
     auto entity = get_archetype_manager().entityPool.allocate_entity();
     entity->archetype = archetype;
-    get_archetype_manager().archetypes[archetype].add_entity(entity, prefabs_list, std::move(overrides_list));
+    get_archetype_manager().archetypes[archetype].add_entity(entity, prefab, std::move(overrides_list));
     return EntityId(entity);
+  }
+
+  EntityId create_entity(prefab_id id, ecs::vector<ComponentPrefab> &&overrides_list)
+  {
+    if (id == invalidPrefabId)
+      return EntityId();
+
+    auto entity = get_archetype_manager().entityPool.allocate_entity();
+    get_archetype_manager().defferedEntityCreation.push(
+        ArchetypeManager::DefferedEntityCreation{
+            std::move(overrides_list), id, entity});
+
+    return EntityId(entity);
+  }
+
+  static void create_deffered_entities()
+  {
+    auto &mgr = get_archetype_manager();
+    for (uint i = 0, n = mgr.defferedEntityCreation.size(); i < n; i++)
+    {
+      auto &defferedEntity = mgr.defferedEntityCreation.front();
+      EntityDescription *entity = defferedEntity.entity;
+      const EntityPrefab &prefab = get_prefab(defferedEntity.prefab);
+      archetype_id archetype = get_archetype_id(prefab, defferedEntity.prefab, mgr);
+
+      entity->archetype = archetype;
+      get_archetype_manager().archetypes[archetype].add_entity(entity, prefab, std::move(defferedEntity.overrides_list));
+
+      mgr.defferedEntityCreation.pop();
+    }
   }
 
   static void destroy_entity_immediate(EntityId eid)
@@ -116,5 +142,6 @@ namespace ecs
   void update_archetype_manager()
   {
     destroy_queued_entities();
+    create_deffered_entities();
   }
 }

@@ -83,12 +83,14 @@ namespace ecs
                     type_name(overrides_list[j].typeIndex));
           continue;
         }
-        type.move(memory, overrides_list[j].raw_pointer);
+        EntityId *eid = (EntityId *)overrides_list[j].get_raw_memory();
+
+        type.move(memory, overrides_list[j].get_raw_memory());
         j++;
       }
       else
       {
-        type.copy(memory, component.raw_pointer);
+        type.copy(memory, component.get_raw_memory());
       }
     }
     entity->index = entityCount - 1;

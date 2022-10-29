@@ -552,6 +552,26 @@ namespace ska
       {
         return const_cast<sherwood_v3_table *>(this)->find(key);
       }
+
+      template <typename AsFindKey>
+      iterator find_as(const AsFindKey &key)
+      {
+        size_t index = hash_policy.index_for_hash(hash_object(key), num_slots_minus_one);
+        EntryPointer it = entries + ptrdiff_t(index);
+        for (int8_t distance = 0; it->distance_from_desired >= distance; ++distance, ++it)
+        {
+          if (compares_equal(key, it->value))
+            return {it};
+        }
+        return end();
+      }
+
+      template <typename AsFindKey>
+      const_iterator find_as(const AsFindKey &key) const
+      {
+        return const_cast<sherwood_v3_table *>(this)->find_as(key);
+      }
+
       size_t count(const FindKey &key) const
       {
         return find(key) == end() ? 0 : 1;

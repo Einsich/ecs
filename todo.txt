@@ -1,7 +1,11 @@
 
-3) ecs::create_entity (deffered)
 4) validate that we don't copy more than sizeof(float) * 4 components and not trivial copy ctor
 
 7) recreate entity - add, remove components
 8) add line showing in code_gen
 9) zero size struct optimization
+10) base events: start, entity created, on destroy
+11) scenes? 
+12) optimize allocation in events queue
+13) optimize ComponentPrefab std::any looks bad
+14) support deferred entity creation callback

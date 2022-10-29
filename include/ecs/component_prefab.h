@@ -14,30 +14,49 @@ namespace ecs
 
   struct ComponentPrefab : public ComponentDescription
   {
+    template <typename T>
+    static const void *get_raw_mem(const ecs::any &raw_component)
+    {
+      return raw_component._Cast<T>();
+    }
     ecs::any raw_component;
-    void *raw_pointer;
+    const void *(*raw_pointer_getter)(const ecs::any &);
+
+    void *get_raw_memory()
+    {
+      return const_cast<void *>(static_cast<const ComponentPrefab *>(this)->get_raw_memory());
+    }
+    const void *get_raw_memory() const
+    {
+      return raw_pointer_getter(raw_component);
+    }
 
     template <typename T, typename U>
     ComponentPrefab(const char *name, const ComponentInitializer<T, U> &prefab)
-        : ComponentDescription(name, TypeIndex<T>::value), raw_component(prefab.value), raw_pointer(get<U>())
+        : ComponentDescription(name, TypeIndex<T>::value), raw_component(prefab.value), raw_pointer_getter(get_raw_mem<U>)
     {
     }
 
     template <typename T, typename U>
     ComponentPrefab(const char *name, ComponentInitializer<T, U> &&prefab)
-        : ComponentDescription(name, TypeIndex<T>::value), raw_component(std::move(prefab.value)), raw_pointer(get<U>())
+        : ComponentDescription(name, TypeIndex<T>::value), raw_component(std::move(prefab.value)), raw_pointer_getter(get_raw_mem<U>)
     {
     }
 
     template <typename T>
     ComponentPrefab(const char *name, const T &prefab)
-        : ComponentDescription(name, TypeIndex<T>::value), raw_component(prefab), raw_pointer(get<T>())
+        : ComponentDescription(name, TypeIndex<T>::value), raw_component(prefab), raw_pointer_getter(get_raw_mem<T>)
+    {
+    }
+    template <typename T>
+    ComponentPrefab(const char *name, T &prefab)
+        : ComponentDescription(name, TypeIndex<T>::value), raw_component(prefab), raw_pointer_getter(get_raw_mem<T>)
     {
     }
 
     template <typename T>
     ComponentPrefab(const char *name, T &&prefab)
-        : ComponentDescription(name, TypeIndex<T>::value), raw_component(std::move(prefab)), raw_pointer(get<T>())
+        : ComponentDescription(name, TypeIndex<T>::value), raw_component(std::move(prefab)), raw_pointer_getter(get_raw_mem<T>)
     {
     }
     template <typename T>
@@ -50,7 +69,6 @@ namespace ecs
     {
       return raw_component._Cast<T>();
     }
-
     ~ComponentPrefab()
     {
       raw_component.~any();

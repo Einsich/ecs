@@ -41,6 +41,7 @@ namespace ecs
     const ecs::vector<ArgumentDescription> arguments;
     const ecs::vector<ComponentDescription> requiredComponents, requiredNotComponents;
     QueryCache *cache = nullptr;
+    bool noArchetype = false;
 
     QueryDescription(const char *file,
                      const char *name,
@@ -54,6 +55,7 @@ namespace ecs
           requiredNotComponents(std::move(required_not_components)),
           cache(cache)
     {
+      noArchetype = this->arguments.empty() && this->requiredComponents.empty() && this->requiredNotComponents.empty();
     }
   };
 

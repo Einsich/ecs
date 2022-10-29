@@ -159,6 +159,8 @@ namespace ecs
 
   static void update_cache(const Archetype &archetype, uint idx, const QueryDescription &desription, QueryCache &cache)
   {
+    if (desription.noArchetype)
+      return;
     for (const auto &d : desription.requiredComponents)
       if (archetype.findComponentIndex(d) == -1)
         return;
@@ -197,10 +199,11 @@ namespace ecs
       for (auto &q : e)
         update_cache(archetype, archetype_idx, *q, *q->cache);
   }
-  
 
   void update_cache(QueryDescription &desription)
   {
+    if (desription.noArchetype)
+      return;
     uint idx = 0;
     for (const Archetype &archetype : get_archetype_manager().archetypes)
     {

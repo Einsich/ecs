@@ -12,7 +12,7 @@ int main()
   extern void registration_pull_test0_es();
   registration_pull_test0_es();
 
-  ecs::EntityPrefab p("lol", {{"x", 1.f}, {"y", 2.f}, {"z", 3}});
+  ecs::prefab_id p = ecs::create_entity_prefab({"lol", {{"x", 1.f}, {"y", 2.f}, {"z", 3}}});
 
   auto eid1 = ecs::create_entity_immediate(p);
   auto eid2 = ecs::create_entity_immediate(p, {{"x", 2.f}, {"y", -2.f}});

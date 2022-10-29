@@ -24,7 +24,7 @@ namespace ecs
   };
   struct EntityId
   {
-  private:
+    // private:
     const EntityDescription *description = nullptr;
 
   public:

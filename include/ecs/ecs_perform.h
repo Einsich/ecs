@@ -47,6 +47,12 @@ namespace ecs
     constexpr auto indexes = std::make_index_sequence<N>();
     const ArchetypeManager &manager = get_archetype_manager();
 
+    if constexpr (N == 0)
+    {
+      function();
+      return;
+    }
+
     for (uint archetypeIdx = 0, archetypeN = cache.archetypes.size(); archetypeIdx < archetypeN; ++archetypeIdx)
     {
       const auto &cachedArchetype = cache.archetypes[archetypeIdx];
