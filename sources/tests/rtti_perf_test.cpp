@@ -15,10 +15,10 @@ struct Point4
   float x = 0, y = 0, z = 0, w = 0;
 };
 
-ECS_TYPE_REGISTRATION(float, "float", false, false, false, {})
-ECS_TYPE_REGISTRATION(int, "int", false, false, false, {})
-ECS_TYPE_REGISTRATION(Point4, "Point4", false, false, false, {})
-ECS_TYPE_REGISTRATION(ecs::vector<Point4>, "vector<p4>", false, false, false, {})
+ECS_TYPE_REGISTRATION(float, "float", false, false, false, {}, {})
+ECS_TYPE_REGISTRATION(int, "int", false, false, false, {}, {})
+ECS_TYPE_REGISTRATION(Point4, "Point4", false, false, false, {}, {})
+ECS_TYPE_REGISTRATION(ecs::vector<Point4>, "vector<p4>", false, false, false, {}, {})
 
 void f()
 {

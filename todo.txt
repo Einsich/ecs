@@ -8,4 +8,3 @@
 11) scenes? 
 12) optimize allocation in events queue
 13) optimize ComponentPrefab std::any looks bad
-14) support deferred entity creation callback

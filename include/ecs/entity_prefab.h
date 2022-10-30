@@ -11,6 +11,7 @@ namespace ecs
     ecs::string name;
     ecs::vector<ComponentPrefab> components;
     SizePolicy chunkPower;
+    bool requireAwaitCreation = false;
     EntityPrefab() = default;
     EntityPrefab(const char *name, ecs::vector<ComponentPrefab> &&components, SizePolicy chunk_power = SizePolicy::Hundreds);
   };

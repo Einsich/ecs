@@ -69,27 +69,33 @@ namespace ecs
     for (uint i = 0, n = prefabs.size(), m = overrides_list.size(); i < n; ++i)
     {
       const ComponentPrefab &component = prefabs[i];
+      ComponentPrefab &override = overrides_list[j];
       const auto &type = types[component.typeIndex];
       byte *memory = components[i].data[chunk] + offset * type.sizeOf;
       ECS_ASSERT(component.nameHash == components[i].description.nameHash);
-      if (j < m && overrides_list[j].nameHash == component.nameHash)
+      if (j < m && override.nameHash == component.nameHash)
       {
-        if (component.typeIndex != overrides_list[j].typeIndex)
+        if (component.typeIndex != override.typeIndex)
         {
           ECS_ERROR("prefab \"%s\" has type missmatch for component \"%s\", it's <%s> in prefab and <%s> in override\n",
                     prefabs_list.name.c_str(),
                     component.name.c_str(),
                     type_name(component.typeIndex),
-                    type_name(overrides_list[j].typeIndex));
+                    type_name(override.typeIndex));
           continue;
         }
-
-        type.move(memory, overrides_list[j].get_raw_memory());
+        if (type.awaitConstructor)
+          type.awaitConstructor.constructor(memory, override);
+        else
+          type.move(memory, override.get_raw_memory());
         j++;
       }
       else
       {
-        type.copy(memory, component.get_raw_memory());
+        if (type.awaitConstructor)
+          type.awaitConstructor.constructor(memory, component);
+        else
+          type.copy(memory, component.get_raw_memory());
       }
     }
     entity->index = entityCount - 1;

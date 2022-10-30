@@ -13,8 +13,19 @@ namespace ecs
   using DefaultConstructor = void (*)(void *);
   using CopyConstructor = void (*)(void *, const void *);
   using MoveConstructor = void (*)(void *, void *);
-  using AwaitConstructor = bool (*)(void *, const ComponentPrefab &);
   using Destructor = void (*)(void *);
+  struct AwaitConstructor
+  {
+    using Awaiter = bool (*)(const ComponentPrefab &);
+    using Constructor = void (*)(void *, const ComponentPrefab &);
+    const Awaiter awaiter = nullptr;
+    const Constructor constructor = nullptr;
+
+    operator bool() const
+    {
+      return awaiter && constructor;
+    }
+  };
 
   struct TypeAnnotation
   {
@@ -22,7 +33,7 @@ namespace ecs
     const uint sizeOf;
     const CopyConstructor copyConstructor = nullptr;
     const MoveConstructor moveConstructor = nullptr;
-    const AwaitConstructor awaitConstructor = nullptr;
+    const AwaitConstructor awaitConstructor;
     const Destructor destructor = nullptr;
     const UserFunctions userFunctions;
 

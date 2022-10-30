@@ -15,10 +15,21 @@ namespace ecs
     struct DefferedEntityCreation
     {
       ecs::vector<ComponentPrefab> overrides_list;
-      prefab_id prefab;
+      prefab_id prefabId;
       EntityDescription *entity;
     };
+    struct AwaitEntityCreation : public DefferedEntityCreation
+    {
+      struct AwaitPrefab
+      {
+        uint idx = -1;
+        bool inPrefab = true;
+      };
+      ecs::vector<AwaitPrefab> awaitCache;
+      bool ready() const;
+    };
     ecs::queue<DefferedEntityCreation> defferedEntityCreation;
+    ecs::vector<AwaitEntityCreation> awaitEntityCreation;
 
     void clear_prefab_cache()
     {

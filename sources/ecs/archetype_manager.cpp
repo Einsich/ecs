@@ -1,5 +1,6 @@
 #include <ecs/archetype_manager.h>
 #include <ecs/query_manager.h>
+#include <ecs/type_annotation.h>
 
 namespace ecs
 {
@@ -63,22 +64,84 @@ namespace ecs
     if (id == invalidPrefabId)
       return EntityId();
     const EntityPrefab &prefab = get_prefab(id);
-    archetype_id archetype = get_archetype_id(prefab, id, get_archetype_manager());
-    auto entity = get_archetype_manager().entityPool.allocate_entity();
+    if (prefab.requireAwaitCreation)
+    {
+      ECS_ERROR("prefab %s requier await creation, use create_entity, instead create_entity_immediate", prefab.name.c_str());
+      return EntityId();
+    }
+    auto &mgr = get_archetype_manager();
+    archetype_id archetype = get_archetype_id(prefab, id, mgr);
+    auto entity = mgr.entityPool.allocate_entity();
     entity->archetype = archetype;
-    get_archetype_manager().archetypes[archetype].add_entity(entity, prefab, std::move(overrides_list));
+    sort_prefabs_by_names(overrides_list);
+    mgr.archetypes[archetype].add_entity(entity, prefab, std::move(overrides_list));
     return EntityId(entity);
+  }
+
+  using AwaitPrefab = ArchetypeManager::AwaitEntityCreation::AwaitPrefab;
+  static ecs::vector<AwaitPrefab> get_cache(
+      const ecs::vector<ComponentPrefab> &prefabs,
+      const ecs::vector<ComponentPrefab> &overrides)
+  {
+    const auto &types = get_all_registered_types();
+    ecs::vector<AwaitPrefab> cache;
+    for (uint i = 0, j = 0, n = prefabs.size(), m = overrides.size(); i < n; ++i)
+    {
+      const ComponentPrefab &component = prefabs[i];
+      uint k = i;
+      bool inPrefab = true;
+      if (j < m && overrides[j].nameHash == component.nameHash)
+      {
+        // ECS_ASSERT(component.typeIndex == overrides[j].typeIndex);
+        k = j;
+        inPrefab = false;
+        j++;
+      }
+      if (types[component.typeIndex].awaitConstructor)
+        cache.emplace_back(AwaitPrefab{k, inPrefab});
+    }
+    return cache;
+  }
+
+  bool ArchetypeManager::AwaitEntityCreation::ready() const
+  {
+    const auto &types = get_all_registered_types();
+    const EntityPrefab &prefab = get_prefab(prefabId);
+    for (const AwaitPrefab &awaitComp : awaitCache)
+    {
+      const auto &component = awaitComp.inPrefab ? prefab.components[awaitComp.idx] : overrides_list[awaitComp.idx];
+      if (!types[component.typeIndex].awaitConstructor.awaiter(component))
+        return false;
+    }
+    return true;
   }
 
   EntityId create_entity(prefab_id id, ecs::vector<ComponentPrefab> &&overrides_list)
   {
     if (id == invalidPrefabId)
       return EntityId();
+    auto &mgr = get_archetype_manager();
+    const EntityPrefab &prefab = get_prefab(id);
 
-    auto entity = get_archetype_manager().entityPool.allocate_entity();
-    get_archetype_manager().defferedEntityCreation.push(
-        ArchetypeManager::DefferedEntityCreation{
-            std::move(overrides_list), id, entity});
+    auto entity = mgr.entityPool.allocate_entity();
+    sort_prefabs_by_names(overrides_list);
+    if (!prefab.requireAwaitCreation)
+    {
+      mgr.defferedEntityCreation.push(
+          ArchetypeManager::DefferedEntityCreation{
+              std::move(overrides_list), id, entity});
+    }
+    else
+    {
+      ecs::vector<AwaitPrefab> awaitPrefabs = get_cache(prefab.components, overrides_list);
+
+      mgr.awaitEntityCreation.emplace_back(
+          ArchetypeManager::AwaitEntityCreation{
+              {std::move(overrides_list),
+               id,
+               entity},
+              std::move(awaitPrefabs)});
+    }
 
     return EntityId(entity);
   }
@@ -90,34 +153,70 @@ namespace ecs
     {
       auto &defferedEntity = mgr.defferedEntityCreation.front();
       EntityDescription *entity = defferedEntity.entity;
-      const EntityPrefab &prefab = get_prefab(defferedEntity.prefab);
-      archetype_id archetype = get_archetype_id(prefab, defferedEntity.prefab, mgr);
+      const EntityPrefab &prefab = get_prefab(defferedEntity.prefabId);
+      archetype_id archetype = get_archetype_id(prefab, defferedEntity.prefabId, mgr);
 
       entity->archetype = archetype;
-      get_archetype_manager().archetypes[archetype].add_entity(entity, prefab, std::move(defferedEntity.overrides_list));
+      mgr.archetypes[archetype].add_entity(entity, prefab, std::move(defferedEntity.overrides_list));
 
       mgr.defferedEntityCreation.pop();
+    }
+
+    for (uint i = 0, n = mgr.awaitEntityCreation.size(); i < n; i++)
+    {
+      auto &awaitedEntity = mgr.awaitEntityCreation[i];
+      if (!awaitedEntity.ready())
+        continue;
+
+      EntityDescription *entity = awaitedEntity.entity;
+      const EntityPrefab &prefab = get_prefab(awaitedEntity.prefabId);
+      archetype_id archetype = get_archetype_id(prefab, awaitedEntity.prefabId, mgr);
+
+      entity->archetype = archetype;
+      mgr.archetypes[archetype].add_entity(entity, prefab, std::move(awaitedEntity.overrides_list));
+
+      awaitedEntity.entity = nullptr; // mark awaitEntity dirty;
+    }
+    if (!mgr.awaitEntityCreation.empty())
+    {
+      int i = 0;
+      int j = mgr.awaitEntityCreation.size() - 1;
+      for (i = 0; i <= j; i++)
+      {
+        if (!mgr.awaitEntityCreation[i].entity)
+        {
+          while (j >= 0 && !mgr.awaitEntityCreation[j].entity)
+            j--;
+          if (j < 0 || j <= i)
+            break;
+          std::swap(mgr.awaitEntityCreation[i], mgr.awaitEntityCreation[j]);
+          j--;
+        }
+      }
+      mgr.awaitEntityCreation.resize(j + 1);
     }
   }
 
   static void destroy_entity_immediate(EntityId eid)
   {
+    auto &mgr = get_archetype_manager();
     uint archetype, index;
     EntityState state;
     if (eid.get_info(archetype, index, state) && (state == EntityState::CreatedAndInited || state == EntityState::InDestroyQueue))
     {
-      get_archetype_manager().archetypes[archetype].destroy_entity(index);
-      get_archetype_manager().entityPool.deallocate_entity(eid);
+      mgr.archetypes[archetype].destroy_entity(index);
+      mgr.entityPool.deallocate_entity(eid);
     }
   }
 
   void destroy_entity(EntityId eid)
   {
+    auto &mgr = get_archetype_manager();
     uint archetype, index;
     EntityState state;
     if (eid.get_info(archetype, index, state) || state == EntityState::CreatedNotInited)
     {
-      get_archetype_manager().entityPool.add_entity_to_destroy_queue(eid);
+      mgr.entityPool.add_entity_to_destroy_queue(eid);
     }
     // may be need to destroy immediate if entity not inited yet
     // if (state == EntityState::CreatedNotInited)
@@ -126,7 +225,8 @@ namespace ecs
 
   static void destroy_queued_entities()
   {
-    auto &destroyQueue = get_archetype_manager().entityPool.entitiesToDestroy;
+    auto &mgr = get_archetype_manager();
+    auto &destroyQueue = mgr.entityPool.entitiesToDestroy;
     for (uint i = 0, n = destroyQueue.size(); i < n; i++)
     {
       EntityId eid = destroyQueue.front();
@@ -137,8 +237,20 @@ namespace ecs
 
   void destroy_all_entities()
   {
-    for (auto &archetype : get_archetype_manager().archetypes)
-      archetype.destroy_all_entities(get_archetype_manager().entityPool);
+    auto &mgr = get_archetype_manager();
+    for (auto &archetype : mgr.archetypes)
+      archetype.destroy_all_entities(mgr.entityPool);
+
+    while (!mgr.defferedEntityCreation.empty())
+    {
+      mgr.entityPool.deallocate_entity(mgr.defferedEntityCreation.front().entity);
+      mgr.defferedEntityCreation.pop();
+    }
+    for (auto &awaitEntity : mgr.awaitEntityCreation)
+    {
+      mgr.entityPool.deallocate_entity(awaitEntity.entity);
+    }
+    mgr.awaitEntityCreation.clear();
   }
 
   void update_archetype_manager()

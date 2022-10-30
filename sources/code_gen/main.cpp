@@ -476,7 +476,7 @@ void fill_requared_arguments(std::ofstream &outFile, const std::vector<ParserFun
           arg.type.c_str(),
           i + 1 == (uint)args.size() ? "" : ",");
   }
-  write(outFile, "},\n");
+  write(outFile, "  },\n");
 }
 
 static void fill_string_array(std::ofstream &outFile, const std::vector<std::string> &args)

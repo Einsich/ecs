@@ -8,6 +8,13 @@ namespace ecs
   EntityPrefab::EntityPrefab(const char *name, ecs::vector<ComponentPrefab> &&components_, SizePolicy chunk_power)
       : name(name), components(std::move(components_)), chunkPower(chunk_power)
   {
+    const auto &types = get_all_registered_types();
+    for (const auto &comp : components)
+      if (types[comp.typeIndex].awaitConstructor)
+      {
+        requireAwaitCreation = true;
+        break;
+      }
     static ComponentPrefab entityIdPrefab = ComponentPrefab("eid", EntityId());
     components.push_back(entityIdPrefab);
     sort_prefabs_by_names(components);

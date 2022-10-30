@@ -4,7 +4,7 @@
 template <typename C>
 static void test_single_query(ecs::EntityId eid, C c);
 
-static void print(ecs::EntityId eid)
+void print(ecs::EntityId eid)
 {
   ecs::uint a, i;
   ecs::EntityState s;
@@ -55,6 +55,7 @@ static void iterate_linked_list(ecs::EntityId head)
 SYSTEM()
 no_arguments()
 {
+  return;
   static bool firstTime = true;
   static ecs::EntityId tail;
   if (firstTime)
