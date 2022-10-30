@@ -22,6 +22,7 @@ namespace ecs
   template <typename E>
   std::enable_if_t<std::is_base_of_v<ecs::Event, E>, void> send_event_immediate(const E &event)
   {
+    // TODO add explanation
     ECS_ASSERT_RETURN(EventIndex<E>::value != -1, );
     get_query_manager().send_event_immediate(event, EventIndex<E>::value);
   }
@@ -29,6 +30,7 @@ namespace ecs
   template <typename E>
   std::enable_if_t<std::is_base_of_v<ecs::Event, E>, void> send_event_immediate(ecs::EntityId eid, const E &event)
   {
+    // TODO add explanation
     ECS_ASSERT_RETURN(EventIndex<E>::value != -1, );
     get_query_manager().send_event_immediate(eid, event, EventIndex<E>::value);
   }

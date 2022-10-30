@@ -22,6 +22,11 @@ namespace ecs
   }
   void register_event(EventDescription &&event, event_t event_id)
   {
+    if (event_id == -1u)
+    {
+      ECS_ERROR("event handler %s use unregistered event", event.name.c_str());
+      return;
+    }
     if (event_id >= query_manager.events.size())
       query_manager.events.resize(event_id + 1);
 
@@ -30,6 +35,11 @@ namespace ecs
   }
   void register_request(RequestDescription &&request, request_t request_id)
   {
+    if (request_id == -1u)
+    {
+      ECS_ERROR("request handler %s use unregistered request", request.name.c_str());
+      return;
+    }
     if (request_id >= query_manager.requests.size())
       query_manager.requests.resize(request_id + 1);
 

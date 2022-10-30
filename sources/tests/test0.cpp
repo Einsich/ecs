@@ -2,6 +2,7 @@
 #include <ecs/ecs.h>
 #include "test0.h"
 
+ECS_EVENT_REGISTRATION(PrepareTest, "PrepareTest", true)
 ECS_EVENT_REGISTRATION(MyEvent, "MyEvent", true)
 ECS_REQUEST_REGISTRATION(MyRequest, "MyRequest")
 
@@ -12,6 +13,9 @@ int main()
   extern void registration_pull_test0_es();
   registration_pull_test0_es();
 
+  extern void registration_pull_await_contruction_test();
+  registration_pull_await_contruction_test();
+
   ecs::prefab_id p = ecs::create_entity_prefab({"lol", {{"x", 1.f}, {"y", 2.f}, {"z", 3}}});
 
   auto eid1 = ecs::create_entity_immediate(p);
@@ -20,6 +24,7 @@ int main()
   auto eid4 = ecs::create_entity_immediate(p, {{"x", 4.f}, {"x", -4.f}});
 
   ecs::update_query_manager();
+  ecs::send_event_immediate(PrepareTest());
   ecs::perform_systems();
 
   ecs::destroy_entity(eid3);
@@ -36,23 +41,6 @@ int main()
   ecs::destroy_all_entities();
   return 0;
 }
-
-struct A
-{
-};
-
-struct B
-{
-  char b;
-};
-struct C
-{
-  int c;
-};
-
-static_assert(ecs::is_zero_sizeof<A> == true);
-static_assert(ecs::is_zero_sizeof<B> == false);
-static_assert(ecs::is_zero_sizeof<C> == false);
 
 void events_testing()
 {

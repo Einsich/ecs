@@ -20,31 +20,6 @@ ECS_TYPE_REGISTRATION(int, "int", false, false, false, {})
 ECS_TYPE_REGISTRATION(Point4, "Point4", false, false, false, {})
 ECS_TYPE_REGISTRATION(ecs::vector<Point4>, "vector<p4>", false, false, false, {})
 
-struct ResourceRequest
-{
-  const char *name;
-};
-
-class ResourceAcquirer
-{
-public:
-  ResourceAcquirer(const char *name)
-  {
-  }
-  bool await_constructor(void *raw_memory, const ecs::ComponentPrefab &prefab)
-  {
-
-    auto name = prefab.get<ResourceRequest>()->name;
-    if (name == nullptr)
-      return false;
-    printf("%s\n", name);
-
-    new (raw_memory) ResourceAcquirer(name);
-    return true;
-  }
-};
-ECS_TYPE_REGISTRATION(ResourceAcquirer, "ResourceAcquirer", false, false, false, {})
-
 void f()
 {
 
@@ -91,8 +66,6 @@ void f()
     }
   }
 
-  ecs::vector<ecs::ComponentPrefab> q =
-      {{"aa", 10}, {"bb", 1.f}, {"resource", ecs::ComponentInitializer<ResourceAcquirer, ResourceRequest>({"nana"})}};
   printf("))) ");
   std::cout << std::endl;
 }

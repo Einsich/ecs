@@ -333,7 +333,7 @@ static void declare_caches(std::ofstream &outFile, const std::vector<ParserSyste
 {
   for (auto &query : descr)
   {
-    outFile << "ecs::QueryCache " << query.sys_name << "__cache__;\n\n";
+    outFile << "static ecs::QueryCache " << query.sys_name << "__cache__;\n\n";
   }
 }
 

@@ -83,7 +83,6 @@ namespace ecs
                     type_name(overrides_list[j].typeIndex));
           continue;
         }
-        EntityId *eid = (EntityId *)overrides_list[j].get_raw_memory();
 
         type.move(memory, overrides_list[j].get_raw_memory());
         j++;

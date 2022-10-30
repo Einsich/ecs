@@ -1,5 +1,9 @@
 #pragma once
 
+struct PrepareTest : ecs::Event
+{
+};
+
 struct MyEvent : ecs::Event
 {
   int x;

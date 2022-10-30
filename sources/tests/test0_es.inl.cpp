@@ -2,19 +2,19 @@
 #include <ecs/ecs_perform.h>
 //Code-generator production
 
-ecs::QueryCache test_single_query__cache__;
+static ecs::QueryCache test_single_query__cache__;
 
-ecs::QueryCache get_next_node__cache__;
+static ecs::QueryCache get_next_node__cache__;
 
-ecs::QueryCache test__cache__;
+static ecs::QueryCache test__cache__;
 
-ecs::QueryCache no_arguments__cache__;
+static ecs::QueryCache no_arguments__cache__;
 
-ecs::QueryCache test_deffered_creation__cache__;
+static ecs::QueryCache test_deffered_creation__cache__;
 
-ecs::QueryCache test_event__cache__;
+static ecs::QueryCache test_event__cache__;
 
-ecs::QueryCache test_request__cache__;
+static ecs::QueryCache test_request__cache__;
 
 template<typename Callable>
 static void test_single_query(ecs::EntityId eid, Callable lambda)

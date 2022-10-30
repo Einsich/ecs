@@ -14,8 +14,10 @@ namespace ecs
         continue;
       for (uint i = 0, n = descriptions.size(); i < n; i++)
         if (!archetype.components[i].description.fastCompare(descriptions[i]))
-          continue;
+          goto next_iteration;
       return result - 1;
+    next_iteration:
+      continue;
     }
     return -1;
   }
