@@ -13,27 +13,19 @@ namespace ecs
   using DefaultConstructor = void (*)(void *);
   using CopyConstructor = void (*)(void *, const void *);
   using MoveConstructor = void (*)(void *, void *);
-  using SpecialConstructor = void (*)(void *, const ComponentPrefab &);
+  using AwaitConstructor = bool (*)(void *, const ComponentPrefab &);
   using Destructor = void (*)(void *);
 
   struct TypeAnnotation
   {
     const ecs::string name;
     const uint sizeOf;
-    const DefaultConstructor defaultConstructor = nullptr;
     const CopyConstructor copyConstructor = nullptr;
     const MoveConstructor moveConstructor = nullptr;
-    const SpecialConstructor specialConstructor = nullptr;
+    const AwaitConstructor awaitConstructor = nullptr;
     const Destructor destructor = nullptr;
     const UserFunctions userFunctions;
 
-    void ECS_INLINE construct(void *data) const
-    {
-      if (defaultConstructor)
-        defaultConstructor(data);
-      else
-        memset(data, 0, sizeOf);
-    }
     void ECS_INLINE copy(void *dst, const void *src) const
     {
       if (copyConstructor)

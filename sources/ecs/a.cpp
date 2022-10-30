@@ -15,10 +15,10 @@ struct Point4
   float x = 0, y = 0, z = 0, w = 0;
 };
 
-ECS_TYPE_REGISTRATION(float, "float", false, false, false, false, false, {})
-ECS_TYPE_REGISTRATION(int, "int", false, false, false, false, false, {})
-ECS_TYPE_REGISTRATION(Point4, "Point4", false, false, false, false, false, {})
-ECS_TYPE_REGISTRATION(ecs::vector<Point4>, "vector<p4>", false, false, false, false, false, {})
+ECS_TYPE_REGISTRATION(float, "float", false, false, false, {})
+ECS_TYPE_REGISTRATION(int, "int", false, false, false, {})
+ECS_TYPE_REGISTRATION(Point4, "Point4", false, false, false, {})
+ECS_TYPE_REGISTRATION(ecs::vector<Point4>, "vector<p4>", false, false, false, {})
 
 struct ResourceRequest
 {
@@ -28,14 +28,22 @@ struct ResourceRequest
 class ResourceAcquirer
 {
 public:
-  ResourceAcquirer() = default;
-  ResourceAcquirer(const ecs::ComponentPrefab &prefab)
+  ResourceAcquirer(const char *name)
   {
+  }
+  bool await_constructor(void *raw_memory, const ecs::ComponentPrefab &prefab)
+  {
+
     auto name = prefab.get<ResourceRequest>()->name;
+    if (name == nullptr)
+      return false;
     printf("%s\n", name);
+
+    new (raw_memory) ResourceAcquirer(name);
+    return true;
   }
 };
-ECS_TYPE_REGISTRATION(ResourceAcquirer, "ResourceAcquirer", false, false, false, false, true, {})
+ECS_TYPE_REGISTRATION(ResourceAcquirer, "ResourceAcquirer", false, false, false, {})
 
 void f()
 {
@@ -50,16 +58,7 @@ void f()
   Point4 *y = new Point4[N];
   ecs::vector<Point4> *v = new ecs::vector<Point4>[N];
   ecs::vector<Point4> *w = new ecs::vector<Point4>[N];
-  {
-    TimeProfile a("default constuctor");
-    for (int i = 0; i < N; i++)
-      p4Annotation.defaultConstructor(x + i);
-  }
-  {
-    TimeProfile a("memset");
-    for (int i = 0; i < N; i++)
-      memset(y + i, 0, sizeof(Point4));
-  }
+
   {
     TimeProfile a("copy constuctor");
     for (int i = 0; i < N; i++)
