@@ -43,6 +43,8 @@ namespace ecs
     QueryCache *cache = nullptr;
     bool noArchetype = false;
 
+    void validate() const;
+
     QueryDescription(const char *file,
                      const char *name,
                      QueryCache *cache,
@@ -56,6 +58,7 @@ namespace ecs
           cache(cache)
     {
       noArchetype = this->arguments.empty() && this->requiredComponents.empty() && this->requiredNotComponents.empty();
+      validate();
     }
   };
 

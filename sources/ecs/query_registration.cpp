@@ -1,7 +1,30 @@
 #include <ecs/query_manager.h>
+#include <ecs/type_annotation.h>
 
 namespace ecs
 {
+
+  void QueryDescription::validate() const
+  {
+    const auto &types = get_all_registered_types();
+    for (const ArgumentDescription &descr : arguments)
+    {
+      const auto &type = types[descr.typeIndex];
+      if (descr.accessType == AccessType::Copy)
+      {
+        if (type.copyConstructor != nullptr)
+        {
+          ECS_ERROR("%s in %s copy component %s %s with not trivial copy ctor\n",
+                    file.c_str(), name.c_str(), type.name.c_str(), descr.name.c_str());
+        }
+        else if (type.sizeOf > sizeof(float) * 4)
+        {
+          ECS_ERROR("%s in %s copy component %s %s with big sizeof == %d\n",
+                    file.c_str(), name.c_str(), type.name.c_str(), descr.name.c_str(), type.sizeOf);
+        }
+      }
+    }
+  }
   static QueryManager query_manager;
 
   QueryManager &get_query_manager()

@@ -36,7 +36,7 @@ int main()
 
   // void events_requests_testing();
   // events_requests_testing();
-  // f();
+  f();
   ecs::destroy_all_entities();
   return 0;
 }

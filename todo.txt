@@ -1,5 +1,4 @@
 1) optimize structs creation - pass args instead rvalue
-4) validate that we don't copy more than sizeof(float) * 4 components and not trivial copy ctor
 
 7) recreate entity - add, remove components
 8) add line showing in code_gen
