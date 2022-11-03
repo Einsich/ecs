@@ -105,12 +105,27 @@ static void iterate_linked_list(ecs::EntityId head, int idx)
                 });
 }
 
-SYSTEM(require = ecs::EntityId nextEid, int value)
-test_awaited_creation(int value, ecs::EntityId eid)
+EVENT(require = ecs::EntityId nextEid, int value)
+test_awaited_creation(const ecs::OnEntityCreated &, int value, ecs::EntityId eid)
 {
   if (value != 5)
+  {
+    ecs::destroy_entity(eid);
     return;
+  }
   printf("[[\n");
   iterate_linked_list(eid, 0);
   printf("]]\n");
+}
+
+EVENT(require = ecs::EntityId nextEid)
+test_awaited_delete(const ecs::OnEntityDestoyed &, int value)
+{
+  printf("OnEntityDestoyed %d \n", value);
+}
+
+EVENT(require = ecs::EntityId nextEid)
+test_awaited_terminate(const ecs::OnEntityTerminated &, int value)
+{
+  printf("OnEntityTerminated %d \n", value);
 }

@@ -4,6 +4,7 @@
 #include <ecs/chunk_policy.h>
 #include <ecs/entity_prefab.h>
 #include <ecs/query_manager.h>
+#include <ecs/base_events.h>
 
 namespace ecs
 {

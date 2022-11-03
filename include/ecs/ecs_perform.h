@@ -95,13 +95,14 @@ namespace ecs
   }
 
   template <typename... Args, typename Callable>
-  void __forceinline perform_query(const QueryCache &cache, EntityId eid, Callable function)
+  void __forceinline perform_query(const QueryCache &cache, EntityId eid, Callable function, bool acceptDestoyQueue = false)
   {
     constexpr uint N = sizeof...(Args);
     constexpr auto indexes = std::make_index_sequence<N>();
     uint archetypeIdx, index;
     EntityState state;
-    if (eid.get_info(archetypeIdx, index, state) && state == EntityState::CreatedAndInited)
+    if (eid.get_info(archetypeIdx, index, state) &&
+        (state == EntityState::CreatedAndInited || (acceptDestoyQueue && state == EntityState::InDestroyQueue)))
     {
       auto it = std::find_if(cache.archetypes.begin(), cache.archetypes.end(),
                              [archetypeIdx](const QueryCache::CachedArchetype &cashed_archetype)
@@ -124,14 +125,20 @@ namespace ecs
   template <typename E, typename Event, typename... Args>
   void perform_event(EntityId eid, const E &event, const QueryCache &cache, void (*function)(Event, Args...))
   {
-    perform_query<Args...>(cache, eid, [&](Args... args)
-                           { function(event, args...); });
+    constexpr bool isDestroyEvent =
+        std::is_same_v<E, ecs::OnEntityDestoyed> || std::is_same_v<E, ecs::OnEntityTerminated>;
+    perform_query<Args...>(
+        cache, eid, [&](Args... args)
+        { function(event, args...); },
+        isDestroyEvent);
   }
 
   template <typename R, typename Request, typename... Args>
   void __forceinline perform_request(EntityId eid, R &request, const QueryCache &cache, void (*function)(Request, Args...))
   {
-    perform_query<Args...>(cache, eid, [&](Args... args)
-                           { function(request, args...); });
+    perform_query<Args...>(
+        cache, eid, [&](Args... args)
+        { function(request, args...); },
+        false);
   }
 } // namespace ecs

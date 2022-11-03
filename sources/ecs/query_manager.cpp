@@ -214,6 +214,8 @@ namespace ecs
 
   void QueryManager::send_event_immediate(const ecs::Event &event, event_t event_id) const
   {
+    if (activeEvents.size() <= event_id)
+      return;
     for (const EventDescription *descr : activeEvents[event_id])
     {
       descr->broadcastEventHandler(event);
@@ -222,6 +224,8 @@ namespace ecs
 
   void QueryManager::send_event_immediate(EntityId eid, const ecs::Event &event, event_t event_id) const
   {
+    if (activeEvents.size() <= event_id)
+      return;
     for (const EventDescription *descr : activeEvents[event_id])
     {
       descr->unicastEventHandler(eid, event);
@@ -229,6 +233,8 @@ namespace ecs
   }
   void QueryManager::send_request(ecs::Request &request, request_t request_id) const
   {
+    if (activeRequests.size() <= request_id)
+      return;
 
     for (const RequestDescription *descr : activeRequests[request_id])
     {
@@ -237,7 +243,8 @@ namespace ecs
   }
   void QueryManager::send_request(EntityId eid, ecs::Request &request, request_t request_id) const
   {
-
+    if (activeRequests.size() <= request_id)
+      return;
     for (const RequestDescription *descr : activeRequests[request_id])
     {
       descr->unicastRequestHandler(eid, request);

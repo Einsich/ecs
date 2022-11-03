@@ -1,7 +1,7 @@
 #include <ecs/archetype_manager.h>
 #include <ecs/query_manager.h>
 #include <ecs/type_annotation.h>
-
+#include <ecs/base_events.h>
 namespace ecs
 {
   template <typename Description>
@@ -59,6 +59,16 @@ namespace ecs
     return archetype;
   }
 
+  static void create_entity(
+      Archetype &archetype,
+      EntityDescription *entity,
+      const EntityPrefab &prefab,
+      ecs::vector<ComponentPrefab> &&overrides_list)
+  {
+    archetype.add_entity(entity, prefab, std::move(overrides_list));
+    get_query_manager().send_event_immediate(entity, ecs::OnEntityCreated(), ecs::EventIndex<ecs::OnEntityCreated>::value);
+  }
+
   EntityId create_entity_immediate(prefab_id id, ecs::vector<ComponentPrefab> &&overrides_list)
   {
     if (id == invalidPrefabId)
@@ -74,7 +84,7 @@ namespace ecs
     auto entity = mgr.entityPool.allocate_entity();
     entity->archetype = archetype;
     sort_prefabs_by_names(overrides_list);
-    mgr.archetypes[archetype].add_entity(entity, prefab, std::move(overrides_list));
+    create_entity(mgr.archetypes[archetype], entity, prefab, std::move(overrides_list));
     return EntityId(entity);
   }
 
@@ -157,7 +167,7 @@ namespace ecs
       archetype_id archetype = get_archetype_id(prefab, defferedEntity.prefabId, mgr);
 
       entity->archetype = archetype;
-      mgr.archetypes[archetype].add_entity(entity, prefab, std::move(defferedEntity.overrides_list));
+      create_entity(mgr.archetypes[archetype], entity, prefab, std::move(defferedEntity.overrides_list));
 
       mgr.defferedEntityCreation.pop();
     }
@@ -173,11 +183,11 @@ namespace ecs
       archetype_id archetype = get_archetype_id(prefab, awaitedEntity.prefabId, mgr);
 
       entity->archetype = archetype;
-      mgr.archetypes[archetype].add_entity(entity, prefab, std::move(awaitedEntity.overrides_list));
+      create_entity(mgr.archetypes[archetype], entity, prefab, std::move(awaitedEntity.overrides_list));
 
       awaitedEntity.entity = nullptr; // mark awaitEntity dirty;
     }
-    if (!mgr.awaitEntityCreation.empty())
+    if (!mgr.awaitEntityCreation.empty()) // This algorithm can have bugs!!!
     {
       int i = 0;
       int j = mgr.awaitEntityCreation.size() - 1;
@@ -204,6 +214,8 @@ namespace ecs
     EntityState state;
     if (eid.get_info(archetype, index, state) && (state == EntityState::CreatedAndInited || state == EntityState::InDestroyQueue))
     {
+      get_query_manager().send_event_immediate(eid, ecs::OnEntityDestoyed(), ecs::EventIndex<ecs::OnEntityDestoyed>::value);
+      get_query_manager().send_event_immediate(eid, ecs::OnEntityTerminated(), ecs::EventIndex<ecs::OnEntityTerminated>::value);
       mgr.archetypes[archetype].destroy_entity(index);
       mgr.entityPool.deallocate_entity(eid);
     }
@@ -237,7 +249,12 @@ namespace ecs
 
   void destroy_all_entities()
   {
+    destroy_queued_entities();
     auto &mgr = get_archetype_manager();
+    auto &qMgr = get_query_manager();
+    mgr.entityPool.for_each(ecs::EntityState::CreatedAndInited, [&](ecs::EntityDescription &entity)
+                            { qMgr.send_event_immediate(&entity, ecs::OnEntityTerminated(), ecs::EventIndex<ecs::OnEntityTerminated>::value); });
+
     for (auto &archetype : mgr.archetypes)
       archetype.destroy_all_entities(mgr.entityPool);
 

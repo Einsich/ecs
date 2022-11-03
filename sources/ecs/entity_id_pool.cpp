@@ -4,18 +4,10 @@ namespace ecs
 {
   EntityPool::~EntityPool()
   {
-    uint last = used;
-
+    for_each<true>(EntityState::Destoyed, [](EntityDescription &)
+                   { ECS_ASSERT(0); });
     for (auto batch : entities)
-    {
-      for (uint i = 0, n = std::min(entityBinSize, last); i < n; i++)
-      {
-        ECS_ASSERT(batch[i].state == EntityState::Destoyed);
-      }
-      last -= entityBinSize;
-
       delete[] batch;
-    }
   }
 
   void EntityPool::allocate_more_entity()

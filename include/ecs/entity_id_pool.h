@@ -32,5 +32,20 @@ namespace ecs
     void deallocate_entity(EntityId eid);
 
     void add_entity_to_destroy_queue(EntityId eid);
+
+    template <bool invert_filter = false, typename Callable>
+    void for_each(EntityState filter, Callable callback)
+    {
+      uint last = used;
+      for (auto batch : entities)
+      {
+        for (uint i = 0, n = std::min(entityBinSize, last); i < n; i++)
+        {
+          if ((batch[i].state == filter) ^ invert_filter)
+            callback(batch[i]);
+        }
+        last -= entityBinSize;
+      }
+    }
   };
 }
