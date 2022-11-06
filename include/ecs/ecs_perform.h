@@ -49,8 +49,11 @@ namespace ecs
 
     if constexpr (N == 0)
     {
-      function();
-      return;
+      if (cache.noArchetype)
+      {
+        function();
+        return;
+      }
     }
 
     for (uint archetypeIdx = 0, archetypeN = cache.archetypes.size(); archetypeIdx < archetypeN; ++archetypeIdx)

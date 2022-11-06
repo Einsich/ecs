@@ -33,6 +33,7 @@ namespace ecs
       uint archetypeIndex;
     };
     ecs::vector<CachedArchetype> archetypes;
+    bool noArchetype = false;
   };
 
   struct QueryDescription
@@ -58,6 +59,7 @@ namespace ecs
           cache(cache)
     {
       noArchetype = this->arguments.empty() && this->requiredComponents.empty() && this->requiredNotComponents.empty();
+      cache->noArchetype = noArchetype;
       validate();
     }
   };
