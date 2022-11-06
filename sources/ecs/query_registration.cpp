@@ -72,6 +72,28 @@ namespace ecs
     query_manager.requestsInvalidated = true;
   }
 
+  struct SystemRegistrationList
+  {
+    ecs::vector<void (*)()> registration;
+  };
+
+  static SystemRegistrationList &get_registration_list()
+  {
+    static SystemRegistrationList systemREgistrationList;
+    return systemREgistrationList;
+  }
+
+  void file_registration(void (*pull_function)())
+  {
+    get_registration_list().registration.push_back(pull_function);
+  }
+
+  void register_all_pulled_files()
+  {
+    for (auto pull : get_registration_list().registration)
+      pull();
+  }
+
   static ecs::QueryCache stubCache;
   static void sync_point_stub()
   {

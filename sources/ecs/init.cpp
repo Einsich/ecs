@@ -12,5 +12,8 @@ namespace ecs
     register_event<ecs::OnEntityTerminated>("OnEntityTerminated", true);
     register_event<ecs::OnSceneCreated>("OnSceneCreated", true);
     register_event<ecs::OnSceneTerminated>("OnSceneTerminated", true);
+
+    extern void register_all_pulled_files();
+    register_all_pulled_files();
   }
 }

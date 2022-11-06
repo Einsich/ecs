@@ -58,7 +58,7 @@ static void test_awaited_terminate_single_handler(ecs::EntityId eid, const ecs::
   ecs::perform_event(eid, reinterpret_cast<const ecs::OnEntityTerminated &>(event), test_awaited_terminate__cache__, test_awaited_terminate);
 }
 
-void registration_pull_await_contruction_test()
+static void registration_pull_await_contruction_test()
 {
   ecs::register_query(ecs::QueryDescription(
   "",
@@ -96,7 +96,7 @@ void registration_pull_await_contruction_test()
   {
     {"nextEid", ecs::TypeIndex<ecs::EntityId>::value},
     {"value", ecs::TypeIndex<int>::value}
-},
+  },
   {},
   {},
   {},
@@ -113,7 +113,7 @@ void registration_pull_await_contruction_test()
   },
   {
     {"nextEid", ecs::TypeIndex<ecs::EntityId>::value}
-},
+  },
   {},
   {},
   {},
@@ -130,7 +130,7 @@ void registration_pull_await_contruction_test()
   },
   {
     {"nextEid", ecs::TypeIndex<ecs::EntityId>::value}
-},
+  },
   {},
   {},
   {},
@@ -139,3 +139,4 @@ void registration_pull_await_contruction_test()
   ecs::EventIndex<ecs::OnEntityTerminated>::value);
 
 }
+ECS_FILE_REGISTRATION(&registration_pull_await_contruction_test)

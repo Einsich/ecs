@@ -148,4 +148,16 @@ namespace ecs
   void register_system(SystemDescription &&system);
   void register_event(EventDescription &&event, event_t event_id);
   void register_request(RequestDescription &&request, request_t event_id);
+
+  struct FileRegistrationHelper
+  {
+    FileRegistrationHelper(void (*pull_function)())
+    {
+
+      extern void file_registration(void (*)());
+      file_registration(pull_function);
+    }
+  };
+#define ECS_FILE_REGISTRATION(pull_function) \
+  static ecs::FileRegistrationHelper __CONCAT__(fileRegistrator, __LINE__)(pull_function);
 }

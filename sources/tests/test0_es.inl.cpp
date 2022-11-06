@@ -91,7 +91,7 @@ static void test_request_single_handler(ecs::EntityId eid, ecs::Request &request
   ecs::perform_request(eid, reinterpret_cast<MyRequest &>(request), test_request__cache__, test_request);
 }
 
-void registration_pull_test0_es()
+static void registration_pull_test0_es()
 {
   ecs::register_query(ecs::QueryDescription(
   "",
@@ -239,3 +239,4 @@ void registration_pull_test0_es()
   ecs::RequestIndex<MyRequest>::value);
 
 }
+ECS_FILE_REGISTRATION(&registration_pull_test0_es)

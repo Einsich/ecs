@@ -19,12 +19,6 @@ int main()
   ecs::init();
   ecs::init_stages({{"main", &pre_main, &post_main}, {"render", nullptr, nullptr}});
 
-  extern void registration_pull_test0_es();
-  registration_pull_test0_es();
-
-  extern void registration_pull_await_contruction_test();
-  // registration_pull_await_contruction_test();
-
   ecs::prefab_id p = ecs::create_entity_prefab({"lol", {{"x", 1.f}, {"y", 2.f}, {"z", 3}}});
 
   auto eid1 = ecs::create_entity_immediate(p);

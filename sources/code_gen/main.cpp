@@ -624,7 +624,8 @@ void process_inl_file(const fs::path &path)
   event_definition(outFile, eventsDescriptions);
   request_definition(outFile, requestDescriptions);
 
-  outFile << "void registration_pull_" << path.stem().string() << "()\n{\n";
+  std::string registrationFunc = "registration_pull_" + path.stem().string();
+  outFile << "static void " << registrationFunc << "()\n{\n";
 
   register_queries(outFile, queriesDescriptions);
   register_queries(outFile, singlqueriesDescriptions);
@@ -633,6 +634,7 @@ void process_inl_file(const fs::path &path)
   register_requests(outFile, requestDescriptions);
 
   outFile << "}\n";
+  outFile << "ECS_FILE_REGISTRATION(&" << registrationFunc << ")\n";
   outFile.close();
 }
 
