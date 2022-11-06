@@ -13,7 +13,7 @@ static ecs::QueryCache test_request__cache__;
 template<typename Callable>
 static void test_single_query(ecs::EntityId eid, Callable lambda)
 {
-  ecs::perform_query<int&, float&>(test_single_query__cache__, eid, lambda);
+  ecs::perform_query<int&, int&>(test_single_query__cache__, eid, lambda);
 }
 
 static void test_implementation()
@@ -49,7 +49,7 @@ static void registration_pull_main()
   &test_single_query__cache__,
   {
     {"z", ecs::TypeIndex<int>::value, ecs::AccessType::ReadWrite, false},
-    {"y", ecs::TypeIndex<float>::value, ecs::AccessType::ReadWrite, false}
+    {"y", ecs::TypeIndex<int>::value, ecs::AccessType::ReadWrite, false}
   },
   {},
   {}
@@ -60,8 +60,8 @@ static void registration_pull_main()
   "test",
   &test__cache__,
   {
-    {"x", ecs::TypeIndex<float>::value, ecs::AccessType::ReadOnly, false},
-    {"y", ecs::TypeIndex<float>::value, ecs::AccessType::ReadOnly, false},
+    {"x", ecs::TypeIndex<int>::value, ecs::AccessType::ReadOnly, false},
+    {"y", ecs::TypeIndex<int>::value, ecs::AccessType::ReadOnly, false},
     {"z", ecs::TypeIndex<int>::value, ecs::AccessType::ReadOnly, false},
     {"eid", ecs::TypeIndex<ecs::EntityId>::value, ecs::AccessType::Copy, false}
   },
@@ -77,7 +77,7 @@ static void registration_pull_main()
   "test_event",
   &test_event__cache__,
   {
-    {"y", ecs::TypeIndex<float>::value, ecs::AccessType::Copy, false}
+    {"y", ecs::TypeIndex<int>::value, ecs::AccessType::Copy, false}
   },
   {},
   {},
@@ -93,7 +93,7 @@ static void registration_pull_main()
   &test_request__cache__,
   {},
   {
-    {"x", ecs::TypeIndex<float>::value}
+    {"x", ecs::TypeIndex<int>::value}
   },
   {},
   {},

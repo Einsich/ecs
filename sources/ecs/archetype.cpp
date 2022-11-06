@@ -114,6 +114,9 @@ namespace ecs
     entityCount--;
     get_chunk_offset(entityCount, chunkLast, offsetLast);
 
+    EntityId *eid = (EntityId *)(eidContainer->data[chunkLast] + offsetLast * sizeof(EntityId));
+    ((EntityDescription *)(eid->description))->index = idx;
+
     for (ComponentContainer &container : components)
     {
       const auto &type = types[container.description.typeIndex];
