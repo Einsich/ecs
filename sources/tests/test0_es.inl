@@ -91,3 +91,27 @@ test_deffered_creation(const float value, ecs::EntityId eid, ecs::EntityId nextE
   printf("nextEid\n");
   print(nextEid);
 }
+
+SYSTEM(stage = render; before = stage_test3)
+stage_render()
+{
+  printf("stage_render\n");
+}
+
+SYSTEM(stage = main; before = stage_test2)
+stage_test1()
+{
+  printf("stage_test1\n");
+}
+
+SYSTEM(stage = main)
+stage_test2()
+{
+  printf("stage_test2\n");
+}
+
+SYSTEM(stage = main; before = stage_test1, stage_test2)
+stage_test3()
+{
+  printf("stage_test3\n");
+}

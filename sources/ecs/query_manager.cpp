@@ -34,7 +34,7 @@ namespace ecs
         auto it = nameMap.find(before);
         if (it != nameMap.end())
         {
-          edge[it->second].push_back(i);
+          edge[i].push_back(it->second);
         }
         else
         {
@@ -46,7 +46,7 @@ namespace ecs
         auto it = nameMap.find(after);
         if (it != nameMap.end())
         {
-          edge[i].push_back(it->second);
+          edge[it->second].push_back(i);
         }
         else
         {
@@ -62,9 +62,9 @@ namespace ecs
     ecs::vector<Description *> rightOrder(size);
 
     for (uint i = 0; i < size; i++)
-      rightOrder[answer[i]] = queries[i];
-    for (uint i = 0; i < size; i++)
-      queries[i] = rightOrder[i];
+      rightOrder[i] = queries[answer[size - 1 - i]];
+
+    queries.swap(rightOrder);
   }
 
   static bool tagSatisfaction(const ecs::vector<ecs::string> &manager_tags, const ecs::vector<ecs::string> &system_tags)

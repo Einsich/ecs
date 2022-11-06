@@ -1,5 +1,6 @@
 #include <ecs/query_manager.h>
 #include <ecs/type_annotation.h>
+#include <ecs/system_stage.h>
 
 namespace ecs
 {
@@ -69,5 +70,33 @@ namespace ecs
     update_cache(query_manager.requests[request_id].emplace_back(std::move(request)));
 
     query_manager.requestsInvalidated = true;
+  }
+
+  static ecs::QueryCache stubCache;
+  static void sync_point_stub()
+  {
+  }
+
+  void init_stages(const ecs::vector<SystemStage> &stages)
+  {
+    for (uint i = 0, n = stages.size(); i < n; i++)
+    {
+      const auto &stage = stages[i];
+      ecs::string before_point = stage.name + "_before_sync_point";
+      ecs::string after_point = stage.name + "_after_sync_point";
+      ecs::register_system(ecs::SystemDescription(
+          "", before_point.c_str(), &stubCache, {}, {}, {}, {},
+          {after_point},
+          {}, stage.before ? stage.before : &sync_point_stub));
+
+      ecs::vector<ecs::string> nextStage;
+      if (i + 1 < n)
+        nextStage.emplace_back(stages[i + 1].name + "_before_sync_point");
+
+      ecs::register_system(ecs::SystemDescription(
+          "", after_point.c_str(), &stubCache, {}, {}, {}, {},
+          std::move(nextStage),
+          {}, stage.after ? stage.after : &sync_point_stub));
+    }
   }
 }

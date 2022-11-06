@@ -246,6 +246,16 @@ void parse_definition(std::string &str, ParserSystemDescription &parserDescr)
           if (args0.size() > 1)
             parserDescr.isJob = std::move(args0[1]);
         }
+        else if (key == "stage")
+        {
+          if (args0.size() > 1)
+          {
+            parserDescr.before.emplace_back(args0[1] + "_before_sync_point");
+            parserDescr.after.emplace_back(args0[1] + "_after_sync_point");
+          }
+          else
+            log_error("empty stage in");
+        }
         else
         {
           log_error("bad lexema " + arg);

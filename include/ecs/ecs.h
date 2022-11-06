@@ -5,10 +5,12 @@
 #include <ecs/entity_prefab.h>
 #include <ecs/query_manager.h>
 #include <ecs/base_events.h>
+#include <ecs/system_stage.h>
 
 namespace ecs
 {
   void init(UserFunctions entity_id_functions = {});
+  void init_stages(const ecs::vector<SystemStage> &stages);
   void update_query_manager();
   void perform_systems();
   uint add_archetype(ecs::vector<ComponentDescription> &&descriptions, SizePolicy chunk_power);

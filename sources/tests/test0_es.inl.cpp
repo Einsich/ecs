@@ -12,6 +12,14 @@ static ecs::QueryCache no_arguments__cache__;
 
 static ecs::QueryCache test_deffered_creation__cache__;
 
+static ecs::QueryCache stage_render__cache__;
+
+static ecs::QueryCache stage_test1__cache__;
+
+static ecs::QueryCache stage_test2__cache__;
+
+static ecs::QueryCache stage_test3__cache__;
+
 static ecs::QueryCache test_event__cache__;
 
 static ecs::QueryCache test_request__cache__;
@@ -41,6 +49,26 @@ static void no_arguments_implementation()
 static void test_deffered_creation_implementation()
 {
   ecs::perform_system(test_deffered_creation__cache__, test_deffered_creation);
+}
+
+static void stage_render_implementation()
+{
+  ecs::perform_system(stage_render__cache__, stage_render);
+}
+
+static void stage_test1_implementation()
+{
+  ecs::perform_system(stage_test1__cache__, stage_test1);
+}
+
+static void stage_test2_implementation()
+{
+  ecs::perform_system(stage_test2__cache__, stage_test2);
+}
+
+static void stage_test3_implementation()
+{
+  ecs::perform_system(stage_test3__cache__, stage_test3);
 }
 
 static void test_event_handler(const ecs::Event &event)
@@ -133,6 +161,54 @@ void registration_pull_test0_es()
   {},
   {},
   &test_deffered_creation_implementation));
+
+  ecs::register_system(ecs::SystemDescription(
+  "",
+  "stage_render",
+  &stage_render__cache__,
+  {},
+  {},
+  {},
+  {"render_before_sync_point", "stage_test3"},
+  {"render_after_sync_point"},
+  {},
+  &stage_render_implementation));
+
+  ecs::register_system(ecs::SystemDescription(
+  "",
+  "stage_test1",
+  &stage_test1__cache__,
+  {},
+  {},
+  {},
+  {"main_before_sync_point", "stage_test2"},
+  {"main_after_sync_point"},
+  {},
+  &stage_test1_implementation));
+
+  ecs::register_system(ecs::SystemDescription(
+  "",
+  "stage_test2",
+  &stage_test2__cache__,
+  {},
+  {},
+  {},
+  {"main_before_sync_point"},
+  {"main_after_sync_point"},
+  {},
+  &stage_test2_implementation));
+
+  ecs::register_system(ecs::SystemDescription(
+  "",
+  "stage_test3",
+  &stage_test3__cache__,
+  {},
+  {},
+  {},
+  {"main_before_sync_point", "stage_test1", "stage_test2"},
+  {"main_after_sync_point"},
+  {},
+  &stage_test3_implementation));
 
   ecs::register_event(ecs::EventDescription(
   "",
