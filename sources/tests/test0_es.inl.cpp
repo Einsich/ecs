@@ -169,8 +169,8 @@ void registration_pull_test0_es()
   {},
   {},
   {},
-  {"render_before_sync_point", "stage_test3"},
-  {"render_after_sync_point"},
+  {"render_end_sync_point"},
+  {"render_begin_sync_point"},
   {},
   &stage_render_implementation));
 
@@ -181,8 +181,8 @@ void registration_pull_test0_es()
   {},
   {},
   {},
-  {"main_before_sync_point", "stage_test2"},
-  {"main_after_sync_point"},
+  {"main_end_sync_point", "stage_test2"},
+  {"main_begin_sync_point"},
   {},
   &stage_test1_implementation));
 
@@ -193,8 +193,8 @@ void registration_pull_test0_es()
   {},
   {},
   {},
-  {"main_before_sync_point"},
-  {"main_after_sync_point"},
+  {"main_end_sync_point"},
+  {"main_begin_sync_point"},
   {},
   &stage_test2_implementation));
 
@@ -205,8 +205,8 @@ void registration_pull_test0_es()
   {},
   {},
   {},
-  {"main_before_sync_point", "stage_test1", "stage_test2"},
-  {"main_after_sync_point"},
+  {"main_end_sync_point", "stage_test1", "stage_test2"},
+  {"main_begin_sync_point"},
   {},
   &stage_test3_implementation));
 

@@ -4,24 +4,70 @@
 
 namespace ecs
 {
-
-  static void dfs(uint v, const ecs::vector<ecs::vector<uint>> &edges, ecs::vector<bool> &used, ecs::vector<uint> &answer)
+  enum NodeState
   {
-    used[v] = true;
+    Black,
+    Gray,
+    White,
+    Cycle
+  };
+
+  std::function<void(ecs::vector<uint>)> loger;
+
+  using Edges = ecs::vector<ecs::vector<uint>>;
+
+  static bool log_cycle(uint c, uint v, const Edges &edges, const ecs::vector<NodeState> &used, ecs::vector<uint> &cycle)
+  {
+    if (c == v)
+      return true;
     for (uint to : edges[v])
     {
-      if (!used[to])
+      if (used[to] == Gray)
+      {
+        if (log_cycle(c, to, edges, used, cycle))
+        {
+          cycle.push_back(to);
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  static void dfs(uint v, const Edges &edges, ecs::vector<NodeState> &used, ecs::vector<uint> &answer)
+  {
+    used[v] = Gray;
+    for (uint to : edges[v])
+    {
+      if (used[to] == Gray)
+      {
+        ECS_ERROR("cycle detected :\n");
+        ecs::vector<uint> cycle;
+        log_cycle(v, to, edges, used, cycle);
+        if (loger)
+          loger(cycle);
+        used[to] = Cycle;
+        continue;
+      }
+      if (used[to] == Black)
         dfs(to, edges, used, answer);
     }
     answer.push_back(v);
+    used[v] = White;
   }
 
   template <typename Description>
   static void topological_sort(ecs::vector<Description *> &queries)
   {
+    loger = [&](const auto &v)
+    {
+      for (uint x : v)
+        ECS_ERROR("%s -> ", queries[x]->name.c_str());
+      ECS_ERROR("\n");
+    };
     auto size = queries.size();
-    ecs::vector<ecs::vector<uint>> edge(size);
-    ecs::vector<bool> used(size, false);
+    Edges edge(size);
+    ecs::vector<NodeState> used(size, Black);
     ecs::vector<uint> answer;
     answer.reserve(size);
     ska::flat_hash_map<string, uint, ska::power_of_two_std_hash<ecs::string>> nameMap;
@@ -34,6 +80,11 @@ namespace ecs
         auto it = nameMap.find(before);
         if (it != nameMap.end())
         {
+          if (i == it->second)
+          {
+            ECS_ERROR("system %s has itself in before\n", queries[i]->name.c_str());
+            continue;
+          }
           edge[i].push_back(it->second);
         }
         else
@@ -46,6 +97,11 @@ namespace ecs
         auto it = nameMap.find(after);
         if (it != nameMap.end())
         {
+          if (i == it->second)
+          {
+            ECS_ERROR("system %s has itself in after\n", queries[i]->name.c_str());
+            continue;
+          }
           edge[it->second].push_back(i);
         }
         else
@@ -56,7 +112,7 @@ namespace ecs
     }
     for (uint i = 0; i < size; i++)
     {
-      if (!used[i])
+      if (used[i] == Black)
         dfs(i, edge, used, answer);
     }
     ecs::vector<Description *> rightOrder(size);

@@ -6,9 +6,9 @@ namespace ecs
   {
     using SyncPoint = void (*)();
     ecs::string name;
-    SyncPoint before, after;
-    SystemStage(const char *stage_name, SyncPoint before_stage, SyncPoint after_stage)
-        : name(stage_name), before(before_stage), after(after_stage)
+    SyncPoint begin, end;
+    SystemStage(const char *stage_name, SyncPoint begin_stage, SyncPoint end_stage)
+        : name(stage_name), begin(begin_stage), end(end_stage)
     {
     }
   };

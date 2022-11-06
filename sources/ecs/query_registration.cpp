@@ -82,21 +82,21 @@ namespace ecs
     for (uint i = 0, n = stages.size(); i < n; i++)
     {
       const auto &stage = stages[i];
-      ecs::string before_point = stage.name + "_before_sync_point";
-      ecs::string after_point = stage.name + "_after_sync_point";
+      ecs::string begin_point = stage.name + "_begin_sync_point";
+      ecs::string end_point = stage.name + "_end_sync_point";
       ecs::register_system(ecs::SystemDescription(
-          "", before_point.c_str(), &stubCache, {}, {}, {}, {},
-          {after_point},
-          {}, stage.before ? stage.before : &sync_point_stub));
+          "", begin_point.c_str(), &stubCache, {}, {}, {},
+          {end_point},
+          {}, {}, stage.begin ? stage.begin : &sync_point_stub));
 
       ecs::vector<ecs::string> nextStage;
       if (i + 1 < n)
-        nextStage.emplace_back(stages[i + 1].name + "_before_sync_point");
+        nextStage.emplace_back(stages[i + 1].name + "_begin_sync_point");
 
       ecs::register_system(ecs::SystemDescription(
-          "", after_point.c_str(), &stubCache, {}, {}, {}, {},
+          "", end_point.c_str(), &stubCache, {}, {}, {},
           std::move(nextStage),
-          {}, stage.after ? stage.after : &sync_point_stub));
+          {}, {}, stage.end ? stage.end : &sync_point_stub));
     }
   }
 }

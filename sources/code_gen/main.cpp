@@ -250,8 +250,8 @@ void parse_definition(std::string &str, ParserSystemDescription &parserDescr)
         {
           if (args0.size() > 1)
           {
-            parserDescr.before.emplace_back(args0[1] + "_before_sync_point");
-            parserDescr.after.emplace_back(args0[1] + "_after_sync_point");
+            parserDescr.before.emplace_back(args0[1] + "_end_sync_point");
+            parserDescr.after.emplace_back(args0[1] + "_begin_sync_point");
           }
           else
             log_error("empty stage in");
