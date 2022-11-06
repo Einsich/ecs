@@ -1,6 +1,6 @@
 #include <ecs/ecs.h>
 #include <ecs/type_registration.h>
-#include "test0.h"
+#include "../tests.h"
 
 void print(ecs::EntityId eid);
 
@@ -110,7 +110,6 @@ test_awaited_creation(const ecs::OnEntityCreated &, int value, ecs::EntityId eid
 {
   if (value != 5)
   {
-    ecs::destroy_entity(eid);
     return;
   }
   printf("[[\n");

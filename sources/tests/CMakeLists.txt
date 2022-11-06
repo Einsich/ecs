@@ -4,16 +4,34 @@ include_directories(include)
 set(ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/sources/tests)
 
 
 add_executable(test0
-  test0.cpp
-  test0_es.inl.cpp
-  rtti_perf_test.cpp
-  is_zero_sizeof.cpp
-  await_contruction_test.inl.cpp
+  test0/main.inl.cpp
+  common.cpp
 )
 
+add_executable(test1
+  test1/main.cpp
+  test1/await_contruction_test.inl.cpp
+  common.cpp
+)
+add_executable(test2
+  test2/main.cpp
+  test2/deffered_creation.inl.cpp
+  common.cpp
+)
+add_executable(test3
+  test3/main.inl.cpp
+)
+add_executable(test4
+  test4/main.inl.cpp
+)
 target_link_libraries(test0 ecsLib ${ADDITIONAL_LIBS})
+target_link_libraries(test1 ecsLib ${ADDITIONAL_LIBS})
+target_link_libraries(test2 ecsLib ${ADDITIONAL_LIBS})
+target_link_libraries(test3 ecsLib ${ADDITIONAL_LIBS})
+target_link_libraries(test4 ecsLib ${ADDITIONAL_LIBS})
 
-target_compile_definitions(ecsLib PUBLIC USER_FUNCTION_HEADER=<ecs/c.h>)
+target_compile_definitions(ecsLib PUBLIC USER_FUNCTION_HEADER=<user_type_functions.h>)

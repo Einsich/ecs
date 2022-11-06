@@ -8,7 +8,7 @@
       "name": "Run project",
       "type": "cppvsdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/bin/${config:launchOption.currentConfig.BuildType}/sources/tests/test0.exe",
+      "program": "${workspaceFolder}/bin/${config:launchOption.currentConfig.BuildType}/sources/tests/${config:launchOption.currentConfig.Test}.exe",
       "cwd": "${workspaceFolder}", //${config:launchOption.currentConfig.Project.name}
       "args": [],
     },

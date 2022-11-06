@@ -14,9 +14,18 @@
         "value": "rel"
       }
     ],
+    "Test": [
+      "test0",
+      "test1",
+      "test2",
+      "test3",
+      "test4",
+      "test5",
+    ],
   },
   "launchOption.currentConfig": {
-    "BuildType": "dbg"
+    "BuildType": "dbg",
+    "Test": "test0"
   },
   "externalConsole": true,
   "files.associations": {

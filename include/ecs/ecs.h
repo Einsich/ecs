@@ -10,6 +10,7 @@
 namespace ecs
 {
   void init(UserFunctions entity_id_functions = {});
+  void pull_registered_files();
   void init_stages(const ecs::vector<SystemStage> &stages);
   void update_query_manager();
   void perform_systems();

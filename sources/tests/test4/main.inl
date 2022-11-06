@@ -1,26 +1,18 @@
 #include <stdio.h>
 #include <iostream>
-
-#include <functional>
-
-#include <ecs/type_annotation.h>
+#include <ecs/ecs.h>
 #include <ecs/type_registration.h>
 #include <ecs/time_profiler.h>
-
-#include <ecs/c.h>
-#include <ecs/archetype.h>
 
 struct Point4
 {
   float x = 0, y = 0, z = 0, w = 0;
 };
 
-ECS_TYPE_REGISTRATION(float, "float", true, true, true, {}, {})
-ECS_TYPE_REGISTRATION(int, "int", true, true, true, {}, {})
 ECS_TYPE_REGISTRATION(Point4, "Point4", false, false, false, {}, {})
 ECS_TYPE_REGISTRATION(ecs::vector<Point4>, "vector<p4>", false, false, false, {}, {})
 
-void f()
+int main()
 {
 
   ecs::TypeAnnotation p4Annotation = *ecs::get_type_annotation<Point4>();
@@ -65,7 +57,32 @@ void f()
       memset(v + i, 0, sizeof(std::vector<Point4>));
     }
   }
-
-  printf("))) ");
-  std::cout << std::endl;
 }
+
+struct A
+{
+};
+
+struct B
+{
+  char b;
+};
+
+struct C
+{
+  int c;
+};
+
+struct E : ecs::Event
+{
+};
+
+struct R : ecs::Request
+{
+};
+
+static_assert(ecs::is_zero_sizeof<A> == true);
+static_assert(ecs::is_zero_sizeof<B> == false);
+static_assert(ecs::is_zero_sizeof<C> == false);
+static_assert(ecs::is_zero_sizeof<E> == true);
+static_assert(ecs::is_zero_sizeof<R> == true);

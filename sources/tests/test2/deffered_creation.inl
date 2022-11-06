@@ -1,42 +1,5 @@
 #include <ecs/ecs.h>
-#include "test0.h"
-
-template <typename C>
-static void test_single_query(ecs::EntityId eid, C c);
-
-void print(ecs::EntityId eid)
-{
-  ecs::uint a, i;
-  ecs::EntityState s;
-  if (eid.get_info(a, i, s))
-    printf("eid %d %d %d, addr %p\n", a, i, s, eid.description);
-  else
-    printf("eid invalid\n");
-}
-SYSTEM()
-test(const float &x, const float &y, const int &z, ecs::EntityId eid)
-{
-  printf("hi %f %f %d\n", x, y, z);
-  print(eid);
-
-  QUERY()
-  test_single_query(eid, [&](int &z, float &y)
-                    { y+=10; z-=10; });
-
-  printf("bye %f %f %d\n", x, y, z);
-}
-
-EVENT()
-test_event(const MyEvent &e, float y)
-{
-  printf("test_event %d %f\n", e.x, y);
-}
-
-REQUEST()
-test_request(MyRequest &r) // requare float x
-{
-  r.count += 1;
-}
+#include "../tests.h"
 
 template <typename C>
 static void get_next_node(ecs::EntityId eid, C c);
@@ -55,7 +18,6 @@ static void iterate_linked_list(ecs::EntityId head)
 SYSTEM()
 no_arguments()
 {
-  return;
   static bool firstTime = true;
   static ecs::EntityId tail;
   if (firstTime)
@@ -90,28 +52,4 @@ test_deffered_creation(const float value, ecs::EntityId eid, ecs::EntityId nextE
   print(eid);
   printf("nextEid\n");
   print(nextEid);
-}
-
-SYSTEM(stage = render)
-stage_render()
-{
-  printf("stage_render\n");
-}
-
-SYSTEM(stage = main; before = stage_test2)
-stage_test1()
-{
-  printf("stage_test1\n");
-}
-
-SYSTEM(stage = main)
-stage_test2()
-{
-  printf("stage_test2\n");
-}
-
-SYSTEM(stage = main; before = stage_test1, stage_test2)
-stage_test3()
-{
-  printf("stage_test3\n");
 }
