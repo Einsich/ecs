@@ -5,7 +5,7 @@
 #include <ecs/event.h>
 #include <ecs/request.h>
 #include <ecs/entity_id.h>
-
+#include <ecs/ska/flat_hash_map.hpp>
 namespace ecs
 {
   enum class AccessType
@@ -27,12 +27,7 @@ namespace ecs
 
   struct QueryCache
   {
-    struct CachedArchetype
-    {
-      ecs::vector<int> componentIndexes;
-      uint archetypeIndex;
-    };
-    ecs::vector<CachedArchetype> archetypes;
+    ska::flat_hash_map<int, ecs::vector<int>> archetypes;
     bool noArchetype = false;
   };
 

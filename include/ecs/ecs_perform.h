@@ -56,14 +56,14 @@ namespace ecs
       }
     }
 
-    for (uint archetypeIdx = 0, archetypeN = cache.archetypes.size(); archetypeIdx < archetypeN; ++archetypeIdx)
+    for (const auto &p : cache.archetypes)
     {
-      const auto &cachedArchetype = cache.archetypes[archetypeIdx];
-      const Archetype &archetype = manager.archetypes[cachedArchetype.archetypeIndex];
+      const auto &cachedArchetype = p.second;
+      const Archetype &archetype = manager.archetypes[p.first];
       if (archetype.entityCount == 0)
         continue;
 
-      ecs::array<const ComponentContainer *, N> components = get_components<N>(archetype.components, cachedArchetype.componentIndexes, indexes);
+      ecs::array<const ComponentContainer *, N> components = get_components<N>(archetype.components, cachedArchetype, indexes);
 
       uint binN = archetype.entityCount >> archetype.chunkPower;
       for (uint binIdx = 0; binIdx < binN; ++binIdx)
@@ -107,18 +107,16 @@ namespace ecs
     if (eid.get_info(archetypeIdx, index, state) &&
         (state == EntityState::CreatedAndInited || (acceptDestoyQueue && state == EntityState::InDestroyQueue)))
     {
-      auto it = std::find_if(cache.archetypes.begin(), cache.archetypes.end(),
-                             [archetypeIdx](const QueryCache::CachedArchetype &cashed_archetype)
-                             { return cashed_archetype.archetypeIndex == archetypeIdx; });
+      auto it = cache.archetypes.find(archetypeIdx);
       if (it != cache.archetypes.end())
       {
         const ArchetypeManager &manager = get_archetype_manager();
         const Archetype &archetype = manager.archetypes[archetypeIdx];
-        const auto &cachedArchetype = *it;
+        const auto &cachedArchetype = it->second;
         uint binIdx = index >> archetype.chunkPower;
         uint inBinIdx = index & archetype.chunkMask;
 
-        ecs::array<const ComponentContainer *, N> components = get_components<N>(archetype.components, cachedArchetype.componentIndexes, indexes);
+        ecs::array<const ComponentContainer *, N> components = get_components<N>(archetype.components, cachedArchetype, indexes);
 
         perform_query<N, Args...>(components, function, binIdx, inBinIdx, indexes);
       }

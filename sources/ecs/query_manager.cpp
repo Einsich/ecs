@@ -235,9 +235,9 @@ namespace ecs
       else
         return;
     }
-    auto &cachedArchetype = cache.archetypes.emplace_back();
-    cachedArchetype.archetypeIndex = idx;
-    cachedArchetype.componentIndexes = std::move(indexes);
+    cache.archetypes.emplace(
+        idx,
+        std::move(indexes));
   }
 
   void QueryManager::addArchetypeToCache(uint archetype_idx)
