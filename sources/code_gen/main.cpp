@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <vector>
 #include <stdarg.h>
+#include "timer.h"
 
 typedef unsigned int uint;
 enum class ArgType
@@ -37,6 +38,27 @@ struct ParserFunctionArgument
     }
   }
 };
+
+struct FileInfo
+{
+  std::string filePath;
+  std::vector<int> newLinePositions;
+
+  void scanFile(const std::string &file)
+  {
+    for (uint i = 0, n = file.size(); i < n; i++)
+    {
+      if (file[i] == '\n')
+        newLinePositions.push_back(i);
+    }
+  }
+  int findLine(int char_pos) const
+  {
+    auto it = std::lower_bound(newLinePositions.begin(), newLinePositions.end(), char_pos);
+    return it - newLinePositions.begin() + 1;
+  }
+};
+
 struct ParserSystemDescription
 {
   std::string sys_file, sys_name;
@@ -95,46 +117,71 @@ enum CallableType
 };
 namespace fs = std::filesystem;
 
-void log_success(const std::string &meassage)
-{
-  printf("[Codegen] \033[32m%s\033[39m\n", meassage.c_str());
-}
-void log_error(const std::string &meassage)
-{
-  printf("[Codegen] \033[31m%s\033[39m\n", meassage.c_str());
-}
-std::vector<std::string> get_matches(const std::string &str, const std::regex &reg, int max_matches = 10000000)
-{
-  std::vector<std::string> v;
-  std::sregex_iterator curMatch(str.begin(), str.end(), reg);
-  std::sregex_iterator lastMatch;
+constexpr int bufferSize = 1 << 10;
+static char buffer[bufferSize];
+static int error_count = 0, files_with_errors = 0;
 
-  for (int i = 0; curMatch != lastMatch && i < max_matches; i++)
-  {
-    v.emplace_back(curMatch->str());
-    curMatch++;
-  }
-  return v;
-}
-struct MatchRange
+static void log_success(const char *fmt, ...)
 {
-  std::string::iterator begin, end;
+  va_list args;
+  va_start(args, fmt);
+  vsnprintf(buffer, bufferSize, fmt, args);
+  va_end(args);
+  printf("[Codegen] \033[32m%s\033[39m\n", buffer);
+}
+
+static void log_error(const char *fmt, ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  vsnprintf(buffer, bufferSize, fmt, args);
+  va_end(args);
+  printf("[Codegen] \033[31m%s\033[39m\n", buffer);
+  error_count++;
+}
+
+struct Match
+{
+  std::string::const_iterator begin, end;
+  Match(std::string::const_iterator begin, std::string::const_iterator end)
+      : begin(begin), end(end)
+  {
+  }
+  Match(const std::string &str)
+      : begin(str.begin()), end(str.end())
+  {
+  }
+  std::string get() const
+  {
+    return std::string(begin, end);
+  }
   bool empty() const
   {
     return begin == end;
   }
-  std::string str() const
-  {
-    return std::string(begin, end);
-  }
 };
-MatchRange get_match(const MatchRange &str, const std::regex &reg)
+
+std::vector<Match> get_matches(Match str, const std::regex &reg, int max_matches = 10000000)
+{
+  std::vector<Match> v;
+  std::sregex_iterator curMatch(str.begin, str.end, reg);
+  std::sregex_iterator lastMatch;
+
+  for (int i = 0; curMatch != lastMatch && i < max_matches; i++)
+  {
+    v.emplace_back(Match{str.begin + curMatch->position(), str.begin + curMatch->position() + curMatch->length()});
+    curMatch++;
+  }
+  return v;
+}
+
+Match get_match(const Match &str, const std::regex &reg)
 {
   std::vector<std::string> v;
   std::sregex_iterator curMatch(str.begin, str.end, reg);
   std::sregex_iterator lastMatch;
 
-  MatchRange range = str;
+  Match range = str;
   if (curMatch != lastMatch)
   {
     range.begin += curMatch->position(0);
@@ -187,78 +234,69 @@ ParserFunctionArgument clear_arg(std::string str)
 
   if (args.size() != 1 && args.size() != 2)
     return arg;
-  arg.type = args[0];
+  arg.type = args[0].get();
   if (args.size() == 2)
-    arg.name = args[1];
+    arg.name = args[1].get();
   return arg;
 }
-void parse_definition(std::string &str, ParserSystemDescription &parserDescr)
+void parse_definition(Match &str, ParserSystemDescription &parserDescr)
 {
-  auto args_range = get_match({str.begin(), str.end()}, new_system_args_regex);
+  auto args_range = get_match(str, new_system_args_regex);
 
   // printf("%s\n", str.c_str());
   if (!args_range.empty())
   {
-    auto args = get_matches(args_range.str(), new_system_annotation_regex);
-
+    auto args = get_matches(args_range, new_system_annotation_regex);
+    auto system = parserDescr.sys_file.c_str();
     for (auto &arg : args)
     {
       auto args0 = get_matches(arg, new_system_arg_regex);
 
-      /*       printf("%*c %s\n", 2, ' ', arg.c_str());
-            for (auto &arg : args0)
-              printf("%*c %s\n", 4, ' ', arg.c_str()); */
-
       if (args0.empty())
-        log_error("bad lexema \"" + arg + "\" in ");
+        log_error("expression parse failed \"%s\" in %s\n", arg.get().c_str(), system);
       else if (args0.size() == 1)
-        log_error("need at least one value for " + args0[0]);
+        log_error("argument \"%s\" without value in %s ", args0[0].get().c_str(), system);
       else
       {
-        const std::string &key = args0[0];
+        std::string key = args0[0].get();
         if (key == "tags")
         {
           for (uint i = 1; i < args0.size(); i++)
-            parserDescr.tags.emplace_back(std::move(args0[i]));
+            parserDescr.tags.emplace_back(args0[i].get());
         }
         else if (key == "before")
         {
           for (uint i = 1; i < args0.size(); i++)
-            parserDescr.before.emplace_back(std::move(args0[i]));
+            parserDescr.before.emplace_back(args0[i].get());
         }
         else if (key == "after")
         {
           for (uint i = 1; i < args0.size(); i++)
-            parserDescr.after.emplace_back(std::move(args0[i]));
+            parserDescr.after.emplace_back(args0[i].get());
         }
         else if (key == "require")
         {
           for (uint i = 1; i < args0.size(); i++)
-            parserDescr.req_args.emplace_back(clear_arg(args0[i]));
+            parserDescr.req_args.emplace_back(clear_arg(args0[i].get()));
         }
         else if (key == "require_not")
         {
           for (uint i = 1; i < args0.size(); i++)
-            parserDescr.req_not_args.emplace_back(clear_arg(args0[i]));
+            parserDescr.req_not_args.emplace_back(clear_arg(args0[i].get()));
         }
         else if (key == "job")
         {
           if (args0.size() > 1)
-            parserDescr.isJob = std::move(args0[1]);
+            parserDescr.isJob = args0[1].get();
         }
         else if (key == "stage")
         {
-          if (args0.size() > 1)
-          {
-            parserDescr.before.emplace_back(args0[1] + "_end_sync_point");
-            parserDescr.after.emplace_back(args0[1] + "_begin_sync_point");
-          }
-          else
-            log_error("empty stage in");
+          parserDescr.before.emplace_back(args0[1].get() + "_end_sync_point");
+          parserDescr.after.emplace_back(args0[1].get() + "_begin_sync_point");
         }
         else
         {
-          log_error("bad lexema " + arg);
+          log_error("unsuported argument \"%s\" in %s", arg.get().c_str(), system);
         }
       }
     }
@@ -269,53 +307,51 @@ void parse_definition(std::string &str, ParserSystemDescription &parserDescr)
 }
 
 void parse_system(std::vector<ParserSystemDescription> &systemsDescriptions,
-                  const std::string &file, const std::string &file_path,
+                  const std::string &file,
+                  const FileInfo &file_info,
                   const std::regex &full_regex, const std::regex &def_regex)
 {
 
   auto systems = get_matches(file, full_regex);
   for (auto &system : systems)
   {
-    auto definition_range = get_match({system.begin(), system.end()}, def_regex);
-    auto name_range = get_match({definition_range.end, system.end()}, name_regex);
-    auto args_range = get_match({name_range.end, system.end()}, args_regex);
-    std::string definition, name, args;
+    auto definition_range = get_match({system.begin, system.end}, def_regex);
+    auto name_range = get_match({definition_range.end, system.end}, name_regex);
+    auto args_range = get_match({name_range.end, system.end}, args_regex);
+
+    std::string systemPath = file_info.filePath + ":" + std::to_string(file_info.findLine(system.begin - file.begin()));
     if (definition_range.empty())
     {
-      log_error("System definition problem in " + system);
+      log_error("system has wrong definition %s", systemPath.c_str());
       return;
     }
     if (name_range.empty())
     {
-      log_error("Name problem in " + system);
+      log_error("system hasn't name %s", systemPath.c_str());
       return;
     }
     if (args_range.empty())
     {
-      log_error("Arguments problem in " + system);
+      log_error("system hasn't correct argument list %s", systemPath.c_str());
       return;
     }
-    definition = definition_range.str();
-    name = name_range.str();
 
     args_range.begin++;
     args_range.end--;
-    args = args_range.str();
+
     ParserSystemDescription descr;
-    descr.sys_file = file_path;
-    descr.sys_name = name;
-    parse_definition(definition, descr);
-    auto matched_args = get_matches(args, arg_regex);
+
+    descr.sys_file = std::move(systemPath);
+    descr.sys_name = name_range.get();
+    parse_definition(definition_range, descr);
+    auto matched_args = get_matches(args_range, arg_regex);
     for (auto &arg : matched_args)
     {
-      descr.args.push_back(clear_arg(arg));
+      descr.args.push_back(clear_arg(arg.get()));
     }
-    systemsDescriptions.emplace_back(descr);
+    systemsDescriptions.emplace_back(std::move(descr));
   }
 }
-
-constexpr int bufferSize = 1 << 10;
-static char buffer[bufferSize];
 
 void template_arguments(std::ofstream &outFile, const std::vector<ParserFunctionArgument> &args)
 {
@@ -584,8 +620,11 @@ void register_requests(std::ofstream &outFile, const std::vector<ParserSystemDes
   }
 }
 
+static int processed_files = 0;
+
 void process_inl_file(const fs::path &path)
 {
+  Timer t;
   std::ifstream inFile;
   inFile.open(path); // open the input file
 
@@ -599,14 +638,17 @@ void process_inl_file(const fs::path &path)
   std::vector<ParserSystemDescription> eventsDescriptions;
   std::vector<ParserSystemDescription> requestDescriptions;
   std::string pathStr = path.string();
-  parse_system(systemsDescriptions, str, pathStr, system_full_regex, system_regex);
-  parse_system(queriesDescriptions, str, pathStr, query_full_regex, query_regex);
-  parse_system(singlqueriesDescriptions, str, pathStr, singl_query_full_regex, query_regex);
-  parse_system(eventsDescriptions, str, pathStr, event_full_regex, event_regex);
-  parse_system(requestDescriptions, str, pathStr, request_full_regex, request_regex);
+  FileInfo fileInfo;
+  fileInfo.filePath = pathStr;
+  fileInfo.scanFile(str);
+
+  parse_system(systemsDescriptions, str, fileInfo, system_full_regex, system_regex);
+  parse_system(queriesDescriptions, str, fileInfo, query_full_regex, query_regex);
+  parse_system(singlqueriesDescriptions, str, fileInfo, singl_query_full_regex, query_regex);
+  parse_system(eventsDescriptions, str, fileInfo, event_full_regex, event_regex);
+  parse_system(requestDescriptions, str, fileInfo, request_full_regex, request_regex);
 
   std::ofstream outFile;
-  log_success(pathStr + ".cpp");
   outFile.open(pathStr + ".cpp", std::ios::out);
   outFile << "#include " << path.filename() << "\n";
   outFile << "#include <ecs/ecs_perform.h>\n";
@@ -636,6 +678,14 @@ void process_inl_file(const fs::path &path)
   outFile << "}\n";
   outFile << "ECS_FILE_REGISTRATION(&" << registrationFunc << ")\n";
   outFile.close();
+
+  if (error_count == 0)
+    log_success("processed %s in %d ms", pathStr.c_str(), t.get_time());
+  else
+    log_error("processed %s in %d ms", pathStr.c_str(), t.get_time());
+  files_with_errors += error_count > 0;
+  processed_files += 1;
+  error_count = 0;
 }
 
 void process_folder(const std::string &path)
@@ -665,7 +715,20 @@ void process_folder(const std::string &path)
 }
 int main(int argc, char **argv)
 {
+  Timer t;
   for (int i = 1; i < argc; i++)
     process_folder(argv[i]);
-  printf("Codegen finished work\n\n");
+
+  if (processed_files == 0)
+  {
+    printf("[Codegen] no work");
+    return 0;
+  }
+
+  if (files_with_errors == 0)
+    log_success("successfully processed %d files in %d ms", processed_files, t.get_time());
+  else
+    log_error("processed %d files with %d errors in %d ms", processed_files, files_with_errors, t.get_time());
+
+  std::cout << std::endl;
 }

@@ -12,5 +12,15 @@
       "cwd": "${workspaceFolder}", //${config:launchOption.currentConfig.Project.name}
       "args": [],
     },
+    {
+      "name": "Run ecs codegen",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/code_gen/${config:launchOption.currentConfig.BuildType}/ecs_code_gen.exe",
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "${workspaceFolder}/sources/tests"
+      ],
+    },
   ]
 }
