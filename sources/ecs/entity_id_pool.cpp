@@ -23,7 +23,7 @@ namespace ecs
     uint idx = used;
     used++;
     active++;
-    EntityDescription *entity = entities.back() + idx;
+    EntityDescription *entity = entities.back() + idx % entityBinSize;
     entity->state = EntityState::CreatedNotInited;
     return entity;
   }
