@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
 
-set(ADDITIONAL_LIBS LIBCMT.lib)
-
-
-
 set(SRC_ROOT ${CMAKE_SOURCE_DIR})
 
 set(CMAKE_CXX_STANDARD 20)
