@@ -21,11 +21,14 @@
       "test3",
       "test4",
       "test5",
+      "test6",
+      "test7",
+      "test8",
     ],
   },
   "launchOption.currentConfig": {
     "BuildType": "dbg",
-    "Test": "test0"
+    "Test": "test5"
   },
   "externalConsole": true,
   "files.associations": {

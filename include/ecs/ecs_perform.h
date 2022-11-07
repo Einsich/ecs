@@ -125,8 +125,8 @@ namespace ecs
     }
   }
 
-  template <typename E, typename Event, typename... Args>
-  void perform_event(EntityId eid, const E &event, const QueryCache &cache, void (*function)(Event, Args...))
+  template <typename E, typename... Args>
+  void perform_event(EntityId eid, const E &event, const QueryCache &cache, void (*function)(const E &, Args...))
   {
     constexpr bool isDestroyEvent =
         std::is_same_v<E, ecs::OnEntityDestoyed> || std::is_same_v<E, ecs::OnEntityTerminated>;
@@ -136,8 +136,8 @@ namespace ecs
         isDestroyEvent);
   }
 
-  template <typename R, typename Request, typename... Args>
-  void __forceinline perform_request(EntityId eid, R &request, const QueryCache &cache, void (*function)(Request, Args...))
+  template <typename R, typename... Args>
+  void __forceinline perform_request(EntityId eid, R &request, const QueryCache &cache, void (*function)(R &, Args...))
   {
     perform_query<Args...>(
         cache, eid, [&](Args... args)

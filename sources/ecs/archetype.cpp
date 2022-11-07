@@ -47,7 +47,7 @@ namespace ecs
   void Archetype::update_capacity()
   {
     const auto &types = get_all_registered_types();
-    if (entityCount >= totalCapacity)
+    if (entityCount > totalCapacity)
     {
       totalCapacity += chunkSize;
       for (ComponentContainer &container : components)
@@ -100,7 +100,7 @@ namespace ecs
     }
     entity->index = entityCount - 1;
     entity->state = EntityState::CreatedAndInited;
-    EntityId *eid = (EntityId *)(eidContainer->data[chunk] + offset * types[TypeIndex<EntityId>::value].sizeOf);
+    EntityId *eid = (EntityId *)(eidContainer->data[chunk] + offset * sizeof(EntityId));
     new (eid) EntityId(entity);
   }
 
@@ -137,7 +137,6 @@ namespace ecs
 
     {
       uint liveEntity = entityCount;
-      uint eidSizeof = types[TypeIndex<EntityId>::value].sizeOf;
       for (auto &chunk : eidContainer->data)
       {
         uint entitiesInChunk = chunkSize;
@@ -152,7 +151,7 @@ namespace ecs
         }
         for (uint offset = 0; offset < entitiesInChunk; offset++)
         {
-          EntityId *eid = (EntityId *)(chunk + offset * eidSizeof);
+          EntityId *eid = (EntityId *)(chunk + offset * sizeof(EntityId));
           entity_pool.deallocate_entity(*eid);
         }
       }
