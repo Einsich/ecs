@@ -2,6 +2,19 @@
 #include <ecs/time_profiler.h>
 #include <ecs/type_registration.h>
 
+#include <iostream>
+#include <map>
+static void trash_cache()
+{
+  static std::map<int, int> bin;
+
+  for (int i = 0; i < 100000; i++)
+  {
+    bin[rand()] = i;
+  }
+  bin.clear();
+}
+
 struct vec4
 {
   float x, y, z, w;
@@ -22,9 +35,15 @@ static void move(vec4 &pos, const vec4 &vel, float dt)
 
 struct IMovable
 {
-  virtual void move(float dt)
+  virtual void move(float)
   {
   }
+  virtual ~IMovable()
+  {
+  }
+};
+struct StubObject : public IMovable
+{
 };
 struct GameObject : public IMovable
 {
@@ -44,9 +63,17 @@ ECS_TYPE_REGISTRATION(vec4, "vec4", true, true, true, {})
 ECS_TYPE_REGISTRATION(mat4, "mat4", true, true, true, {})
 ECS_TYPE_REGISTRATION(ecs::string, "string", false, true, false, {})
 
+static int perf_test(const char *label, void (*test)())
+{
+  trash_cache();
+  TimeProfile a(label);
+  test();
+  return a.get_time();
+}
+
 static ecs::vector<GameObject> go_array;
-static ecs::vector<std::shared_ptr<GameObject>> go_ptr_array;
-static ecs::vector<IMovable*> go_i_ptr_array;
+static ecs::vector<GameObject *> go_ptr_array;
+static ecs::vector<IMovable *> go_i_ptr_array;
 
 static ecs::vector<vec4> soa_pos;
 static ecs::vector<vec4> soa_vel;
@@ -74,7 +101,7 @@ int main()
        },
        ecs::SizePolicy::Thousands});
 
-  int N = 30000;
+  int N = 3000;
   {
     TimeProfile a("go array creation");
     for (int i = 0; i < N; i++)
@@ -90,7 +117,7 @@ int main()
     TimeProfile a("go pointers array creation");
     for (int i = 0; i < N; i++)
     {
-      GameObject &go = *(go_ptr_array.emplace_back(std::make_shared<GameObject>()));
+      GameObject &go = *go_ptr_array.emplace_back(new GameObject());
       go.name = "i)";
       float x = i * 0.01f;
       go.pos = vec4{x, x, x, x};
@@ -118,20 +145,68 @@ int main()
       ecs::create_entity_immediate(p, {{"pos", vec4{x, x, x, x}}, {"vel", vec4{x, x, x, x}}});
     }
   }
-
-#define TEST_PERF(func)           \
-  {                               \
-    TimeProfile a(#func);         \
-    void func##_implementation(); \
-    func##_implementation();      \
+  {
+    TimeProfile a("soa creation");
+    for (int i = 0; i < N; i++)
+    {
+      float x = i * 0.01f;
+      soa_pos.push_back(vec4{x, x, x, x});
+      soa_vel.push_back(vec4{x, x, x, x});
+    }
   }
-  TEST_PERF(array_iteration)
-  TEST_PERF(array_ptr_iteration)
-  TEST_PERF(array_i_ptr_iteration)
-  TEST_PERF(ecs_system_iteration)
-  TEST_PERF(ecs_query_iteration)
 
+  struct Test
+  {
+    ecs::string name;
+    std::function<int()> benchmark;
+    int sumOfTime, maxTime;
+  };
+
+#define TESTS                 \
+  TEST(array_iteration)       \
+  TEST(array_ptr_iteration)   \
+  TEST(array_i_ptr_iteration) \
+  TEST(ecs_system_iteration)  \
+  TEST(ecs_query_iteration)   \
+  TEST(soa_iteration)
+
+#define TEST(test) void test##_implementation();
+  TESTS
+#undef TEST
+
+#define TEST(test) {#test, []() { return perf_test(#test, test##_implementation); }, 0, 0},
+
+  ecs::vector<Test> tests = {
+      TESTS};
+#undef TEST
+
+  ecs::vector<int> order;
+  int k = tests.size();
+  for (int i = 0; i < k; i++)
+  {
+    order.push_back(i);
+  }
+  int n = 120;
+
+  for (int i = 0; i < n; i++)
+  {
+    for (int j = 0; j < k; j++)
+    {
+      Test &test = tests[order[j]];
+      int t = test.benchmark();
+      test.sumOfTime += t;
+      test.maxTime = test.maxTime < t ? t : test.maxTime;
+    }
+    std::next_permutation(order.begin(), order.end());
+  }
+
+  for (const Test &test : tests)
+  {
+    ECS_LOG("spent avg %d, max %d us. in %s\n", test.sumOfTime / n, test.maxTime, test.name.c_str());
+  }
+  std::cout << std::endl;
   ecs::destroy_all_entities();
+  std::fflush(stdout);
   return 0;
 }
 
@@ -142,7 +217,7 @@ array_iteration()
 {
   for (GameObject &go : go_array)
   {
-    move(go.pos, go.vel, dt);
+    go.move(dt);
   }
 }
 
@@ -151,7 +226,7 @@ array_ptr_iteration()
 {
   for (auto &go : go_ptr_array)
   {
-    move(go->pos, go->vel, dt);
+    go->move(dt);
   }
 }
 
@@ -179,4 +254,16 @@ ecs_query_iteration()
   QUERY()
   query([](vec4 &pos, const vec4 &vel)
         { move(pos, vel, dt); });
+}
+
+SYSTEM()
+soa_iteration()
+{
+  int n = soa_pos.size();
+  vec4 *pos = soa_pos.data();
+  const vec4 *vel = soa_vel.data();
+  for (int i = 0; i < n; ++i, ++pos, ++vel)
+  {
+    move(*pos, *vel, dt);
+  }
 }

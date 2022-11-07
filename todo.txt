@@ -8,3 +8,5 @@
 12) optimize allocation in events queue
 13) optimize ComponentPrefab std::any looks bad
 14) flatmap for single query
+15) allocated memory info
+16) improved loger 

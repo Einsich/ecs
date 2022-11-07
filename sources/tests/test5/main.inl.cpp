@@ -14,6 +14,8 @@ static ecs::QueryCache ecs_system_iteration__cache__;
 
 static ecs::QueryCache ecs_query_iteration__cache__;
 
+static ecs::QueryCache soa_iteration__cache__;
+
 template<typename Callable>
 static void query(Callable lambda)
 {
@@ -43,6 +45,11 @@ static void ecs_system_iteration_implementation()
 static void ecs_query_iteration_implementation()
 {
   ecs::perform_system(ecs_query_iteration__cache__, ecs_query_iteration);
+}
+
+static void soa_iteration_implementation()
+{
+  ecs::perform_system(soa_iteration__cache__, soa_iteration);
 }
 
 static void registration_pull_main()
@@ -121,6 +128,18 @@ static void registration_pull_main()
   {},
   {},
   &ecs_query_iteration_implementation));
+
+  ecs::register_system(ecs::SystemDescription(
+  "",
+  "soa_iteration",
+  &soa_iteration__cache__,
+  {},
+  {},
+  {},
+  {},
+  {},
+  {},
+  &soa_iteration_implementation));
 
 }
 ECS_FILE_REGISTRATION(&registration_pull_main)

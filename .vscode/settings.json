@@ -27,7 +27,7 @@
     ],
   },
   "launchOption.currentConfig": {
-    "BuildType": "dbg",
+    "BuildType": "rel",
     "Test": "test5"
   },
   "externalConsole": true,

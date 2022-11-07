@@ -6,7 +6,7 @@ namespace ecs
 {
 
   template <typename OutType, typename InType>
-  OutType __forceinline get_smart_component2(InType arg, size_t i)
+  OutType __forceinline get_component(InType arg, size_t i)
   {
     using cvrefT = typename std::remove_cvref_t<OutType>;
     if constexpr (std::is_pointer<cvrefT>::value)
@@ -24,14 +24,14 @@ namespace ecs
   {
     for (size_t j = 0; j < n; ++j)
     {
-      function(get_smart_component2<Args>((std::remove_pointer_t<std::remove_reference_t<Args>> *)(containers[Is] ? containers[Is]->data[i] : nullptr), j)...);
+      function(get_component<Args>((std::remove_pointer_t<std::remove_reference_t<Args>> *)(containers[Is] ? containers[Is]->data[i] : nullptr), j)...);
     }
   }
 
   template <std::size_t N, typename... Args, typename Callable, std::size_t... Is>
   void __forceinline perform_query(const ecs::array<const ComponentContainer *, N> &containers, Callable function, size_t i, size_t j, std::index_sequence<Is...>)
   {
-    function(get_smart_component2<Args>((std::remove_pointer_t<std::remove_reference_t<Args>> *)(containers[Is] ? containers[Is]->data[i] : nullptr), j)...);
+    function(get_component<Args>((std::remove_pointer_t<std::remove_reference_t<Args>> *)(containers[Is] ? containers[Is]->data[i] : nullptr), j)...);
   }
 
   template <std::size_t N, std::size_t... Is>
