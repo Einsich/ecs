@@ -48,13 +48,12 @@ namespace ecs
       if (id < prefabArchetypeCache.size())
       {
         ECS_ASSERT(prefabArchetypeCache[id] == invalidArchetypeId);
-        prefabArchetypeCache[id] = archetype_id;
       }
       else
       {
         prefabArchetypeCache.resize(id + 1, invalidArchetypeId);
-        prefabArchetypeCache.back() = id;
       }
+      prefabArchetypeCache[id] = archetype_id;
     }
   };
 
