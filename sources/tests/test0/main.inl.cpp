@@ -48,8 +48,8 @@ static void registration_pull_main()
   "test_single_query",
   &test_single_query__cache__,
   {
-    {"z", ecs::TypeIndex<int>::value, ecs::AccessType::ReadWrite, false},
-    {"y", ecs::TypeIndex<int>::value, ecs::AccessType::ReadWrite, false}
+    {"z", ecs::get_type_index<int>(), ecs::AccessType::ReadWrite, false, ecs::is_singleton<int>()},
+    {"y", ecs::get_type_index<int>(), ecs::AccessType::ReadWrite, false, ecs::is_singleton<int>()}
   },
   {},
   {}
@@ -60,10 +60,10 @@ static void registration_pull_main()
   "test",
   &test__cache__,
   {
-    {"x", ecs::TypeIndex<int>::value, ecs::AccessType::ReadOnly, false},
-    {"y", ecs::TypeIndex<int>::value, ecs::AccessType::ReadOnly, false},
-    {"z", ecs::TypeIndex<int>::value, ecs::AccessType::ReadOnly, false},
-    {"eid", ecs::TypeIndex<ecs::EntityId>::value, ecs::AccessType::Copy, false}
+    {"x", ecs::get_type_index<int>(), ecs::AccessType::ReadOnly, false, ecs::is_singleton<int>()},
+    {"y", ecs::get_type_index<int>(), ecs::AccessType::ReadOnly, false, ecs::is_singleton<int>()},
+    {"z", ecs::get_type_index<int>(), ecs::AccessType::ReadOnly, false, ecs::is_singleton<int>()},
+    {"eid", ecs::get_type_index<ecs::EntityId>(), ecs::AccessType::Copy, false, ecs::is_singleton<ecs::EntityId>()}
   },
   {},
   {},
@@ -77,7 +77,7 @@ static void registration_pull_main()
   "test_event",
   &test_event__cache__,
   {
-    {"y", ecs::TypeIndex<int>::value, ecs::AccessType::Copy, false}
+    {"y", ecs::get_type_index<int>(), ecs::AccessType::Copy, false, ecs::is_singleton<int>()}
   },
   {},
   {},

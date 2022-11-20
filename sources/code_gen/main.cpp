@@ -491,11 +491,12 @@ void fill_arguments(std::ofstream &outFile, const std::vector<ParserFunctionArgu
     auto &arg = args[i];
 
     write(outFile,
-          "    {\"%s\", ecs::TypeIndex<%s>::value, %s, %s}%s\n",
+          "    {\"%s\", ecs::get_type_index<%s>(), %s, %s, ecs::is_singleton<%s>()}%s\n",
           arg.name.c_str(),
           arg.type.c_str(),
           arg.get_type(),
           arg.optional ? "true" : "false",
+          arg.type.c_str(),
           i + 1 == (uint)args.size() ? "" : ",");
   }
   write(outFile, "  },\n");
@@ -688,7 +689,7 @@ void process_inl_file(const fs::path &path)
   error_count = 0;
 }
 
-void process_folder(const std::string &path)
+void process_folder(const std::string &path, bool force_rebuild)
 {
   if (!fs::exists(path))
   {
@@ -703,11 +704,12 @@ void process_folder(const std::string &path)
       if (p.path().extension() == ".inl")
       {
         fs::path cpp_file = fs::path(p.path().string() + ".cpp");
-        fs::file_time_type last_write;
-        bool exist = fs::exists(cpp_file);
-        if (exist)
-          last_write = fs::last_write_time(cpp_file);
-        if (!exist || last_write < p.last_write_time())
+        bool requireCodeGen =
+            force_rebuild ||
+            !fs::exists(cpp_file) ||
+            fs::last_write_time(cpp_file) < p.last_write_time();
+
+        if (requireCodeGen)
           process_inl_file(p.path());
       }
     }
@@ -716,8 +718,20 @@ void process_folder(const std::string &path)
 int main(int argc, char **argv)
 {
   Timer t;
+  std::vector<std::string> paths;
+
+  std::string_view forceRebuildStr = "-force_rebuild";
+  bool forceRebuild = false;
   for (int i = 1; i < argc; i++)
-    process_folder(argv[i]);
+  {
+    if (argv[i] == forceRebuildStr)
+      forceRebuild = true;
+    else
+      paths.emplace_back(argv[i]);
+  }
+
+  for (const std::string &path : paths)
+    process_folder(path, forceRebuild);
 
   if (processed_files == 0)
   {

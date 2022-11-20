@@ -65,8 +65,8 @@ static void registration_pull_await_contruction_test()
   "get_next_node",
   &get_next_node__cache__,
   {
-    {"nextEid", ecs::TypeIndex<ecs::EntityId>::value, ecs::AccessType::Copy, false},
-    {"value", ecs::TypeIndex<int>::value, ecs::AccessType::Copy, false}
+    {"nextEid", ecs::get_type_index<ecs::EntityId>(), ecs::AccessType::Copy, false, ecs::is_singleton<ecs::EntityId>()},
+    {"value", ecs::get_type_index<int>(), ecs::AccessType::Copy, false, ecs::is_singleton<int>()}
   },
   {},
   {}
@@ -90,8 +90,8 @@ static void registration_pull_await_contruction_test()
   "test_awaited_creation",
   &test_awaited_creation__cache__,
   {
-    {"value", ecs::TypeIndex<int>::value, ecs::AccessType::Copy, false},
-    {"eid", ecs::TypeIndex<ecs::EntityId>::value, ecs::AccessType::Copy, false}
+    {"value", ecs::get_type_index<int>(), ecs::AccessType::Copy, false, ecs::is_singleton<int>()},
+    {"eid", ecs::get_type_index<ecs::EntityId>(), ecs::AccessType::Copy, false, ecs::is_singleton<ecs::EntityId>()}
   },
   {
     {"nextEid", ecs::TypeIndex<ecs::EntityId>::value},
@@ -109,7 +109,7 @@ static void registration_pull_await_contruction_test()
   "test_awaited_delete",
   &test_awaited_delete__cache__,
   {
-    {"value", ecs::TypeIndex<int>::value, ecs::AccessType::Copy, false}
+    {"value", ecs::get_type_index<int>(), ecs::AccessType::Copy, false, ecs::is_singleton<int>()}
   },
   {
     {"nextEid", ecs::TypeIndex<ecs::EntityId>::value}
@@ -126,7 +126,7 @@ static void registration_pull_await_contruction_test()
   "test_awaited_terminate",
   &test_awaited_terminate__cache__,
   {
-    {"value", ecs::TypeIndex<int>::value, ecs::AccessType::Copy, false}
+    {"value", ecs::get_type_index<int>(), ecs::AccessType::Copy, false, ecs::is_singleton<int>()}
   },
   {
     {"nextEid", ecs::TypeIndex<ecs::EntityId>::value}

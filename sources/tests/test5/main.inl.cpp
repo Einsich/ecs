@@ -59,8 +59,8 @@ static void registration_pull_main()
   "query",
   &query__cache__,
   {
-    {"pos", ecs::TypeIndex<vec4>::value, ecs::AccessType::ReadWrite, false},
-    {"vel", ecs::TypeIndex<vec4>::value, ecs::AccessType::ReadOnly, false}
+    {"pos", ecs::get_type_index<vec4>(), ecs::AccessType::ReadWrite, false, ecs::is_singleton<vec4>()},
+    {"vel", ecs::get_type_index<vec4>(), ecs::AccessType::ReadOnly, false, ecs::is_singleton<vec4>()}
   },
   {},
   {}
@@ -107,8 +107,8 @@ static void registration_pull_main()
   "ecs_system_iteration",
   &ecs_system_iteration__cache__,
   {
-    {"pos", ecs::TypeIndex<vec4>::value, ecs::AccessType::ReadWrite, false},
-    {"vel", ecs::TypeIndex<vec4>::value, ecs::AccessType::ReadOnly, false}
+    {"pos", ecs::get_type_index<vec4>(), ecs::AccessType::ReadWrite, false, ecs::is_singleton<vec4>()},
+    {"vel", ecs::get_type_index<vec4>(), ecs::AccessType::ReadOnly, false, ecs::is_singleton<vec4>()}
   },
   {},
   {},

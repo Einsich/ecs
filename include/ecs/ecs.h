@@ -6,6 +6,7 @@
 #include <ecs/query_manager.h>
 #include <ecs/base_events.h>
 #include <ecs/system_stage.h>
+#include <ecs/singleton.h>
 
 namespace ecs
 {
@@ -65,6 +66,20 @@ namespace ecs
   {
     ECS_ASSERT_RETURN(RequestIndex<R>::value != -1, );
     get_query_manager().send_request(eid, request, RequestIndex<R>::value);
+  }
+
+  // take into account is type singleton
+  template <typename T>
+  int get_type_index()
+  {
+    if constexpr (ecs::is_singleton<T>())
+    {
+      return ecs::SingletonIndex<T>::value;
+    }
+    else
+    {
+      return ecs::TypeIndex<T>::value;
+    }
   }
 }
 

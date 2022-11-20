@@ -31,8 +31,8 @@ static void registration_pull_deffered_creation()
   "get_next_node",
   &get_next_node__cache__,
   {
-    {"nextEid", ecs::TypeIndex<ecs::EntityId>::value, ecs::AccessType::Copy, false},
-    {"value", ecs::TypeIndex<float>::value, ecs::AccessType::Copy, false}
+    {"nextEid", ecs::get_type_index<ecs::EntityId>(), ecs::AccessType::Copy, false, ecs::is_singleton<ecs::EntityId>()},
+    {"value", ecs::get_type_index<float>(), ecs::AccessType::Copy, false, ecs::is_singleton<float>()}
   },
   {},
   {}
@@ -55,9 +55,9 @@ static void registration_pull_deffered_creation()
   "test_deffered_creation",
   &test_deffered_creation__cache__,
   {
-    {"value", ecs::TypeIndex<float>::value, ecs::AccessType::Copy, false},
-    {"eid", ecs::TypeIndex<ecs::EntityId>::value, ecs::AccessType::Copy, false},
-    {"nextEid", ecs::TypeIndex<ecs::EntityId>::value, ecs::AccessType::Copy, false}
+    {"value", ecs::get_type_index<float>(), ecs::AccessType::Copy, false, ecs::is_singleton<float>()},
+    {"eid", ecs::get_type_index<ecs::EntityId>(), ecs::AccessType::Copy, false, ecs::is_singleton<ecs::EntityId>()},
+    {"nextEid", ecs::get_type_index<ecs::EntityId>(), ecs::AccessType::Copy, false, ecs::is_singleton<ecs::EntityId>()}
   },
   {},
   {},

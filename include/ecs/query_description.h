@@ -18,9 +18,10 @@ namespace ecs
   {
     AccessType accessType;
     bool optional;
+    bool isSingleton;
 
-    ArgumentDescription(const char *name, int type_idx, AccessType access_type, bool optional)
-        : ComponentDescription(name, type_idx), accessType(access_type), optional(optional)
+    ArgumentDescription(const char *name, int type_idx, AccessType access_type, bool optional, bool is_singleton)
+        : ComponentDescription(name, type_idx), accessType(access_type), optional(optional), isSingleton(is_singleton)
     {
     }
   };
