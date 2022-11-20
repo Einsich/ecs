@@ -5,11 +5,39 @@
 namespace ecs
 {
 
-  template <typename OutType, typename InType>
-  OutType __forceinline get_component(InType arg, size_t i)
+  template <typename T>
+  struct clear_type
   {
-    using cvrefT = typename std::remove_cvref_t<OutType>;
-    if constexpr (std::is_pointer<cvrefT>::value)
+    using type = std::remove_pointer_t<std::remove_reference_t<T>>;
+  };
+
+  template <typename OutType, typename InType>
+  OutType __forceinline get_component(InType &arg)
+  {
+    using T = typename std::remove_cvref_t<OutType>;
+    if constexpr (is_singleton<T>())
+    {
+      return *arg;
+    }
+    if constexpr (std::is_pointer<T>::value)
+    {
+      return arg ? arg++ : nullptr;
+    }
+    else
+    {
+      return *(arg++);
+    }
+  }
+
+  template <typename OutType, typename InType>
+  OutType __forceinline get_component(InType arg, uint i)
+  {
+    using T = typename std::remove_cvref_t<OutType>;
+    if constexpr (is_singleton<T>())
+    {
+      return *arg;
+    }
+    else if constexpr (std::is_pointer<T>::value)
     {
       return arg ? arg + i : nullptr;
     }
@@ -18,26 +46,46 @@ namespace ecs
       return *(arg + i);
     }
   }
-
-  template <std::size_t N, typename... Args, typename Callable, std::size_t... Is>
-  void __forceinline perform_loop(const ecs::array<const ComponentContainer *, N> &containers, Callable function, size_t i, size_t n, std::index_sequence<Is...>)
+  template <typename... Args, typename... PtrArgs, typename Callable, std::size_t... Is>
+  void __forceinline perform_loop(std::tuple<PtrArgs...> &&dataPointers, Callable function, size_t n, std::index_sequence<Is...>)
   {
     for (size_t j = 0; j < n; ++j)
     {
-      function(get_component<Args>((std::remove_pointer_t<std::remove_reference_t<Args>> *)(containers[Is] ? containers[Is]->data[i] : nullptr), j)...);
+      function(get_component<Args>(std::get<Is>(dataPointers))...);
     }
   }
 
-  template <std::size_t N, typename... Args, typename Callable, std::size_t... Is>
-  void __forceinline perform_query(const ecs::array<const ComponentContainer *, N> &containers, Callable function, size_t i, size_t j, std::index_sequence<Is...>)
+  template <typename... Args, typename... PtrArgs, typename Callable, std::size_t... Is>
+  void __forceinline perform_query(std::tuple<PtrArgs...> &&dataPointers, Callable function, size_t j, std::index_sequence<Is...>)
   {
-    function(get_component<Args>((std::remove_pointer_t<std::remove_reference_t<Args>> *)(containers[Is] ? containers[Is]->data[i] : nullptr), j)...);
+
+    function(get_component<Args>(std::get<Is>(dataPointers), j)...);
   }
 
-  template <std::size_t N, std::size_t... Is>
-  ecs::array<const ComponentContainer *, N> get_components(const ecs::vector<ComponentContainer> &containers, const ecs::vector<int> &indexes, std::index_sequence<Is...>)
+  template <typename T, typename T2 = void>
+  struct storage_type
   {
-    return {(indexes[Is] >= 0 ? &containers[indexes[Is]] : nullptr)...};
+    using ptr_type = typename clear_type<T>::type *__restrict;
+    using type = typename clear_type<T>::type;
+  };
+
+  // This is a partial specialisation, not a separate template.
+  template <typename T>
+  struct storage_type<T, typename std::enable_if<ecs::is_singleton<T>()>::type>
+  {
+    using ptr_type = typename clear_type<T>::type *__restrict;
+    using type = typename clear_type<T>::type;
+  };
+
+  template <typename... Args, std::size_t... Is>
+  std::tuple<typename storage_type<Args>::ptr_type...> __forceinline get_components(const ecs::vector<ComponentContainer> &containers, const ecs::vector<int> &indexes, uint chunk, std::index_sequence<Is...>)
+  {
+    //
+    return {(is_singleton<typename storage_type<Args>::type>()
+                 ? get_singleton<typename storage_type<Args>::type>()
+                 : (*(indexes.data() + Is) >= 0
+                        ? (typename storage_type<Args>::ptr_type)(*((containers.data() + *(indexes.data() + Is))->data.data() + chunk))
+                        : nullptr))...};
   }
 
   template <typename... Args, typename Callable>
@@ -63,17 +111,15 @@ namespace ecs
       if (archetype.entityCount == 0)
         continue;
 
-      ecs::array<const ComponentContainer *, N> components = get_components<N>(archetype.components, cachedArchetype, indexes);
-
       uint binN = archetype.entityCount >> archetype.chunkPower;
       for (uint binIdx = 0; binIdx < binN; ++binIdx)
       {
-        perform_loop<N, Args...>(components, function, binIdx, archetype.chunkSize, indexes);
+        perform_loop<Args...>(get_components<Args...>(archetype.components, cachedArchetype, binIdx, indexes), function, archetype.chunkSize, indexes);
       }
       uint lastBinSize = archetype.entityCount - (binN << archetype.chunkPower);
       if (lastBinSize > 0)
       {
-        perform_loop<N, Args...>(components, function, binN, lastBinSize, indexes);
+        perform_loop<Args...>(get_components<Args...>(archetype.components, cachedArchetype, binN, indexes), function, lastBinSize, indexes);
       }
     }
   }
@@ -116,9 +162,7 @@ namespace ecs
         uint binIdx = index >> archetype.chunkPower;
         uint inBinIdx = index & archetype.chunkMask;
 
-        ecs::array<const ComponentContainer *, N> components = get_components<N>(archetype.components, cachedArchetype, indexes);
-
-        perform_query<N, Args...>(components, function, binIdx, inBinIdx, indexes);
+        perform_query<Args...>(get_components<Args...>(archetype.components, cachedArchetype, binIdx, indexes), function, inBinIdx, indexes);
       }
     }
   }
