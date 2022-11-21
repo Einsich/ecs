@@ -34,7 +34,7 @@ namespace ecs
 
   void init_singletones()
   {
-    ECS_ASSERT(!hasNewSingletonTypes);
+    preallocate_singletones();
 
     const auto &types = ecs::get_all_registered_singletons();
     singletonStorage.resize(types.size());
@@ -63,7 +63,7 @@ namespace ecs
 
   void *get_singleton(uint idx)
   {
-    singletonStorage[idx].data.data();
+    return singletonStorage[idx].data.data();
   }
 
 }

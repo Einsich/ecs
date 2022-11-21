@@ -735,7 +735,7 @@ int main(int argc, char **argv)
 
   if (processed_files == 0)
   {
-    printf("[Codegen] no work");
+    printf("[Codegen] no work\n");
     return 0;
   }
 

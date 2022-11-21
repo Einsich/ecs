@@ -161,13 +161,14 @@ int main()
     std::function<int()> benchmark;
     int sumOfTime, maxTime;
   };
-
-#define TESTS                 \
-  TEST(array_iteration)       \
-  TEST(array_ptr_iteration)   \
-  TEST(array_i_ptr_iteration) \
-  TEST(ecs_system_iteration)  \
-  TEST(ecs_query_iteration)   \
+  /*
+   TEST(array_iteration)       \
+   TEST(array_ptr_iteration)   \
+   TEST(array_i_ptr_iteration) \
+  */
+#define TESTS                \
+  TEST(ecs_system_iteration) \
+  TEST(ecs_query_iteration)  \
   TEST(soa_iteration)
 
 #define TEST(test) void test##_implementation();
@@ -186,7 +187,7 @@ int main()
   {
     order.push_back(i);
   }
-  int n = 120;
+  int n = 4 * 3 * 2;
 
   for (int i = 0; i < n; i++)
   {

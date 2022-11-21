@@ -228,6 +228,8 @@ namespace ecs
     for (uint i = 0, n = desription.arguments.size(); i < n; i++)
     {
       const auto &d = desription.arguments[i];
+      if (d.isSingleton)
+        continue;
       int ind = archetype.findComponentIndex(d);
 
       if (ind >= 0 || d.optional)

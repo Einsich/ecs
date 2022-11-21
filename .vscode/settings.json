@@ -28,7 +28,7 @@
   },
   "launchOption.currentConfig": {
     "BuildType": "rel",
-    "Test": "test5"
+    "Test": "test6"
   },
   "externalConsole": true,
   "files.associations": {

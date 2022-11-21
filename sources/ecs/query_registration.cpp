@@ -10,6 +10,8 @@ namespace ecs
     const auto &types = get_all_registered_types();
     for (const ArgumentDescription &descr : arguments)
     {
+      if (descr.isSingleton)
+        continue;
       const auto &type = types[descr.typeIndex];
       if (descr.accessType == AccessType::Copy)
       {

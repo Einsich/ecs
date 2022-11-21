@@ -19,5 +19,6 @@ int main()
   ecs::perform_systems();
 
   ecs::destroy_all_entities();
+  std::fflush(stdout);
   return 0;
 }

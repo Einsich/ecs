@@ -57,7 +57,7 @@ namespace ecs
 
     extern int get_next_singleton_index();
     extern void register_singleton(int idx, SingletonDescription descr);
-    extern bool dasNewSingletonTypes;
+    extern bool hasNewSingletonTypes;
 
     hasNewSingletonTypes = true;
     ECS_ASSERT(SingletonIndex<T>::value == -1);
@@ -82,9 +82,9 @@ namespace ecs
   void *get_singleton(uint idx);
 
   template <typename T>
-  T &get_singleton()
+  T *get_singleton()
   {
-    return *(T *)get_singleton(SingletonIndex<T>::value);
+    return (T *)get_singleton(SingletonIndex<std::remove_cvref_t<T>>::value);
   }
 
   template <typename T>
@@ -95,6 +95,6 @@ namespace ecs
 
 }
 #define ECS_REGISTER_SINGLETON(T) \
-  static SingletonRegister<T> __CONCAT__(singletonRegistrator, __LINE__)(#T);
+  static ecs::SingletonRegister<T> __CONCAT__(singletonRegistrator, __LINE__)(#T);
 #define ECS_REGISTER_SINGLETON_WITH_CONSTUCTOR(T, CONSTRUCTOR) \
-  static SingletonRegister<T> __CONCAT__(singletonRegistrator, __LINE__)(#T, CONSTRUCTOR);
+  static ecs::SingletonRegister<T> __CONCAT__(singletonRegistrator, __LINE__)(#T, CONSTRUCTOR);

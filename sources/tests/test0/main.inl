@@ -37,6 +37,7 @@ int main()
   printf("request count %d\n", r.count);
 
   ecs::destroy_all_entities();
+  std::fflush(stdout);
   return 0;
 }
 

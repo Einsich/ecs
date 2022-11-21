@@ -7,6 +7,6 @@ namespace ecs
     Singleton = 0u,
     Dozens = 3u,
     Hundreds = 6u,
-    Thousands = 9u
+    Thousands = 12u
   };
 }

@@ -57,6 +57,7 @@ int main()
       memset(v + i, 0, sizeof(std::vector<Point4>));
     }
   }
+  std::fflush(stdout);
 }
 
 struct A
