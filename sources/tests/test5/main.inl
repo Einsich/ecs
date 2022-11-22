@@ -33,29 +33,14 @@ static void move(vec4 &pos, const vec4 &vel, float dt)
   pos.w += vel.w * dt;
 }
 
-struct IMovable
+struct GameObject
 {
-  virtual void move(float)
-  {
-  }
-  virtual ~IMovable()
-  {
-  }
-};
-struct StubObject : public IMovable
-{
-};
-struct GameObject : public IMovable
-{
-  ecs::string name;
-  ecs::string text;
+  // ecs::string name;
+  // ecs::string text;
+  mat4 data1[20];
   vec4 vel;
-  mat4 data[5];
+  mat4 data2[20];
   vec4 pos;
-  void move(float dt) override
-  {
-    ::move(pos, vel, dt);
-  }
 };
 
 ECS_TYPE_REGISTRATION(int, "int", true, true, true, {})
@@ -73,10 +58,18 @@ static int perf_test(const char *label, void (*test)())
 
 static ecs::vector<GameObject> go_array;
 static ecs::vector<GameObject *> go_ptr_array;
-static ecs::vector<IMovable *> go_i_ptr_array;
 
 static ecs::vector<vec4> soa_pos;
 static ecs::vector<vec4> soa_vel;
+
+template <typename T>
+static void shuffle(ecs::vector<T> &v)
+{
+  for (int i = 0, n = v.size(); i < n; i++)
+  {
+    std::swap(v[i], v[rand() % n]);
+  }
+}
 
 int main()
 {
@@ -101,13 +94,13 @@ int main()
        },
        ecs::SizePolicy::Thousands});
 
-  int N = 3000;
+  int N = 100000;
   {
     TimeProfile a("go array creation");
     for (int i = 0; i < N; i++)
     {
       GameObject &go = go_array.emplace_back();
-      go.name = "i)";
+      // go.name = "i)";
       float x = i * 0.01f;
       go.pos = vec4{x, x, x, x};
       go.vel = vec4{x, x, x, x};
@@ -118,24 +111,12 @@ int main()
     for (int i = 0; i < N; i++)
     {
       GameObject &go = *go_ptr_array.emplace_back(new GameObject());
-      go.name = "i)";
+      // go.name = "i)";
       float x = i * 0.01f;
       go.pos = vec4{x, x, x, x};
       go.vel = vec4{x, x, x, x};
     }
-  }
-  {
-    TimeProfile a("go pointers array creation");
-    for (int i = 0; i < N; i++)
-    {
-      auto ptr = new GameObject();
-      go_i_ptr_array.emplace_back(ptr);
-      GameObject &go = *ptr;
-      go.name = "i)";
-      float x = i * 0.01f;
-      go.pos = vec4{x, x, x, x};
-      go.vel = vec4{x, x, x, x};
-    }
+    shuffle(go_ptr_array);
   }
   {
     TimeProfile a("entity creation");
@@ -161,14 +142,11 @@ int main()
     std::function<int()> benchmark;
     int sumOfTime, maxTime;
   };
-  /*
-   TEST(array_iteration)       \
-   TEST(array_ptr_iteration)   \
-   TEST(array_i_ptr_iteration) \
-  */
+
 #define TESTS                \
+  TEST(array_iteration)      \
+  TEST(array_ptr_iteration)  \
   TEST(ecs_system_iteration) \
-  TEST(ecs_query_iteration)  \
   TEST(soa_iteration)
 
 #define TEST(test) void test##_implementation();
@@ -187,7 +165,7 @@ int main()
   {
     order.push_back(i);
   }
-  int n = 4 * 3 * 2;
+  int n = 4 * 3 * 2 * 20;
 
   for (int i = 0; i < n; i++)
   {
@@ -200,7 +178,7 @@ int main()
     }
     std::next_permutation(order.begin(), order.end());
   }
-
+  printf("sizeof %llu\n", sizeof(GameObject));
   for (const Test &test : tests)
   {
     ECS_LOG("spent avg %d, max %d us. in %s\n", test.sumOfTime / n, test.maxTime, test.name.c_str());
@@ -218,7 +196,7 @@ array_iteration()
 {
   for (GameObject &go : go_array)
   {
-    go.move(dt);
+    move(go.pos, go.vel, dt);
   }
 }
 
@@ -227,16 +205,7 @@ array_ptr_iteration()
 {
   for (auto &go : go_ptr_array)
   {
-    go->move(dt);
-  }
-}
-
-SYSTEM()
-array_i_ptr_iteration()
-{
-  for (auto &go : go_i_ptr_array)
-  {
-    go->move(dt);
+    move(go->pos, go->vel, dt);
   }
 }
 

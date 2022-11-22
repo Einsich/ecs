@@ -9,4 +9,3 @@
 
 15) allocated memory info
 16) improved loger 
-17) managed singletones

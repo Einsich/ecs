@@ -8,8 +8,6 @@ static ecs::QueryCache array_iteration__cache__;
 
 static ecs::QueryCache array_ptr_iteration__cache__;
 
-static ecs::QueryCache array_i_ptr_iteration__cache__;
-
 static ecs::QueryCache ecs_system_iteration__cache__;
 
 static ecs::QueryCache ecs_query_iteration__cache__;
@@ -30,11 +28,6 @@ static void array_iteration_implementation()
 static void array_ptr_iteration_implementation()
 {
   ecs::perform_system(array_ptr_iteration__cache__, array_ptr_iteration);
-}
-
-static void array_i_ptr_iteration_implementation()
-{
-  ecs::perform_system(array_i_ptr_iteration__cache__, array_i_ptr_iteration);
 }
 
 static void ecs_system_iteration_implementation()
@@ -89,18 +82,6 @@ static void registration_pull_main()
   {},
   {},
   &array_ptr_iteration_implementation));
-
-  ecs::register_system(ecs::SystemDescription(
-  "",
-  "array_i_ptr_iteration",
-  &array_i_ptr_iteration__cache__,
-  {},
-  {},
-  {},
-  {},
-  {},
-  {},
-  &array_i_ptr_iteration_implementation));
 
   ecs::register_system(ecs::SystemDescription(
   "",
