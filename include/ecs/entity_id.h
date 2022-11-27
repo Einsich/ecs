@@ -31,6 +31,15 @@ namespace ecs
     EntityId() = default;
     EntityId(const EntityDescription *description) : description(description) {}
 
+    bool operator==(EntityId eid)
+    {
+      return description == eid.description;
+    }
+    bool operator!=(EntityId eid)
+    {
+      return description != eid.description;
+    }
+
     bool valid() const
     {
       return description

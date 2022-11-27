@@ -69,12 +69,12 @@ namespace ecs
     for (uint i = 0, n = prefabs.size(), m = overrides_list.size(); i < n; ++i)
     {
       const ComponentPrefab &component = prefabs[i];
-      ComponentPrefab &override = overrides_list[j];
       const auto &type = types[component.typeIndex];
       byte *memory = components[i].data[chunk] + offset * type.sizeOf;
       ECS_ASSERT(component.nameHash == components[i].description.nameHash);
-      if (j < m && override.nameHash == component.nameHash)
+      if (j < m && overrides_list[j].nameHash == component.nameHash)
       {
+        ComponentPrefab &override = overrides_list[j];
         if (component.typeIndex != override.typeIndex)
         {
           ECS_ERROR("prefab \"%s\" has type missmatch for component \"%s\", it's <%s> in prefab and <%s> in override\n",

@@ -28,7 +28,7 @@
   },
   "launchOption.currentConfig": {
     "BuildType": "rel",
-    "Test": "test5"
+    "Test": "test7"
   },
   "externalConsole": true,
   "files.associations": {
@@ -102,6 +102,7 @@
     "xlocbuf": "cpp",
     "xlocmes": "cpp",
     "xlocmon": "cpp",
-    "xloctime": "cpp"
+    "xloctime": "cpp",
+    "set": "cpp"
   }
 }

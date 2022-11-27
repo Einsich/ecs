@@ -34,6 +34,11 @@ add_executable(test5
 add_executable(test6
   test6/main.inl.cpp
 )
+add_executable(test7
+  test7/dijkstra.inl.cpp
+  test7/dijkstra.cpp
+  test7/main.inl.cpp
+)
 target_link_libraries(test0 ecsLib ${ADDITIONAL_LIBS})
 target_link_libraries(test1 ecsLib ${ADDITIONAL_LIBS})
 target_link_libraries(test2 ecsLib ${ADDITIONAL_LIBS})
@@ -41,5 +46,6 @@ target_link_libraries(test3 ecsLib ${ADDITIONAL_LIBS})
 target_link_libraries(test4 ecsLib ${ADDITIONAL_LIBS})
 target_link_libraries(test5 ecsLib ${ADDITIONAL_LIBS})
 target_link_libraries(test6 ecsLib ${ADDITIONAL_LIBS})
+target_link_libraries(test7 ecsLib ${ADDITIONAL_LIBS})
 
 target_compile_definitions(ecsLib PUBLIC USER_FUNCTION_HEADER=<user_type_functions.h>)
