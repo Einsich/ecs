@@ -7,4 +7,4 @@ include_directories(${CMAKE_SOURCE_DIR}/sources/tests)
 
 file(GLOB_RECURSE LIB_SOURCES ${LIB_PATH}/*.cpp)
 
-add_library(${LIB_NAME} OBJECT ${LIB_SOURCES})
+add_library(${LIB_NAME} STATIC ${LIB_SOURCES})
