@@ -43,6 +43,17 @@ namespace ecs
     {
     }
 
+    template <typename U>
+    ComponentPrefab(const char *name, int type_index, const U &prefab)
+        : ComponentDescription(name, type_index), raw_component(prefab), raw_pointer_getter(get_raw_mem<U>)
+    {
+    }
+
+    template <typename U>
+    ComponentPrefab(const char *name, int type_index, U &&prefab)
+        : ComponentDescription(name, type_index), raw_component(prefab), raw_pointer_getter(get_raw_mem<U>)
+    {
+    }
     template <typename T>
     ComponentPrefab(const char *name, const T &prefab)
         : ComponentDescription(name, TypeIndex<T>::value), raw_component(prefab), raw_pointer_getter(get_raw_mem<T>)
