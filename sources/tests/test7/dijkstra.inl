@@ -2,11 +2,11 @@
 
 #include <ecs/type_registration.h>
 
-ECS_TYPE_REGISTRATION(int, "int", true, true, true, {})
-ECS_TYPE_REGISTRATION(unsigned, "uint", true, true, true, {})
+ECS_TYPE_REGISTRATION(int, "int", true, true, true)
+ECS_TYPE_REGISTRATION(unsigned, "uint", true, true, true)
 
-ECS_TYPE_REGISTRATION(std::string, "string", false, false, false, {})
-ECS_TYPE_REGISTRATION(EdgeList<ecs::EntityId>, "EdgeList", false, false, false, {})
+ECS_TYPE_REGISTRATION(std::string, "string", false, false, false)
+ECS_TYPE_REGISTRATION(EdgeList<ecs::EntityId>, "EdgeList", false, false, false)
 
 static std::map<std::string, ecs::EntityId> nodeNameToId;
 struct cmp

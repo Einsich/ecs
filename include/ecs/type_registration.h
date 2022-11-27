@@ -40,7 +40,6 @@ namespace ecs
             bool trivial_copy = false>
   void type_registration(
       const char *type_name,
-      const UserFunctions user_functions = UserFunctions{},
       AwaitConstructor awaitCtor = AwaitConstructor{})
   {
     CopyConstructor copyCtor = nullptr;
@@ -68,7 +67,7 @@ namespace ecs
             moveCtor,
             awaitCtor ? awaitCtor : AwaitConstructor{},
             dtor,
-            user_functions});
+            get_user_functions<T>()});
   }
   template <typename T,
             bool trivial_dtor = false,
@@ -76,9 +75,9 @@ namespace ecs
             bool trivial_copy = false>
   struct RegistrationHelper
   {
-    RegistrationHelper(const char *name, UserFunctions user_functions, AwaitConstructor await_ctor)
+    RegistrationHelper(const char *name, AwaitConstructor await_ctor)
     {
-      type_registration<T, trivial_dtor, trivial_move, trivial_copy>(name, user_functions, await_ctor);
+      type_registration<T, trivial_dtor, trivial_move, trivial_copy>(name, await_ctor);
     }
   };
 
@@ -87,9 +86,8 @@ namespace ecs
                               TRIVIAL_DTOR,                                      \
                               TRIVIAL_MOVE,                                      \
                               TRIVIAL_COPY,                                      \
-                              USER_FUNCTIONS,                                    \
                               ...)                                               \
   static ecs::RegistrationHelper<TYPE, TRIVIAL_DTOR, TRIVIAL_MOVE, TRIVIAL_COPY> \
-      __CONCAT__(registrator, __LINE__)(NAME, USER_FUNCTIONS, {__VA_ARGS__});
+      __CONCAT__(registrator, __LINE__)(NAME, {__VA_ARGS__});
 
 }

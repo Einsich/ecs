@@ -44,8 +44,8 @@ static void rand_await_constructor(void *, const ecs::ComponentPrefab &)
 {
 }
 
-ECS_TYPE_REGISTRATION(EntityDependance, "EntityDependance", false, false, false, {}, &await_component, &await_constructor)
-ECS_TYPE_REGISTRATION(RandomWaiter, "RandomWaiter", false, false, false, {}, &random_wait, &rand_await_constructor)
+ECS_TYPE_REGISTRATION(EntityDependance, "EntityDependance", false, false, false, &await_component, &await_constructor)
+ECS_TYPE_REGISTRATION(RandomWaiter, "RandomWaiter", false, false, false, &random_wait, &rand_await_constructor)
 
 EVENT()
 test_event(const PrepareTest &)

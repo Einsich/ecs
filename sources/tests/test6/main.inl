@@ -31,8 +31,8 @@ static void move(vec4 &pos, const vec4 &vel, float dt)
   pos.w += vel.w * dt;
 }
 
-ECS_TYPE_REGISTRATION(float, "float", true, true, true, {})
-ECS_TYPE_REGISTRATION(vec4, "vec4", true, true, true, {})
+ECS_TYPE_REGISTRATION(float, "float", true, true, true)
+ECS_TYPE_REGISTRATION(vec4, "vec4", true, true, true)
 
 static int perf_test(const char *label, void (*test)())
 {

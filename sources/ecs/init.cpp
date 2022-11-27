@@ -5,9 +5,9 @@
 
 namespace ecs
 {
-  void init(UserFunctions entity_id_functions)
+  void init()
   {
-    type_registration<ecs::EntityId, true, true, true>("EntityId", entity_id_functions, {});
+    type_registration<ecs::EntityId, true, true, true>("EntityId", {});
     register_event<ecs::OnEntityCreated>("OnEntityCreated", true);
     register_event<ecs::OnEntityDestoyed>("OnEntityDestoyed", true);
     register_event<ecs::OnEntityTerminated>("OnEntityTerminated", true);
