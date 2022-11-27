@@ -2,6 +2,11 @@
 #include <ecs/type_annotation.h>
 #include <ecs/component_prefab.h>
 
+#if !defined(USER_FUNCTION_REGISTRATION_HEADER)
+#define USER_FUNCTION_REGISTRATION_HEADER <ecs/user_type_annotation.h>
+#endif // MACRO
+
+#include USER_FUNCTION_REGISTRATION_HEADER
 namespace ecs
 {
 
