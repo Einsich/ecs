@@ -35,7 +35,6 @@ namespace ecs
     const ComponentAwaiter componentAwaiter = nullptr;
     const AwaitConstructor awaitConstructor = nullptr;
     const Destructor destructor = nullptr;
-    const UserFunctions userFunctions;
 
     void ECS_INLINE copy(void *dst, const void *src) const
     {

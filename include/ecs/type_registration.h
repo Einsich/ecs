@@ -2,11 +2,6 @@
 #include <ecs/type_annotation.h>
 #include <ecs/component_prefab.h>
 
-#if !defined(USER_FUNCTION_REGISTRATION_HEADER)
-#define USER_FUNCTION_REGISTRATION_HEADER <ecs/user_type_annotation.h>
-#endif // MACRO
-
-#include USER_FUNCTION_REGISTRATION_HEADER
 namespace ecs
 {
 
@@ -71,8 +66,7 @@ namespace ecs
             moveCtor,
             cmp_awaiter,
             await_ctor,
-            dtor,
-            get_user_functions<T>()});
+            dtor});
   }
   template <typename T, Type type = Type::DefaultType>
   struct RegistrationHelper

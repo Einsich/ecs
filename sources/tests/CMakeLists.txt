@@ -43,7 +43,3 @@ target_link_libraries(test4 ecsLib ${ADDITIONAL_LIBS})
 target_link_libraries(test5 ecsLib ${ADDITIONAL_LIBS})
 target_link_libraries(test6 ecsLib ${ADDITIONAL_LIBS})
 target_link_libraries(test7 ecsLib ${ADDITIONAL_LIBS})
-
-target_include_directories(ecsLib PUBLIC ${CMAKE_SOURCE_DIR}/sources/tests)
-target_compile_definitions(ecsLib PUBLIC USER_FUNCTION_HEADER=<user_type_functions.h>)
-target_compile_definitions(ecsLib PUBLIC USER_FUNCTION_REGISTRATION_HEADER=<user_type_registration.h>)
