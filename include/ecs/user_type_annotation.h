@@ -11,7 +11,7 @@ namespace ecs
     return user_info;
   }
 
-  template <typename Info>
+  template <typename T, typename Info>
   void add_user_info(Info &&info)
   {
     auto &infoList = get_all_user_info<Info>();
@@ -19,7 +19,7 @@ namespace ecs
     infoList[TypeIndex<T>::value] = info;
   }
 
-  template <typename T, typename Info>
+  template <typename Info>
   void add_user_info(uint type_idx, Info &&info)
   {
     auto &infoList = get_all_user_info<Info>();
