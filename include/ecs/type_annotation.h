@@ -9,31 +9,31 @@
 
 namespace ecs
 {
+  enum Type
+  {
+    DefaultType = 0,
+    TrivialCopyConstructor = 1 << 0,
+    TrivialMoveConstructor = 1 << 1,
+    TrivialDestructor = 1 << 2,
+    PODType = TrivialCopyConstructor | TrivialMoveConstructor | TrivialDestructor,
+  };
   struct ComponentPrefab;
-  using DefaultConstructor = void (*)(void *);
+  using PrefabConstructor = void (*)(void *, const ComponentPrefab &);
   using CopyConstructor = void (*)(void *, const void *);
   using MoveConstructor = void (*)(void *, void *);
   using Destructor = void (*)(void *);
-  struct AwaitConstructor
-  {
-    using Awaiter = bool (*)(const ComponentPrefab &);
-    using Constructor = void (*)(void *, const ComponentPrefab &);
-    const Awaiter awaiter = nullptr;
-    const Constructor constructor = nullptr;
-
-    operator bool() const
-    {
-      return awaiter && constructor;
-    }
-  };
+  using ComponentAwaiter = bool (*)(const ComponentPrefab &);
+  using AwaitConstructor = void (*)(void *, const ComponentPrefab &);
 
   struct TypeAnnotation
   {
     const ecs::string name;
     const uint sizeOf;
+    const PrefabConstructor prefabConstructor = nullptr;
     const CopyConstructor copyConstructor = nullptr;
     const MoveConstructor moveConstructor = nullptr;
-    const AwaitConstructor awaitConstructor;
+    const ComponentAwaiter componentAwaiter = nullptr;
+    const AwaitConstructor awaitConstructor = nullptr;
     const Destructor destructor = nullptr;
     const UserFunctions userFunctions;
 

@@ -43,10 +43,9 @@ struct GameObject
   vec4 pos;
 };
 
-ECS_TYPE_REGISTRATION(int, "int", true, true, true)
-ECS_TYPE_REGISTRATION(vec4, "vec4", true, true, true)
-ECS_TYPE_REGISTRATION(mat4, "mat4", true, true, true)
-ECS_TYPE_REGISTRATION(ecs::string, "string", false, true, false)
+ECS_TYPE_REGISTRATION(vec4, "vec4", ecs::PODType)
+ECS_TYPE_REGISTRATION(mat4, "mat4", ecs::PODType)
+ECS_TYPE_REGISTRATION(ecs::string, "string", ecs::TrivialMoveConstructor)
 
 static int perf_test(const char *label, void (*test)())
 {

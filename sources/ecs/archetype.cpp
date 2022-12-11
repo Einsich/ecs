@@ -85,7 +85,7 @@ namespace ecs
           continue;
         }
         if (type.awaitConstructor)
-          type.awaitConstructor.constructor(memory, override);
+          type.awaitConstructor(memory, override);
         else
           type.move(memory, override.get_raw_memory());
         j++;
@@ -93,7 +93,7 @@ namespace ecs
       else
       {
         if (type.awaitConstructor)
-          type.awaitConstructor.constructor(memory, component);
+          type.awaitConstructor(memory, component);
         else
           type.copy(memory, component.get_raw_memory());
       }

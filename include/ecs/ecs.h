@@ -10,7 +10,7 @@
 
 namespace ecs
 {
-  void init();
+  void init(bool register_base_types = true);
   void pull_registered_files();
   void init_stages(const ecs::vector<SystemStage> &stages);
   void update_query_manager();

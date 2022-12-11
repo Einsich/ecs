@@ -107,7 +107,7 @@ namespace ecs
         inPrefab = false;
         j++;
       }
-      if (types[component.typeIndex].awaitConstructor)
+      if (types[component.typeIndex].componentAwaiter)
         cache.emplace_back(AwaitPrefab{k, inPrefab});
     }
     return cache;
@@ -120,7 +120,7 @@ namespace ecs
     for (const AwaitPrefab &awaitComp : awaitCache)
     {
       const auto &component = awaitComp.inPrefab ? prefab.components[awaitComp.idx] : overrides_list[awaitComp.idx];
-      if (!types[component.typeIndex].awaitConstructor.awaiter(component))
+      if (!types[component.typeIndex].componentAwaiter(component))
         return false;
     }
     return true;

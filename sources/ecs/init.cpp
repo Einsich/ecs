@@ -5,9 +5,19 @@
 
 namespace ecs
 {
-  void init()
+  void init(bool register_base_types)
   {
-    type_registration<ecs::EntityId, true, true, true>("EntityId", {});
+    if (register_base_types)
+    {
+      type_registration<ecs::EntityId, ecs::PODType>("EntityId");
+      type_registration<bool, ecs::PODType>("bool");
+      type_registration<int, ecs::PODType>("int");
+      type_registration<unsigned int, ecs::PODType>("uint");
+      type_registration<float, ecs::PODType>("float");
+      type_registration<double, ecs::PODType>("double");
+      type_registration<char, ecs::PODType>("char");
+      type_registration<unsigned char, ecs::PODType>("byte");
+    }
     register_event<ecs::OnEntityCreated>("OnEntityCreated", true);
     register_event<ecs::OnEntityDestoyed>("OnEntityDestoyed", true);
     register_event<ecs::OnEntityTerminated>("OnEntityTerminated", true);

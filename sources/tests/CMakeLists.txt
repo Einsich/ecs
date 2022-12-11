@@ -8,18 +8,15 @@ include_directories(${CMAKE_SOURCE_DIR}/sources/tests)
 
 add_executable(test0
   test0/main.inl.cpp
-  common.cpp
 )
 
 add_executable(test1
   test1/main.cpp
   test1/await_contruction_test.inl.cpp
-  common.cpp
 )
 add_executable(test2
   test2/main.cpp
   test2/deffered_creation.inl.cpp
-  common.cpp
 )
 add_executable(test3
   test3/main.inl.cpp

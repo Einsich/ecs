@@ -34,23 +34,26 @@ namespace ecs
     return TypeIndex<T>::value < (int)types.size() ? &types[TypeIndex<T>::value] : nullptr;
   }
 
-  template <typename T,
-            bool trivial_dtor = false,
-            bool trivial_move = false,
-            bool trivial_copy = false>
-  void type_registration(
-      const char *type_name,
-      AwaitConstructor awaitCtor = AwaitConstructor{})
+  template <typename T, Type type = Type::DefaultType>
+  void type_registration(const char *type_name,
+                         PrefabConstructor prefab_ctor = nullptr,
+                         ComponentAwaiter cmp_awaiter = nullptr,
+                         AwaitConstructor await_ctor = nullptr)
   {
     CopyConstructor copyCtor = nullptr;
     MoveConstructor moveCtor = nullptr;
+    if (cmp_awaiter == nullptr || await_ctor == nullptr)
+    {
+      cmp_awaiter = nullptr;
+      await_ctor = nullptr;
+    }
 
     Destructor dtor = nullptr;
-    if constexpr (!trivial_dtor)
+    if constexpr ((type & Type::TrivialDestructor) == 0)
       dtor = destuctor<T>;
-    if constexpr (!trivial_move)
+    if constexpr ((type & Type::TrivialMoveConstructor) == 0)
       moveCtor = move_constuctor<T>;
-    if constexpr (!trivial_copy)
+    if constexpr ((type & Type::TrivialCopyConstructor) == 0)
       copyCtor = copy_constuctor<T>;
 
     extern int get_next_type_index();
@@ -63,31 +66,31 @@ namespace ecs
         TypeAnnotation{
             type_name,
             sizeof(T),
+            prefab_ctor,
             copyCtor,
             moveCtor,
-            awaitCtor ? awaitCtor : AwaitConstructor{},
+            cmp_awaiter,
+            await_ctor,
             dtor,
             get_user_functions<T>()});
   }
-  template <typename T,
-            bool trivial_dtor = false,
-            bool trivial_move = false,
-            bool trivial_copy = false>
+  template <typename T, Type type = Type::DefaultType>
   struct RegistrationHelper
   {
-    RegistrationHelper(const char *name, AwaitConstructor await_ctor)
+    RegistrationHelper(const char *name,
+                       PrefabConstructor prefab_ctor = nullptr,
+                       ComponentAwaiter cmp_awaiter = nullptr,
+                       AwaitConstructor await_ctor = nullptr)
     {
-      type_registration<T, trivial_dtor, trivial_move, trivial_copy>(name, await_ctor);
+      type_registration<T, type>(name, prefab_ctor, cmp_awaiter, await_ctor);
     }
   };
 
-#define ECS_TYPE_REGISTRATION(TYPE,                                              \
-                              NAME,                                              \
-                              TRIVIAL_DTOR,                                      \
-                              TRIVIAL_MOVE,                                      \
-                              TRIVIAL_COPY,                                      \
-                              ...)                                               \
-  static ecs::RegistrationHelper<TYPE, TRIVIAL_DTOR, TRIVIAL_MOVE, TRIVIAL_COPY> \
-      __CONCAT__(registrator, __LINE__)(NAME, {__VA_ARGS__});
+#define ECS_TYPE_REGISTRATION(TYPE,              \
+                              NAME,              \
+                              TYPE_TIP,          \
+                              ...)               \
+  static ecs::RegistrationHelper<TYPE, TYPE_TIP> \
+      __CONCAT__(registrator, __LINE__)(NAME, __VA_ARGS__);
 
 }
