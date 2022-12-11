@@ -18,12 +18,12 @@ namespace ecs
     PODType = TrivialCopyConstructor | TrivialMoveConstructor | TrivialDestructor,
   };
   struct ComponentPrefab;
-  using PrefabConstructor = void (*)(void *, const ComponentPrefab &);
+  using PrefabConstructor = void (*)(void *, const ComponentPrefab &, bool is_rvalue);
   using CopyConstructor = void (*)(void *, const void *);
   using MoveConstructor = void (*)(void *, void *);
   using Destructor = void (*)(void *);
   using ComponentAwaiter = bool (*)(const ComponentPrefab &);
-  using AwaitConstructor = void (*)(void *, const ComponentPrefab &);
+  using AwaitConstructor = void (*)(void *, const ComponentPrefab &, bool is_rvalue);
 
   struct TypeAnnotation
   {

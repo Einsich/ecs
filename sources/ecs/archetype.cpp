@@ -85,7 +85,9 @@ namespace ecs
           continue;
         }
         if (type.awaitConstructor)
-          type.awaitConstructor(memory, override);
+          type.awaitConstructor(memory, override, true);
+        else if (type.prefabConstructor)
+          type.prefabConstructor(memory, override, true);
         else
           type.move(memory, override.get_raw_memory());
         j++;
@@ -93,7 +95,9 @@ namespace ecs
       else
       {
         if (type.awaitConstructor)
-          type.awaitConstructor(memory, component);
+          type.awaitConstructor(memory, component, false);
+        else if (type.prefabConstructor)
+          type.prefabConstructor(memory, component, false);
         else
           type.copy(memory, component.get_raw_memory());
       }

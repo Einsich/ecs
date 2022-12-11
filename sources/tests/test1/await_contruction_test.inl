@@ -20,7 +20,7 @@ static bool await_component(const ecs::ComponentPrefab &prefab)
   return true;
 }
 
-static void await_constructor(void *raw_memory, const ecs::ComponentPrefab &prefab)
+static void await_constructor(void *raw_memory, const ecs::ComponentPrefab &prefab, bool )
 {
   auto eid = *prefab.get<ecs::EntityId>();
   new (raw_memory) EntityDependance{eid};
@@ -40,7 +40,7 @@ static bool random_wait(const ecs::ComponentPrefab &prefab)
   return globalT >= time;
 }
 
-static void rand_await_constructor(void *, const ecs::ComponentPrefab &)
+static void rand_await_constructor(void *, const ecs::ComponentPrefab &, bool )
 {
 }
 
