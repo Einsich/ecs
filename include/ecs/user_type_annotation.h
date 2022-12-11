@@ -49,6 +49,6 @@ namespace ecs
   };
 
 #define ECS_USER_TYPE_REGISTRATION(TYPE, INFO) \
-  static ecs::UserInfoRegistrationHelper<TYPE> \
+  static ecs::UserInfoRegistrationHelper<TYPE, INFO> \
       __CONCAT__(user_type_registrator, __LINE__)(INFO);
 }
