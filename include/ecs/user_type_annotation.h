@@ -12,7 +12,7 @@ namespace ecs
   }
 
   template <typename Info>
-  void add_user_info(uint type_idx, Info &&info)
+  void add_user_info(Info &&info)
   {
     auto &infoList = get_all_user_info<Info>();
     infoList.resize(TypeIndex<T>::value + 1);
@@ -20,7 +20,7 @@ namespace ecs
   }
 
   template <typename T, typename Info>
-  void add_user_info(Info &&info)
+  void add_user_info(uint type_idx, Info &&info)
   {
     auto &infoList = get_all_user_info<Info>();
     infoList.resize(type_idx + 1);
