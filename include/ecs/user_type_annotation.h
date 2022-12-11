@@ -42,6 +42,7 @@ namespace ecs
   template <typename T>
   struct UserInfoRegistrationHelper
   {
+    template <typename Info>
     UserInfoRegistrationHelper(Info &&info)
     {
       add_user_info<T, Info>(std::move(info));
