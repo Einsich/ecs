@@ -1,8 +1,10 @@
 #include <ecs/ecs.h>
+#include <ecs/event_registration.h>
+#include <ecs/request_registration.h>
 #include "../tests.h"
 
-ECS_EVENT_REGISTRATION(MyEvent, "MyEvent", true)
-ECS_REQUEST_REGISTRATION(MyRequest, "MyRequest")
+ECS_EVENT_REGISTRATION(MyEvent)
+ECS_REQUEST_REGISTRATION(MyRequest)
 
 int main()
 {

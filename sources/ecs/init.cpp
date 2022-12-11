@@ -2,6 +2,7 @@
 #include <ecs/entity_id.h>
 #include <ecs/base_events.h>
 #include <ecs/query_manager.h>
+#include <ecs/event_registration.h>
 
 namespace ecs
 {

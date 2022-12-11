@@ -1,7 +1,8 @@
 #include <ecs/ecs.h>
+#include <ecs/event_registration.h>
 #include "../tests.h"
 
-ECS_EVENT_REGISTRATION(PrepareTest, "PrepareTest", true)
+ECS_EVENT_REGISTRATION(PrepareTest)
 
 int main()
 {
