@@ -39,7 +39,7 @@ namespace ecs
     return get_all_user_info<T>()[TypeIndex<T>::value];
   }
 
-  template <typename T, typename Info>
+  template <typename T>
   struct UserInfoRegistrationHelper
   {
     UserInfoRegistrationHelper(Info &&info)
@@ -49,6 +49,6 @@ namespace ecs
   };
 
 #define ECS_USER_TYPE_REGISTRATION(TYPE, INFO) \
-  static ecs::UserInfoRegistrationHelper<TYPE, INFO> \
+  static ecs::UserInfoRegistrationHelper<TYPE> \
       __CONCAT__(user_type_registrator, __LINE__)(INFO);
 }
