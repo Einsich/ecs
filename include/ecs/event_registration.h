@@ -24,4 +24,4 @@ namespace ecs
 }
 
 #define ECS_EVENT_REGISTRATION(TYPE) \
-  static ecs::EventRegistrationHelper<TYPE> __CONCAT__(eventRegistrator, __LINE__)(#TYPE);\
+  static ecs::EventRegistrationHelper<TYPE> __CONCAT__(eventRegistrator, __COUNTER__)(#TYPE);\

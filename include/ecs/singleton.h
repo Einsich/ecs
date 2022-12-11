@@ -95,6 +95,6 @@ namespace ecs
 
 }
 #define ECS_REGISTER_SINGLETON(T) \
-  static ecs::SingletonRegister<T> __CONCAT__(singletonRegistrator, __LINE__)(#T);
+  static ecs::SingletonRegister<T> __CONCAT__(singletonRegistrator, __COUNTER__)(#T);
 #define ECS_REGISTER_SINGLETON_WITH_CONSTUCTOR(T, CONSTRUCTOR) \
-  static ecs::SingletonRegister<T> __CONCAT__(singletonRegistrator, __LINE__)(#T, CONSTRUCTOR);
+  static ecs::SingletonRegister<T> __CONCAT__(singletonRegistrator, __COUNTER__)(#T, CONSTRUCTOR);

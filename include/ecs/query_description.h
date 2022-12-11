@@ -157,5 +157,5 @@ namespace ecs
     }
   };
 #define ECS_FILE_REGISTRATION(pull_function) \
-  static ecs::FileRegistrationHelper __CONCAT__(fileRegistrator, __LINE__)(pull_function);
+  static ecs::FileRegistrationHelper __CONCAT__(fileRegistrator, __COUNTER__)(pull_function);
 }

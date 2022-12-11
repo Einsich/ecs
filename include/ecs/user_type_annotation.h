@@ -15,16 +15,16 @@ namespace ecs
   void add_user_info(Info &&info)
   {
     auto &infoList = get_all_user_info<Info>();
-    infoList.resize(TypeIndex<T>::value + 1);
-    infoList[TypeIndex<T>::value] = info;
+    infoList.resize(TypeIndex<T>::value);
+    infoList.emplace_back(std::move(info));
   }
 
   template <typename Info>
   void add_user_info(uint type_idx, Info &&info)
   {
     auto &infoList = get_all_user_info<Info>();
-    infoList.resize(type_idx + 1);
-    infoList[type_idx] = info;
+    infoList.resize(type_idx);
+    infoList.emplace_back(std::move(info));
   }
 
   template <typename Info>
@@ -51,5 +51,5 @@ namespace ecs
 
 #define ECS_USER_TYPE_REGISTRATION(TYPE, INFO) \
   static ecs::UserInfoRegistrationHelper<TYPE> \
-      __CONCAT__(user_type_registrator, __LINE__)(INFO);
+      __CONCAT__(user_type_registrator, __COUNTER__)(INFO);
 }

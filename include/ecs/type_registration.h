@@ -85,6 +85,6 @@ namespace ecs
                               TYPE_TIP,          \
                               ...)               \
   static ecs::RegistrationHelper<TYPE, TYPE_TIP> \
-      __CONCAT__(registrator, __LINE__)(NAME, __VA_ARGS__);
+      __CONCAT__(registrator, __COUNTER__)(NAME, __VA_ARGS__);
 
 }

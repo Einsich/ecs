@@ -24,4 +24,4 @@ namespace ecs
 }
 
 #define ECS_REQUEST_REGISTRATION(TYPE) \
-  static ecs::RequestRegistrationHelper<TYPE> __CONCAT__(requestRegistrator, __LINE__)(#TYPE);\
+  static ecs::RequestRegistrationHelper<TYPE> __CONCAT__(requestRegistrator, __COUNTER__)(#TYPE);\
