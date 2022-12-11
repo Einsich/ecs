@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <ecs/ecs_std.h>
 #include <ecs/component_description.h>
 #include <ecs/event.h>
@@ -73,7 +74,7 @@ namespace ecs
 
   struct SystemDescription : public QueryDescription, public OrderedDescription
   {
-    using SystemHandler = void (*)();
+    using SystemHandler = std::function<void()>;
     const SystemHandler system;
     SystemDescription(const char *file,
                       const char *name,
@@ -94,8 +95,8 @@ namespace ecs
 
   struct EventDescription : public QueryDescription, public OrderedDescription
   {
-    using BroadcastEventHandler = void (*)(const Event &);
-    using UnicastEventHandler = void (*)(EntityId, const Event &);
+    using BroadcastEventHandler = std::function<void(const Event &)>;
+    using UnicastEventHandler = std::function<void(EntityId, const Event &)>;
     const BroadcastEventHandler broadcastEventHandler;
     const UnicastEventHandler unicastEventHandler;
     EventDescription(const char *file,
@@ -119,8 +120,8 @@ namespace ecs
 
   struct RequestDescription : public QueryDescription, public OrderedDescription
   {
-    using BroadcastRequestHandler = void (*)(Request &);
-    using UnicastRequestHandler = void (*)(EntityId, Request &);
+    using BroadcastRequestHandler = std::function<void(Request &)>;
+    using UnicastRequestHandler = std::function<void(EntityId, Request &)>;
     const BroadcastRequestHandler broadcastRequestHandler;
     const UnicastRequestHandler unicastRequestHandler;
     RequestDescription(const char *file,
