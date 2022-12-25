@@ -8,26 +8,33 @@ namespace ecs
   EntityPrefab::EntityPrefab(const char *name, ecs::vector<ComponentPrefab> &&components_, SizePolicy chunk_power)
       : name(name), components(std::move(components_)), chunkPower(chunk_power)
   {
+    bool have_collisions = false;
     const auto &types = get_all_registered_types();
     for (const auto &comp : components)
+    {
+      if (comp.typeIndex == -1u)
+      {
+        have_collisions = true;
+        break;
+      }
       if (types[comp.typeIndex].awaitConstructor)
       {
         requireAwaitCreation = true;
         break;
       }
+    }
     static ComponentPrefab entityIdPrefab = ComponentPrefab("eid", EntityId());
     components.push_back(entityIdPrefab);
     sort_prefabs_by_names(components);
 
-    bool have_collisions = false;
     for (uint i = 1, n = components.size(); i < n; i++)
     {
       if (components[i].nameHash == components[i - 1].nameHash)
       {
         have_collisions = true;
         ECS_ERROR("components with same name \"%s\" in \"%s\" prefab, with types <%s> <%s>",
-                  name,
                   components[i].name.c_str(),
+                  components[i-1].name.c_str(),
                   type_name(components[i].typeIndex),
                   type_name(components[i - 1].typeIndex));
       }

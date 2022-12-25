@@ -17,7 +17,7 @@ namespace ecs
     template <typename T>
     static const void *get_raw_mem(const ecs::any &raw_component)
     {
-      return raw_component._Cast<T>();
+      return std::any_cast<T*>(raw_component);
     }
     ecs::any raw_component;
     const void *(*raw_pointer_getter)(const ecs::any &);
@@ -50,6 +50,11 @@ namespace ecs
     }
 
     template <typename U>
+    ComponentPrefab(const char *name, int type_index, const U *prefab)
+        : ComponentDescription(name, type_index), raw_component(prefab), raw_pointer_getter(get_raw_mem<U*>)
+    {
+    }
+    template <typename U>
     ComponentPrefab(const char *name, int type_index, U &&prefab)
         : ComponentDescription(name, type_index), raw_component(prefab), raw_pointer_getter(get_raw_mem<U>)
     {
@@ -70,15 +75,21 @@ namespace ecs
         : ComponentDescription(name, TypeIndex<T>::value), raw_component(std::move(prefab)), raw_pointer_getter(get_raw_mem<T>)
     {
     }
+    
     template <typename T>
-    T *get()
+    bool is() const
     {
-      return raw_component._Cast<T>();
+      return raw_component.type() == typeid(T);
     }
     template <typename T>
-    const T *get() const
+    T &get()
     {
-      return raw_component._Cast<T>();
+      return std::any_cast<T&>(raw_component);
+    }
+    template <typename T>
+    const T &get() const
+    {
+      return std::any_cast<const T&>(raw_component);
     }
     ~ComponentPrefab()
     {

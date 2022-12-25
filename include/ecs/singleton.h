@@ -92,6 +92,11 @@ namespace ecs
   {
     return std::is_base_of_v<ecs::Singleton, T>;
   }
+  template <typename T>
+  struct is_singleton_type
+  {
+    static constexpr bool value = is_singleton<T>();
+  };
 
 }
 #define ECS_REGISTER_SINGLETON(T) \

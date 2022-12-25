@@ -19,6 +19,7 @@ namespace ecs
   uint add_archetype(const ecs::vector<ComponentPrefab> &descriptions, SizePolicy chunk_power);
   EntityId create_entity_immediate(prefab_id id, ecs::vector<ComponentPrefab> &&overrides_list = {});
   EntityId create_entity(prefab_id id, ecs::vector<ComponentPrefab> &&overrides_list = {});
+  EntityId create_entity(const char *prefab_name, ecs::vector<ComponentPrefab> &&overrides_list = {});
 
   void destroy_entity(EntityId eid);
   void destroy_all_entities();
@@ -81,6 +82,11 @@ namespace ecs
       return ecs::TypeIndex<T>::value;
     }
   }
+
+  void set_system_tags(const ecs::vector<ecs::string> &tags);
+  void set_system_tags(ecs::vector<ecs::string> &&tags);
+
+  struct Tag {};
 }
 
 #define SYSTEM(...) static void

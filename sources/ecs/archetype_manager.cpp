@@ -207,6 +207,12 @@ namespace ecs
     }
   }
 
+  EntityId create_entity(const char *prefab_name, ecs::vector<ComponentPrefab> &&overrides_list)
+  {
+    ecs::prefab_id id = ecs::get_prefab_id(prefab_name);
+    return ecs::create_entity(id, std::move(overrides_list));
+  }
+
   static void destroy_entity_immediate(EntityId eid)
   {
     auto &mgr = get_archetype_manager();

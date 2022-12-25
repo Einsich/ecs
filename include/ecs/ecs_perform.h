@@ -111,6 +111,13 @@ namespace ecs
         function();
         return;
       }
+      ECS_ASSERT_RETURN(0, )
+    }
+    
+    if constexpr (std::conjunction_v<is_singleton_type<typename clear_type<Args>::type>...>)
+    {
+      function(*get_singleton<typename clear_type<Args>::type>()...);
+      return;
     }
 
     for (const auto &p : cache.archetypes)

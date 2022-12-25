@@ -167,6 +167,15 @@ namespace ecs
       for (auto &q : e)
         q.cache->archetypes.clear();
   }
+
+  void QueryManager::invalidate()
+  {
+    queryInvalidated = true;
+    systemsInvalidated = true;
+    eventsInvalidated = true;
+    requestsInvalidated = true;
+  }
+
   void QueryManager::rebuildDependencyGraph()
   {
     if (systemsInvalidated)
@@ -207,6 +216,7 @@ namespace ecs
 
   void perform_systems()
   {
+    get_query_manager().rebuildDependencyGraph();
     for (auto *system : get_query_manager().activeSystems)
     {
       system->system();
@@ -242,7 +252,7 @@ namespace ecs
 
   void QueryManager::addArchetypeToCache(uint archetype_idx)
   {
-    update();
+    rebuildDependencyGraph();
     const Archetype &archetype = get_archetype_manager().archetypes[archetype_idx];
     for (auto &q : queries)
       update_cache(archetype, archetype_idx, q, *q.cache);
@@ -305,5 +315,17 @@ namespace ecs
     {
       descr->unicastRequestHandler(eid, request);
     }
+  }
+  
+  void set_system_tags(const ecs::vector<ecs::string> &tags)
+  {
+    get_query_manager().invalidate();
+    get_query_manager().tags = tags;
+  }
+
+  void set_system_tags(ecs::vector<ecs::string> &&tags)
+  {
+    get_query_manager().invalidate();
+    get_query_manager().tags = std::move(tags);
   }
 }
