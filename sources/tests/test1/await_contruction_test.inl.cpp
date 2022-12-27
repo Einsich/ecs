@@ -140,3 +140,4 @@ static void registration_pull_await_contruction_test()
 
 }
 ECS_FILE_REGISTRATION(&registration_pull_await_contruction_test)
+ECS_PULL_DEFINITION(variable_pull_await_contruction_test)

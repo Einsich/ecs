@@ -667,7 +667,8 @@ void process_inl_file(const fs::path &path)
   event_definition(outFile, eventsDescriptions);
   request_definition(outFile, requestDescriptions);
 
-  std::string registrationFunc = "registration_pull_" + path.stem().string();
+  std::string fileName = path.stem().string();
+  std::string registrationFunc = "registration_pull_" + fileName;
   outFile << "static void " << registrationFunc << "()\n{\n";
 
   register_queries(outFile, queriesDescriptions);
@@ -678,6 +679,7 @@ void process_inl_file(const fs::path &path)
 
   outFile << "}\n";
   outFile << "ECS_FILE_REGISTRATION(&" << registrationFunc << ")\n";
+  outFile << "ECS_PULL_DEFINITION(" << ("variable_pull_" + fileName) << ")\n";
   outFile.close();
 
   if (error_count == 0)

@@ -68,3 +68,4 @@ static void registration_pull_deffered_creation()
 
 }
 ECS_FILE_REGISTRATION(&registration_pull_deffered_creation)
+ECS_PULL_DEFINITION(variable_pull_deffered_creation)

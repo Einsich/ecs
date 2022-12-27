@@ -93,3 +93,6 @@ namespace ecs
 #define QUERY(...)
 #define EVENT(...) static void
 #define REQUEST(...) static void
+
+#define ECS_PULL_DECLARATION(PULL_VAR) extern size_t PULL_VAR;
+#define ECS_PULL_DEFINITION(PULL_VAR) size_t PULL_VAR = (uintptr_t)&PULL_VAR;
