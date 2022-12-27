@@ -20,7 +20,7 @@ namespace ecs
       type_registration<unsigned char, ecs::PODType>("byte");
     }
     register_event<ecs::OnEntityCreated>("OnEntityCreated", true);
-    register_event<ecs::OnEntityDestoyed>("OnEntityDestoyed", true);
+    register_event<ecs::OnEntityDestroyed>("OnEntityDestroyed", true);
     register_event<ecs::OnEntityTerminated>("OnEntityTerminated", true);
     register_event<ecs::OnSceneCreated>("OnSceneCreated", true);
     register_event<ecs::OnSceneTerminated>("OnSceneTerminated", true);

@@ -117,9 +117,9 @@ test_awaited_creation(const ecs::OnEntityCreated &, int value, ecs::EntityId eid
 }
 
 EVENT(require = ecs::EntityId nextEid)
-test_awaited_delete(const ecs::OnEntityDestoyed &, int value)
+test_awaited_delete(const ecs::OnEntityDestroyed &, int value)
 {
-  printf("OnEntityDestoyed %d \n", value);
+  printf("OnEntityDestroyed %d \n", value);
 }
 
 EVENT(require = ecs::EntityId nextEid)

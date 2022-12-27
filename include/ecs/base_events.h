@@ -7,7 +7,7 @@ namespace ecs
   {
   };
 
-  struct OnEntityDestoyed : ecs::Event
+  struct OnEntityDestroyed : ecs::Event
   {
   };
 

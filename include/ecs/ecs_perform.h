@@ -111,7 +111,6 @@ namespace ecs
         function();
         return;
       }
-      ECS_ASSERT_RETURN(0, )
     }
     
     if constexpr (std::conjunction_v<is_singleton_type<typename clear_type<Args>::type>...>)
@@ -187,7 +186,7 @@ namespace ecs
   void PERFORM_INLINE perform_event(EntityId eid, const E &event, const QueryCache &cache, void (*function)(const E &, Args...))
   {
     constexpr bool isDestroyEvent =
-        std::is_same_v<E, ecs::OnEntityDestoyed> || std::is_same_v<E, ecs::OnEntityTerminated>;
+        std::is_same_v<E, ecs::OnEntityDestroyed> || std::is_same_v<E, ecs::OnEntityTerminated>;
     perform_query<Args...>(
         cache, eid, [&](Args... args)
         { function(event, args...); },

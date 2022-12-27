@@ -220,7 +220,7 @@ namespace ecs
     EntityState state;
     if (eid.get_info(archetype, index, state) && (state == EntityState::CreatedAndInited || state == EntityState::InDestroyQueue))
     {
-      get_query_manager().send_event_immediate(eid, ecs::OnEntityDestoyed(), ecs::EventIndex<ecs::OnEntityDestoyed>::value);
+      get_query_manager().send_event_immediate(eid, ecs::OnEntityDestroyed(), ecs::EventIndex<ecs::OnEntityDestroyed>::value);
       get_query_manager().send_event_immediate(eid, ecs::OnEntityTerminated(), ecs::EventIndex<ecs::OnEntityTerminated>::value);
       mgr.archetypes[archetype].destroy_entity(index);
       mgr.entityPool.deallocate_entity(eid);

@@ -47,6 +47,11 @@ namespace ecs
                  : false;
     }
 
+    operator bool() const
+    {
+      return valid();
+    }
+
     bool get_info(uint &archetype, uint &index, EntityState &state)
     {
       if (description)
