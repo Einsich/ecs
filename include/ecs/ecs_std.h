@@ -39,12 +39,11 @@ namespace ecs
   template <typename T>
   inline constexpr bool is_zero_sizeof = sizeof(int) == sizeof(is_zero_sizeof_t<T>);
 
-  void default_log_function(const char *format, ...);
-  using LogFunction = void (*)(const char *format, ...);
 
+  using LogFunction = void (*)(const char *format, ...);
   //you can override this for custom logging
-  inline LogFunction ecs_log = &default_log_function;
-  inline LogFunction ecs_error = &default_log_function;
+  extern LogFunction ecs_log;
+  extern LogFunction ecs_error;
 
 } // namespace ecs
 

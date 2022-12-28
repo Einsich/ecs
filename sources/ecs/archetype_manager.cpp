@@ -2,6 +2,8 @@
 #include <ecs/query_manager.h>
 #include <ecs/type_annotation.h>
 #include <ecs/base_events.h>
+#include "profiler_scope.h"
+
 namespace ecs
 {
   template <typename Description>
@@ -65,6 +67,7 @@ namespace ecs
       const EntityPrefab &prefab,
       ecs::vector<ComponentPrefab> &&overrides_list)
   {
+    ProfileScope scope(prefab.name.c_str());
     archetype.add_entity(entity, prefab, std::move(overrides_list));
     get_query_manager().sendEventImmediate(entity, ecs::OnEntityCreated(), ecs::EventIndex<ecs::OnEntityCreated>::value);
   }
@@ -158,6 +161,7 @@ namespace ecs
 
   static void create_deffered_entities()
   {
+    ProfileScope scope("create_deffered_entities");
     auto &mgr = get_archetype_manager();
     for (uint i = 0, n = mgr.defferedEntityCreation.size(); i < n; i++)
     {
@@ -243,6 +247,7 @@ namespace ecs
 
   static void destroy_queued_entities()
   {
+    ProfileScope scope("destroy_queued_entities");
     auto &mgr = get_archetype_manager();
     auto &destroyQueue = mgr.entityPool.entitiesToDestroy;
     for (uint i = 0, n = destroyQueue.size(); i < n; i++)
@@ -255,6 +260,7 @@ namespace ecs
 
   void destroy_all_entities()
   {
+    ProfileScope scope("destroy_all_entities");
     destroy_queued_entities();
     auto &mgr = get_archetype_manager();
     auto &qMgr = get_query_manager();

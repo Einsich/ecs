@@ -87,6 +87,13 @@ namespace ecs
   void set_system_tags(ecs::vector<ecs::string> &&tags);
 
   struct Tag {};
+
+  using ProfilerPush = void (*)(const char* label);
+  using ProfilerPop = void (*)();
+  //you can override this for custom profiling
+  extern ProfilerPush ecs_profiler_push;
+  extern ProfilerPop ecs_profiler_pop;
+  extern bool ecs_profiler_enabled;
 }
 
 #define SYSTEM(...) static void

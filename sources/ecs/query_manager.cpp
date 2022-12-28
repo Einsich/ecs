@@ -1,6 +1,7 @@
 #include <ecs/query_manager.h>
 #include <ecs/ska/flat_hash_map.hpp>
 #include <ecs/archetype_manager.h>
+#include "profiler_scope.h"
 
 namespace ecs
 {
@@ -186,6 +187,7 @@ namespace ecs
   {
     if (systemsInvalidated)
     {
+      ProfileScope scope("rebuild systems graph");
       ECS_ASSERT(systems.size() == activeSystems.size());
       for (uint i = 0, n = systems.size(); i < n; i++)
         system_sort(tags, systems[i], activeSystems[i]);
@@ -193,6 +195,7 @@ namespace ecs
     }
     if (eventsInvalidated)
     {
+      ProfileScope scope("rebuild events graph");
       activeEvents.resize(events.size());
       for (uint i = 0, n = events.size(); i < n; i++)
         system_sort(tags, events[i], activeEvents[i]);
@@ -200,6 +203,7 @@ namespace ecs
     }
     if (requestsInvalidated)
     {
+      ProfileScope scope("rebuild requests graph");
       activeRequests.resize(requests.size());
       for (uint i = 0, n = requests.size(); i < n; i++)
         system_sort(tags, requests[i], activeRequests[i]);
@@ -210,6 +214,7 @@ namespace ecs
 
   void QueryManager::performDefferedEvents()
   {
+    ProfileScope scope("performDefferedEvents");
     rebuildDependencyGraph();
     for (int i = 0, n = eventsQueue.size(); i < n; i++)
     {
@@ -286,6 +291,7 @@ namespace ecs
       return;
     for (const EventDescription *descr : activeEvents[event_id])
     {
+      ProfileScope scope(descr->name.c_str());
       descr->broadcastEventHandler(event);
     }
   }
@@ -296,6 +302,7 @@ namespace ecs
       return;
     for (const EventDescription *descr : activeEvents[event_id])
     {
+      ProfileScope scope(descr->name.c_str());
       descr->unicastEventHandler(eid, event);
     }
   }
@@ -307,6 +314,7 @@ namespace ecs
 
     for (const RequestDescription *descr : activeRequests[request_id])
     {
+      ProfileScope scope(descr->name.c_str());
       descr->broadcastRequestHandler(request);
     }
   }
@@ -317,6 +325,7 @@ namespace ecs
       return;
     for (const RequestDescription *descr : activeRequests[request_id])
     {
+      ProfileScope scope(descr->name.c_str());
       descr->unicastRequestHandler(eid, request);
     }
   }
@@ -352,6 +361,7 @@ namespace ecs
       ECS_ASSERT_RETURN(!requireUpdate(), );
       for (auto *system : activeSystems[stage])
       {
+        ProfileScope scope(system->name.c_str());
         system->system();
       }
     }

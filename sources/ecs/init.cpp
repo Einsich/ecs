@@ -3,19 +3,11 @@
 #include <ecs/base_events.h>
 #include <ecs/query_manager.h>
 #include <ecs/event_registration.h>
+#include <ecs/ecs.h>
 #include <stdarg.h>
 
 namespace ecs
 {
-  
-  void default_log_function(const char *format, ...)
-  {
-    va_list args;
-    va_start(args, format);
-    vprintf(format, args);
-    printf("\n");
-    va_end(args);
-  }
 
   void init(bool register_base_types)
   {
@@ -45,4 +37,24 @@ namespace ecs
     extern void perform_deffered_events();
     perform_deffered_events();
   }
+  
+  
+  void default_log_function(const char *format, ...)
+  {
+    va_list args;
+    va_start(args, format);
+    vprintf(format, args);
+    printf("\n");
+    va_end(args);
+  }
+  LogFunction ecs_log = &default_log_function;
+  LogFunction ecs_error = &default_log_function;
+
+  
+  void default_push_function(const char *){}
+  void default_pop_function(){}
+  
+  ProfilerPush ecs_profiler_push = &default_push_function;
+  ProfilerPop ecs_profiler_pop = &default_pop_function;
+  bool ecs_profiler_enabled = false;
 }
