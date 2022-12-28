@@ -64,6 +64,7 @@ struct ParserSystemDescription
   std::string sys_file, sys_name;
   std::vector<ParserFunctionArgument> args, req_args, req_not_args;
   std::vector<std::string> before, after, tags;
+  std::string stage;
   std::string isJob;
 };
 #define SPACE_SYM " \n\t\r\a\f\v"
@@ -291,8 +292,11 @@ void parse_definition(Match &str, ParserSystemDescription &parserDescr)
         }
         else if (key == "stage")
         {
-          parserDescr.before.emplace_back(args0[1].get() + "_end_sync_point");
-          parserDescr.after.emplace_back(args0[1].get() + "_begin_sync_point");
+          if (args0.size() > 1)
+            parserDescr.stage = args0[1].get();
+          if (args0.size() != 2)
+            log_error("wrong stages count in %s", system);
+
         }
         else
         {
@@ -580,6 +584,7 @@ void register_systems(std::ofstream &outFile, const std::vector<ParserSystemDesc
   {
     const char *name = query.sys_name.c_str();
     fill_common_query_part(outFile, query, "ecs::register_system", "ecs::SystemDescription", false, false);
+    write(outFile, "  \"%s\",\n", query.stage.c_str());
     fill_string_array(outFile, query.before);
     fill_string_array(outFile, query.after);
     fill_string_array(outFile, query.tags);

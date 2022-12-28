@@ -5,16 +5,16 @@
 #include <ecs/entity_prefab.h>
 #include <ecs/query_manager.h>
 #include <ecs/base_events.h>
-#include <ecs/system_stage.h>
 #include <ecs/singleton.h>
 
 namespace ecs
 {
   void init(bool register_base_types = true);
   void pull_registered_files();
-  void init_stages(const ecs::vector<SystemStage> &stages);
-  void update_query_manager();
-  void perform_systems();
+  void perform_deffered_events();
+  stage_id find_stage(const char *stage);
+  void perform_stage(const char *stage);
+  void perform_stage(stage_id stage);
   uint add_archetype(ecs::vector<ComponentDescription> &&descriptions, SizePolicy chunk_power);
   uint add_archetype(const ecs::vector<ComponentPrefab> &descriptions, SizePolicy chunk_power);
   EntityId create_entity_immediate(prefab_id id, ecs::vector<ComponentPrefab> &&overrides_list = {});
@@ -30,7 +30,7 @@ namespace ecs
   {
     // TODO add explanation
     ECS_ASSERT_RETURN(EventIndex<E>::value != -1, );
-    get_query_manager().send_event_immediate(event, EventIndex<E>::value);
+    get_query_manager().sendEventImmediate(event, EventIndex<E>::value);
   }
 
   template <typename E>
@@ -38,35 +38,35 @@ namespace ecs
   {
     // TODO add explanation
     ECS_ASSERT_RETURN(EventIndex<E>::value != -1, );
-    get_query_manager().send_event_immediate(eid, event, EventIndex<E>::value);
+    get_query_manager().sendEventImmediate(eid, event, EventIndex<E>::value);
   }
 
   template <typename E>
   std::enable_if_t<std::is_base_of_v<ecs::Event, E>, void> send_event(const E &event)
   {
     ECS_ASSERT_RETURN(EventIndex<E>::value != -1, );
-    get_query_manager().send_event_deffered(event, EventIndex<E>::value);
+    get_query_manager().sendEventDeffered(event, EventIndex<E>::value);
   }
 
   template <typename E>
   std::enable_if_t<std::is_base_of_v<ecs::Event, E>, void> send_event(ecs::EntityId eid, const E &event)
   {
     ECS_ASSERT_RETURN(EventIndex<E>::value != -1, );
-    get_query_manager().send_event_deffered(eid, event, EventIndex<E>::value);
+    get_query_manager().sendEventDeffered(eid, event, EventIndex<E>::value);
   }
 
   template <typename R>
   std::enable_if_t<std::is_base_of_v<ecs::Request, R>, void> send_request(R &request)
   {
     ECS_ASSERT_RETURN(RequestIndex<R>::value != -1, );
-    get_query_manager().send_request(request, RequestIndex<R>::value);
+    get_query_manager().sendRequest(request, RequestIndex<R>::value);
   }
 
   template <typename R>
   std::enable_if_t<std::is_base_of_v<ecs::Request, R>, void> send_request(ecs::EntityId eid, R &request)
   {
     ECS_ASSERT_RETURN(RequestIndex<R>::value != -1, );
-    get_query_manager().send_request(eid, request, RequestIndex<R>::value);
+    get_query_manager().sendRequest(eid, request, RequestIndex<R>::value);
   }
 
   // take into account is type singleton

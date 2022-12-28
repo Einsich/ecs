@@ -1,6 +1,5 @@
 #include <ecs/query_manager.h>
 #include <ecs/type_annotation.h>
-#include <ecs/system_stage.h>
 
 namespace ecs
 {
@@ -43,7 +42,7 @@ namespace ecs
   }
   void register_system(SystemDescription &&system)
   {
-    update_cache(query_manager.systems.emplace_back(std::move(system)));
+    update_cache(query_manager.addSystem(std::move(system)));
     query_manager.systemsInvalidated = true;
   }
   void register_event(EventDescription &&event, event_t event_id)
@@ -96,31 +95,4 @@ namespace ecs
       pull();
   }
 
-  static ecs::QueryCache stubCache;
-  static void sync_point_stub()
-  {
-  }
-
-  void init_stages(const ecs::vector<SystemStage> &stages)
-  {
-    for (uint i = 0, n = stages.size(); i < n; i++)
-    {
-      const auto &stage = stages[i];
-      ecs::string begin_point = stage.name + "_begin_sync_point";
-      ecs::string end_point = stage.name + "_end_sync_point";
-      ecs::register_system(ecs::SystemDescription(
-          "", begin_point.c_str(), &stubCache, {}, {}, {},
-          {end_point},
-          {}, {}, stage.begin ? stage.begin : &sync_point_stub));
-
-      ecs::vector<ecs::string> nextStage;
-      if (i + 1 < n)
-        nextStage.emplace_back(stages[i + 1].name + "_begin_sync_point");
-
-      ecs::register_system(ecs::SystemDescription(
-          "", end_point.c_str(), &stubCache, {}, {}, {},
-          std::move(nextStage),
-          {}, {}, stage.end ? stage.end : &sync_point_stub));
-    }
-  }
 }

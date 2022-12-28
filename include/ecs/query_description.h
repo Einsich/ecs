@@ -74,6 +74,7 @@ namespace ecs
 
   struct SystemDescription : public QueryDescription, public OrderedDescription
   {
+    const ecs::string stage;
     using SystemHandler = std::function<void()>;
     const SystemHandler system;
     SystemDescription(const char *file,
@@ -82,13 +83,14 @@ namespace ecs
                       ecs::vector<ArgumentDescription> &&arguments,
                       ecs::vector<ComponentDescription> &&required_components,
                       ecs::vector<ComponentDescription> &&required_not_components,
+                      ecs::string &&stage,
                       ecs::vector<ecs::string> &&before,
                       ecs::vector<ecs::string> &&after,
                       ecs::vector<ecs::string> &&tags,
                       SystemHandler system)
         : QueryDescription(file, name, cache, std::move(arguments), std::move(required_components), std::move(required_not_components)),
           OrderedDescription(std::move(before), std::move(after), std::move(tags)),
-          system(system)
+          stage(std::move(stage)), system(system)
     {
     }
   };

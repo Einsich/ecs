@@ -6,9 +6,9 @@ int main()
   ecs::init();
   ecs::pull_registered_files();
 
-  ecs::perform_systems();
+  ecs::perform_stage("");
   ecs::update_archetype_manager();
-  ecs::perform_systems();
+  ecs::perform_stage("");
 
   ecs::destroy_all_entities();
   std::fflush(stdout);

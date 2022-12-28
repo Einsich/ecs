@@ -159,7 +159,8 @@ namespace ecs
     for (auto &q : queries)
       q.cache->archetypes.clear();
     for (auto &q : systems)
-      q.cache->archetypes.clear();
+      for (auto &s : q)
+        s.cache->archetypes.clear();
     for (auto &e : events)
       for (auto &q : e)
         q.cache->archetypes.clear();
@@ -176,11 +177,18 @@ namespace ecs
     requestsInvalidated = true;
   }
 
+  bool QueryManager::requireUpdate() const
+  {
+    return systemsInvalidated || eventsInvalidated || requestsInvalidated || queryInvalidated;
+  }
+
   void QueryManager::rebuildDependencyGraph()
   {
     if (systemsInvalidated)
     {
-      system_sort(tags, systems, activeSystems);
+      ECS_ASSERT(systems.size() == activeSystems.size());
+      for (uint i = 0, n = systems.size(); i < n; i++)
+        system_sort(tags, systems[i], activeSystems[i]);
       systemsInvalidated = false;
     }
     if (eventsInvalidated)
@@ -197,9 +205,10 @@ namespace ecs
         system_sort(tags, requests[i], activeRequests[i]);
       requestsInvalidated = false;
     }
+    queryInvalidated = false;
   }
 
-  void QueryManager::update()
+  void QueryManager::performDefferedEvents()
   {
     rebuildDependencyGraph();
     for (int i = 0, n = eventsQueue.size(); i < n; i++)
@@ -209,19 +218,11 @@ namespace ecs
     }
   }
 
-  void update_query_manager()
+  void perform_deffered_events()
   {
-    get_query_manager().update();
+    get_query_manager().performDefferedEvents();
   }
 
-  void perform_systems()
-  {
-    get_query_manager().rebuildDependencyGraph();
-    for (auto *system : get_query_manager().activeSystems)
-    {
-      system->system();
-    }
-  }
 
   static void update_cache(const Archetype &archetype, uint idx, const QueryDescription &desription, QueryCache &cache)
   {
@@ -256,7 +257,8 @@ namespace ecs
     const Archetype &archetype = get_archetype_manager().archetypes[archetype_idx];
     for (auto &q : queries)
       update_cache(archetype, archetype_idx, q, *q.cache);
-    for (auto &q : activeSystems)
+    for (auto &s : activeSystems)
+      for (auto &q : s)
       update_cache(archetype, archetype_idx, *q, *q->cache);
     for (auto &e : activeEvents)
       for (auto &q : e)
@@ -278,7 +280,7 @@ namespace ecs
     }
   }
 
-  void QueryManager::send_event_immediate(const ecs::Event &event, event_t event_id) const
+  void QueryManager::sendEventImmediate(const ecs::Event &event, event_t event_id) const
   {
     if (activeEvents.size() <= event_id)
       return;
@@ -288,7 +290,7 @@ namespace ecs
     }
   }
 
-  void QueryManager::send_event_immediate(EntityId eid, const ecs::Event &event, event_t event_id) const
+  void QueryManager::sendEventImmediate(EntityId eid, const ecs::Event &event, event_t event_id) const
   {
     if (activeEvents.size() <= event_id)
       return;
@@ -297,7 +299,8 @@ namespace ecs
       descr->unicastEventHandler(eid, event);
     }
   }
-  void QueryManager::send_request(ecs::Request &request, request_t request_id) const
+
+  void QueryManager::sendRequest(ecs::Request &request, request_t request_id) const
   {
     if (activeRequests.size() <= request_id)
       return;
@@ -307,7 +310,8 @@ namespace ecs
       descr->broadcastRequestHandler(request);
     }
   }
-  void QueryManager::send_request(EntityId eid, ecs::Request &request, request_t request_id) const
+
+  void QueryManager::sendRequest(EntityId eid, ecs::Request &request, request_t request_id) const
   {
     if (activeRequests.size() <= request_id)
       return;
@@ -316,7 +320,58 @@ namespace ecs
       descr->unicastRequestHandler(eid, request);
     }
   }
+
+  SystemDescription &QueryManager::addSystem(SystemDescription &&system)
+  {
+    auto it = stagesMap.find(system.stage);
+    if (it == stagesMap.end())
+      it = stagesMap.insert({system.stage, stagesMap.size()}).first;
+    uint k = it->second;
+    systems.resize(k + 1);
+    activeSystems.resize(k + 1);
+    return systems[k].emplace_back(std::move(system));
+  }
   
+  stage_id QueryManager::findStageId(const char *stage_name) const
+  {
+    auto it = stagesMap.find_as(stage_name);
+    if (it != stagesMap.end())
+      return it->second;
+    return -1u;
+  }
+
+  void QueryManager::performStage(const char *stage) const
+  {
+    performStage(findStageId(stage));
+  }
+
+  void QueryManager::performStage(stage_id stage) const
+  {
+    if (stage < activeSystems.size())
+    {
+      ECS_ASSERT_RETURN(!requireUpdate(), );
+      for (auto *system : activeSystems[stage])
+      {
+        system->system();
+      }
+    }
+  }
+
+  stage_id find_stage(const char *stage)
+  {
+    return get_query_manager().findStageId(stage);
+  }
+
+  void perform_stage(const char *stage)
+  {
+    get_query_manager().performStage(stage);
+  }
+
+  void perform_stage(stage_id stage)
+  {
+    get_query_manager().performStage(stage);
+  }
+
   void set_system_tags(const ecs::vector<ecs::string> &tags)
   {
     get_query_manager().invalidate();

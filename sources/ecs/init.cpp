@@ -42,7 +42,7 @@ namespace ecs
     extern void register_all_pulled_files();
     register_all_pulled_files();
 
-    extern void update_query_manager();
-    update_query_manager();
+    extern void perform_deffered_events();
+    perform_deffered_events();
   }
 }

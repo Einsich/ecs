@@ -1,23 +1,15 @@
 #include <ecs/ecs.h>
 #include "../tests.h"
 
-static void pre_main()
-{
-  ECS_LOG("pre_main");
-}
-
-static void post_main()
-{
-  ECS_LOG("post_main");
-}
-
 int main()
 {
   ecs::init();
-  ecs::init_stages({{"main", &pre_main, &post_main}, {"render", nullptr, nullptr}});
   ecs::pull_registered_files();
 
-  ecs::perform_systems();
+  ECS_LOG("pre_main");
+  ecs::perform_stage("main");
+  ECS_LOG("post_main");
+  ecs::perform_stage("render");
 
   ecs::destroy_all_entities();
   std::fflush(stdout);

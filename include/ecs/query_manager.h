@@ -3,17 +3,19 @@
 
 namespace ecs
 {
+  using stage_id = uint;
   struct QueryManager
   {
 
     ecs::vector<ecs::string> tags;
 
     ecs::vector<QueryDescription> queries;
-    ecs::vector<SystemDescription> systems;
+    ska::flat_hash_map<ecs::string, stage_id> stagesMap;
+    ecs::vector<ecs::vector<SystemDescription>> systems;
     ecs::vector<ecs::vector<EventDescription>> events;
     ecs::vector<ecs::vector<RequestDescription>> requests;
 
-    ecs::vector<SystemDescription *> activeSystems;
+    ecs::vector<ecs::vector<SystemDescription *>> activeSystems;
     ecs::vector<ecs::vector<EventDescription *>> activeEvents;
     ecs::vector<ecs::vector<RequestDescription *>> activeRequests;
     // TODO: rework me to optimize allocations
@@ -24,38 +26,40 @@ namespace ecs
     bool eventsInvalidated = false;
     bool requestsInvalidated = false;
 
+    bool requireUpdate() const;
     void clearCache();
     void rebuildDependencyGraph();
     // should check all changes and update invalidated structures
-    void update();
+    void performDefferedEvents();
     void invalidate();
 
     void addArchetypeToCache(uint archetype_idx);
 
-    void send_event_immediate(const ecs::Event &event, event_t event_id) const;
-    void send_event_immediate(EntityId eid, const ecs::Event &event, event_t event_id) const;
+    void sendEventImmediate(const ecs::Event &event, event_t event_id) const;
+    void sendEventImmediate(EntityId eid, const ecs::Event &event, event_t event_id) const;
 
     template <typename T>
-    void send_event_deffered(const T &event, event_t event_id)
+    void sendEventDeffered(const T &event, event_t event_id)
     {
       eventsQueue.push([event, event_id, this]()
-                       { send_event_immediate(event, event_id); });
+                       { sendEventImmediate(event, event_id); });
     }
     template <typename T>
-    void send_event_deffered(EntityId eid, const T &event, event_t event_id)
+    void sendEventDeffered(EntityId eid, const T &event, event_t event_id)
     {
       eventsQueue.push([eid, event, event_id, this]()
-                       { send_event_immediate(eid, event, event_id); });
+                       { sendEventImmediate(eid, event, event_id); });
     }
-    void send_request(ecs::Request &request, request_t request_id) const;
-    void send_request(EntityId eid, ecs::Request &request, request_t request_id) const;
+    void sendRequest(ecs::Request &request, request_t request_id) const;
+    void sendRequest(EntityId eid, ecs::Request &request, request_t request_id) const;
+
+    SystemDescription &addSystem(SystemDescription &&system);
+
+    stage_id findStageId(const char *stage_name) const;
+    void performStage(const char *stage) const;
+    void performStage(stage_id stage) const;
+
   };
   QueryManager &get_query_manager();
-
-  struct DefferedEvent
-  {
-    event_t event_id;
-    uint idx;
-  };
 
 }

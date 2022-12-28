@@ -67,6 +67,7 @@ static void registration_pull_main()
   },
   {},
   {},
+  "",
   {},
   {},
   {},

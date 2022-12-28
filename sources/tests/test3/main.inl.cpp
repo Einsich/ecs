@@ -39,8 +39,9 @@ static void registration_pull_main()
   {},
   {},
   {},
-  {"render_end_sync_point"},
-  {"render_begin_sync_point"},
+  "render",
+  {},
+  {},
   {},
   &stage_render_implementation));
 
@@ -51,8 +52,9 @@ static void registration_pull_main()
   {},
   {},
   {},
-  {"main_end_sync_point", "stage_test2"},
-  {"main_begin_sync_point"},
+  "main",
+  {"stage_test2"},
+  {},
   {},
   &stage_test1_implementation));
 
@@ -63,8 +65,9 @@ static void registration_pull_main()
   {},
   {},
   {},
-  {"main_end_sync_point"},
-  {"main_begin_sync_point"},
+  "main",
+  {},
+  {},
   {},
   &stage_test2_implementation));
 
@@ -75,8 +78,9 @@ static void registration_pull_main()
   {},
   {},
   {},
-  {"main_end_sync_point", "stage_test1", "stage_test2"},
-  {"main_begin_sync_point"},
+  "main",
+  {"stage_test1", "stage_test2"},
+  {},
   {},
   &stage_test3_implementation));
 

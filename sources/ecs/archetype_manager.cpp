@@ -66,7 +66,7 @@ namespace ecs
       ecs::vector<ComponentPrefab> &&overrides_list)
   {
     archetype.add_entity(entity, prefab, std::move(overrides_list));
-    get_query_manager().send_event_immediate(entity, ecs::OnEntityCreated(), ecs::EventIndex<ecs::OnEntityCreated>::value);
+    get_query_manager().sendEventImmediate(entity, ecs::OnEntityCreated(), ecs::EventIndex<ecs::OnEntityCreated>::value);
   }
 
   EntityId create_entity_immediate(prefab_id id, ecs::vector<ComponentPrefab> &&overrides_list)
@@ -220,8 +220,8 @@ namespace ecs
     EntityState state;
     if (eid.get_info(archetype, index, state) && (state == EntityState::CreatedAndInited || state == EntityState::InDestroyQueue))
     {
-      get_query_manager().send_event_immediate(eid, ecs::OnEntityDestroyed(), ecs::EventIndex<ecs::OnEntityDestroyed>::value);
-      get_query_manager().send_event_immediate(eid, ecs::OnEntityTerminated(), ecs::EventIndex<ecs::OnEntityTerminated>::value);
+      get_query_manager().sendEventImmediate(eid, ecs::OnEntityDestroyed(), ecs::EventIndex<ecs::OnEntityDestroyed>::value);
+      get_query_manager().sendEventImmediate(eid, ecs::OnEntityTerminated(), ecs::EventIndex<ecs::OnEntityTerminated>::value);
       mgr.archetypes[archetype].destroy_entity(index);
       mgr.entityPool.deallocate_entity(eid);
     }
@@ -259,7 +259,7 @@ namespace ecs
     auto &mgr = get_archetype_manager();
     auto &qMgr = get_query_manager();
     mgr.entityPool.for_each(ecs::EntityState::CreatedAndInited, [&](ecs::EntityDescription &entity)
-                            { qMgr.send_event_immediate(&entity, ecs::OnEntityTerminated(), ecs::EventIndex<ecs::OnEntityTerminated>::value); });
+                            { qMgr.sendEventImmediate(&entity, ecs::OnEntityTerminated(), ecs::EventIndex<ecs::OnEntityTerminated>::value); });
 
     for (auto &archetype : mgr.archetypes)
       archetype.destroy_all_entities(mgr.entityPool);

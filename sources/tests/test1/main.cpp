@@ -10,14 +10,14 @@ int main()
   ecs::pull_registered_files();
 
   ecs::send_event_immediate(PrepareTest());
-  ecs::perform_systems();
+  ecs::perform_stage("");
 
   ecs::update_archetype_manager();
   for (int i = 0; i < 3; i++)
   {
     ecs::update_archetype_manager();
   }
-  ecs::perform_systems();
+  ecs::perform_stage("");
 
   ecs::destroy_all_entities();
   std::fflush(stdout);

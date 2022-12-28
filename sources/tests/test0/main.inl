@@ -18,15 +18,15 @@ int main()
   ecs::create_entity_immediate(p, {{"x", 2}, {"z", -1.f}});
   ecs::create_entity_immediate(p, {{"x", 1}, {"z", -0.f}});
 
-  ecs::update_query_manager(); // after register_event, register_request, etc
-  ECS_LOG("ecs::perform_systems()\n");
-  ecs::perform_systems();
+  ecs::perform_deffered_events(); // after register_event, register_request, etc
+  ECS_LOG("ecs::perform_stage()\n");
+  ecs::perform_stage("");
 
   ecs::destroy_entity(eid1);
   ecs::destroy_entity(eid1);
   ecs::update_archetype_manager();
-  ECS_LOG("ecs::perform_systems()\n");
-  ecs::perform_systems();
+  ECS_LOG("ecs::perform_stage()\n");
+  ecs::perform_stage("");
 
   MyEvent m;
   m.x = 69;
