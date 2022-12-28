@@ -10,7 +10,7 @@ static void iterate_linked_list(ecs::EntityId head)
   get_next_node(head,
                 [&](ecs::EntityId nextEid, float value)
                 {
-                  printf("value %f\n", value);
+                  ECS_LOG("value %f", value);
                   iterate_linked_list(nextEid);
                 });
 }
@@ -24,7 +24,7 @@ no_arguments()
   {
     firstTime = false;
 
-    printf("no_arguments\n");
+    ECS_LOG("no_arguments");
 
     ecs::prefab_id p = ecs::create_entity_prefab(
         ecs::EntityPrefab{"linked_list", {{"nextEid", ecs::EntityId()}, {"value", -1.f}}});
@@ -40,16 +40,16 @@ no_arguments()
     tail = ecs::create_entity(p, {{"nextEid", tail}, {"value", 0.f}});
     print(tail);
   }
-  printf("[[\n");
+  ECS_LOG("[[");
   iterate_linked_list(tail);
-  printf("]]\n");
+  ECS_LOG("]]");
 }
 
 SYSTEM()
 test_deffered_creation(const float value, ecs::EntityId eid, ecs::EntityId nextEid)
 {
-  printf("value %f\n", value);
+  ECS_LOG("value %f", value);
   print(eid);
-  printf("nextEid\n");
+  ECS_LOG("nextEid");
   print(nextEid);
 }

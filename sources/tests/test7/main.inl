@@ -57,7 +57,7 @@ int main()
     edges.push_back(Edge{"1", "2", 1});
   }
 
-  printf("%d %d\n", n, m);
+  ECS_LOG("%d %d", n, m);
 
   {
     TimeProfile a("oop nodes creation");
@@ -73,22 +73,22 @@ int main()
     TimeProfile a("oop path finding");
     auto path = dijkstra("0", "1966010");
     // for (auto x : path.first)
-    //   printf("\"%s\"[%d], ", nodes[x].name.c_str(), x);
-    printf("\npath %d\n", path.second);
+    //   ECS_LOG("\"%s\"[%d], ", nodes[x].name.c_str(), x);
+    ECS_LOG("\npath %d", path.second);
   }
   {
     TimeProfile a("ecs path finding");
     auto path = ecs_dijkstra("0", "1966010");
     // for (auto x : path.first)
-    //   printf("\"%s\"[%d], ", nodes[x].name.c_str(), x);
-    printf("\npath %d\n", path.second);
+    //   ECS_LOG("\"%s\"[%d], ", nodes[x].name.c_str(), x);
+    ECS_LOG("\npath %d", path.second);
   }
 
   for (Edge &e : edges)
   {
     if (get_dist(e.from) != get_ecs_dist(e.from))
     {
-      printf("wrong node %s\n", e.from.c_str());
+      ECS_LOG("wrong node %s", e.from.c_str());
       break;
     }
   }
@@ -136,7 +136,7 @@ int main()
 
   for (const Test &test : tests)
   {
-    ECS_LOG("spent avg %d, max %d us. in %s\n", test.sumOfTime / n, test.maxTime, test.name.c_str());
+    ECS_LOG("spent avg %d, max %d us. in %s", test.sumOfTime / n, test.maxTime, test.name.c_str());
   }
   std::cout << std::endl;
   ecs::destroy_all_entities();

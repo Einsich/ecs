@@ -3,12 +3,12 @@
 
 static void pre_main()
 {
-  printf("pre_main\n");
+  ECS_LOG("pre_main");
 }
 
 static void post_main()
 {
-  printf("post_main\n");
+  ECS_LOG("post_main");
 }
 
 int main()
@@ -27,23 +27,23 @@ int main()
 SYSTEM(stage = render)
 stage_render()
 {
-  printf("stage_render\n");
+  ECS_LOG("stage_render");
 }
 
 SYSTEM(stage = main; before = stage_test2)
 stage_test1()
 {
-  printf("stage_test1\n");
+  ECS_LOG("stage_test1");
 }
 
 SYSTEM(stage = main)
 stage_test2()
 {
-  printf("stage_test2\n");
+  ECS_LOG("stage_test2");
 }
 
 SYSTEM(stage = main; before = stage_test1, stage_test2)
 stage_test3()
 {
-  printf("stage_test3\n");
+  ECS_LOG("stage_test3");
 }

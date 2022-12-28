@@ -22,7 +22,7 @@ struct TimeProfile
   ns_t stop()
   {
     ns_t dif = get_us() - start;
-    printf("took %llu us. %s\n", dif, label);
+    ECS_LOG("took %llu us. %s", dif, label);
     return dif;
   }
   ~TimeProfile()

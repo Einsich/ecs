@@ -41,7 +41,7 @@ namespace ecs
     {
       if (used[to] == Gray)
       {
-        ECS_ERROR("cycle detected :\n");
+        ECS_ERROR("cycle detected :");
         ecs::vector<uint> cycle;
         log_cycle(v, to, edges, used, cycle);
         if (loger)
@@ -82,14 +82,14 @@ namespace ecs
         {
           if (i == it->second)
           {
-            ECS_ERROR("system %s has itself in before\n", queries[i]->name.c_str());
+            ECS_ERROR("system %s has itself in before", queries[i]->name.c_str());
             continue;
           }
           edge[i].push_back(it->second);
         }
         else
         {
-          ECS_ERROR("%s doesn't exist for before %s\n", before.c_str(), queries[i]->name.c_str());
+          ECS_ERROR("%s doesn't exist for before %s", before.c_str(), queries[i]->name.c_str());
         }
       }
       for (const string &after : queries[i]->after)
@@ -99,14 +99,14 @@ namespace ecs
         {
           if (i == it->second)
           {
-            ECS_ERROR("system %s has itself in after\n", queries[i]->name.c_str());
+            ECS_ERROR("system %s has itself in after", queries[i]->name.c_str());
             continue;
           }
           edge[it->second].push_back(i);
         }
         else
         {
-          ECS_ERROR("%s doesn't exist for after %s\n", after.c_str(), queries[i]->name.c_str());
+          ECS_ERROR("%s doesn't exist for after %s", after.c_str(), queries[i]->name.c_str());
         }
       }
     }

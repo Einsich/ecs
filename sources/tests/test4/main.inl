@@ -18,8 +18,8 @@ int main()
   ecs::TypeAnnotation p4Annotation = *ecs::get_type_annotation<Point4>();
 
   ecs::TypeAnnotation vecP4Annotation = *ecs::get_type_annotation<ecs::vector<Point4>>();
-  printf("Point4 %d\n", ecs::TypeIndex<Point4>::value);
-  printf("float %d\n", ecs::TypeIndex<float>::value);
+  ECS_LOG("Point4 %d", ecs::TypeIndex<Point4>::value);
+  ECS_LOG("float %d", ecs::TypeIndex<float>::value);
   const int N = 1000;
   Point4 *x = new Point4[N];
   Point4 *y = new Point4[N];

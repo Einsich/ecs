@@ -40,12 +40,12 @@ static void test_awaited_creation_single_handler(ecs::EntityId eid, const ecs::E
 
 static void test_awaited_delete_handler(const ecs::Event &event)
 {
-  ecs::perform_event(reinterpret_cast<const ecs::OnEntityDestoyed &>(event), test_awaited_delete__cache__, test_awaited_delete);
+  ecs::perform_event(reinterpret_cast<const ecs::OnEntityDestroyed &>(event), test_awaited_delete__cache__, test_awaited_delete);
 }
 
 static void test_awaited_delete_single_handler(ecs::EntityId eid, const ecs::Event &event)
 {
-  ecs::perform_event(eid, reinterpret_cast<const ecs::OnEntityDestoyed &>(event), test_awaited_delete__cache__, test_awaited_delete);
+  ecs::perform_event(eid, reinterpret_cast<const ecs::OnEntityDestroyed &>(event), test_awaited_delete__cache__, test_awaited_delete);
 }
 
 static void test_awaited_terminate_handler(const ecs::Event &event)
@@ -119,7 +119,7 @@ static void registration_pull_await_contruction_test()
   {},
   {},
   &test_awaited_delete_handler, &test_awaited_delete_single_handler),
-  ecs::EventIndex<ecs::OnEntityDestoyed>::value);
+  ecs::EventIndex<ecs::OnEntityDestroyed>::value);
 
   ecs::register_event(ecs::EventDescription(
   "",

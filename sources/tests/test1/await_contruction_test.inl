@@ -15,7 +15,7 @@ static bool await_component(const ecs::ComponentPrefab &prefab)
   auto eid = prefab.get<ecs::EntityId>();
   if (eid.description && eid.description->state == ecs::EntityState::CreatedNotInited)
     return false;
-  printf("await\n");
+  ECS_LOG("await");
   print(eid);
   return true;
 }
@@ -35,7 +35,7 @@ static bool random_wait(const ecs::ComponentPrefab &prefab)
 {
   int time = prefab.get<int>();
   globalT++;
-  printf("wait %d / %d\n", globalT, time);
+  ECS_LOG("wait %d / %d", globalT, time);
 
   return globalT >= time;
 }
@@ -99,7 +99,7 @@ static void iterate_linked_list(ecs::EntityId head, int idx)
   get_next_node(head,
                 [&](ecs::EntityId nextEid, int value)
                 {
-                  printf("value %d [%d]\n", value, idx);
+                  ECS_LOG("value %d [%d]", value, idx);
                   iterate_linked_list(nextEid, idx + 1);
                 });
 }
@@ -111,19 +111,19 @@ test_awaited_creation(const ecs::OnEntityCreated &, int value, ecs::EntityId eid
   {
     return;
   }
-  printf("[[\n");
+  ECS_LOG("[[");
   iterate_linked_list(eid, 0);
-  printf("]]\n");
+  ECS_LOG("]]");
 }
 
 EVENT(require = ecs::EntityId nextEid)
 test_awaited_delete(const ecs::OnEntityDestroyed &, int value)
 {
-  printf("OnEntityDestroyed %d \n", value);
+  ECS_LOG("OnEntityDestroyed %d", value);
 }
 
 EVENT(require = ecs::EntityId nextEid)
 test_awaited_terminate(const ecs::OnEntityTerminated &, int value)
 {
-  printf("OnEntityTerminated %d \n", value);
+  ECS_LOG("OnEntityTerminated %d", value);
 }

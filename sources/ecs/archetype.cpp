@@ -77,7 +77,7 @@ namespace ecs
         ComponentPrefab &override = overrides_list[j];
         if (component.typeIndex != override.typeIndex)
         {
-          ECS_ERROR("prefab \"%s\" has type missmatch for component \"%s\", it's <%s> in prefab and <%s> in override\n",
+          ECS_ERROR("prefab \"%s\" has type missmatch for component \"%s\", it's <%s> in prefab and <%s> in override",
                     prefabs_list.name.c_str(),
                     component.name.c_str(),
                     type_name(component.typeIndex),

@@ -111,7 +111,7 @@ int main()
 
   for (const Test &test : tests)
   {
-    ECS_LOG("spent avg %d, max %d us. in %s\n", test.sumOfTime / n, test.maxTime, test.name.c_str());
+    ECS_LOG("spent avg %d, max %d us. in %s", test.sumOfTime / n, test.maxTime, test.name.c_str());
   }
   std::cout << std::endl;
   ecs::destroy_all_entities();

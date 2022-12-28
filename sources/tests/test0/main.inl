@@ -19,13 +19,13 @@ int main()
   ecs::create_entity_immediate(p, {{"x", 1}, {"z", -0.f}});
 
   ecs::update_query_manager(); // after register_event, register_request, etc
-  printf("ecs::perform_systems()\n\n");
+  ECS_LOG("ecs::perform_systems()\n");
   ecs::perform_systems();
 
   ecs::destroy_entity(eid1);
   ecs::destroy_entity(eid1);
   ecs::update_archetype_manager();
-  printf("ecs::perform_systems()\n\n");
+  ECS_LOG("ecs::perform_systems()\n");
   ecs::perform_systems();
 
   MyEvent m;
@@ -36,7 +36,7 @@ int main()
 
   MyRequest r;
   ecs::send_request(r);
-  printf("request count %d\n", r.count);
+  ECS_LOG("request count %d", r.count);
 
   ecs::destroy_all_entities();
   std::fflush(stdout);
@@ -49,20 +49,20 @@ static void test_single_query(ecs::EntityId eid, C c);
 SYSTEM()
 test(const int &x, const int &y, const int &z, ecs::EntityId eid)
 {
-  printf("hi %d %d %d\n", x, y, z);
+  ECS_LOG("hi %d %d %d", x, y, z);
   print(eid);
 
   QUERY()
   test_single_query(eid, [&](int &z, int &y)
                     { y+=10; z-=10; });
 
-  printf("bye %d %d %d\n\n", x, y, z);
+  ECS_LOG("bye %d %d %d\n", x, y, z);
 }
 
 EVENT()
 test_event(const MyEvent &e, int y)
 {
-  printf("test_event %d %d\n\n", e.x, y);
+  ECS_LOG("test_event %d %d\n", e.x, y);
 }
 
 REQUEST(require = int x)
