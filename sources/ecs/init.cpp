@@ -3,9 +3,20 @@
 #include <ecs/base_events.h>
 #include <ecs/query_manager.h>
 #include <ecs/event_registration.h>
+#include <stdarg.h>
 
 namespace ecs
 {
+  
+  void default_log_function(const char *format, ...)
+  {
+    va_list args;
+    va_start(args, format);
+    vprintf(format, args);
+    printf("\n");
+    va_end(args);
+  }
+
   void init(bool register_base_types)
   {
     if (register_base_types)

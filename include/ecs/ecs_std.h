@@ -39,6 +39,13 @@ namespace ecs
   template <typename T>
   inline constexpr bool is_zero_sizeof = sizeof(int) == sizeof(is_zero_sizeof_t<T>);
 
+  void default_log_function(const char *format, ...);
+  using LogFunction = void (*)(const char *format, ...);
+
+  //you can override this for custom logging
+  inline LogFunction ecs_log = &default_log_function;
+  inline LogFunction ecs_error = &default_log_function;
+
 } // namespace ecs
 
 #define ECS_ASSERT assert
@@ -48,8 +55,8 @@ namespace ecs
     assert(assertion);                          \
     return ret_value;                           \
   }
-#define ECS_LOG printf
-#define ECS_ERROR printf
+#define ECS_LOG ecs::ecs_log
+#define ECS_ERROR ecs::ecs_error
 
 #define __CONCAT_HELPER__(x, y) x##y
 #define __CONCAT__(x, y) __CONCAT_HELPER__(x, y)

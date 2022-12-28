@@ -17,7 +17,7 @@ namespace ecs
     template <typename T>
     static const void *get_raw_mem(const ecs::any &raw_component)
     {
-      return std::any_cast<T*>(raw_component);
+      return &std::any_cast<const T&>(raw_component);
     }
     ecs::any raw_component;
     const void *(*raw_pointer_getter)(const ecs::any &);

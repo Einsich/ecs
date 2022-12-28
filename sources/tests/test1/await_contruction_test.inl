@@ -12,7 +12,7 @@ struct EntityDependance
 static bool await_component(const ecs::ComponentPrefab &prefab)
 {
 
-  auto eid = *prefab.get<ecs::EntityId>();
+  auto eid = prefab.get<ecs::EntityId>();
   if (eid.description && eid.description->state == ecs::EntityState::CreatedNotInited)
     return false;
   printf("await\n");
@@ -22,7 +22,7 @@ static bool await_component(const ecs::ComponentPrefab &prefab)
 
 static void await_constructor(void *raw_memory, const ecs::ComponentPrefab &prefab, bool )
 {
-  auto eid = *prefab.get<ecs::EntityId>();
+  auto eid = prefab.get<ecs::EntityId>();
   new (raw_memory) EntityDependance{eid};
 }
 
@@ -33,7 +33,7 @@ static int globalT = 0;
 
 static bool random_wait(const ecs::ComponentPrefab &prefab)
 {
-  int time = *prefab.get<int>();
+  int time = prefab.get<int>();
   globalT++;
   printf("wait %d / %d\n", globalT, time);
 
