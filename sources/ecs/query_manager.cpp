@@ -336,8 +336,11 @@ namespace ecs
     if (it == stagesMap.end())
       it = stagesMap.insert({system.stage, stagesMap.size()}).first;
     uint k = it->second;
-    systems.resize(k + 1);
-    activeSystems.resize(k + 1);
+    if (k >= systems.size())
+    {
+      systems.resize(k + 1);
+      activeSystems.resize(k + 1);
+    }
     return systems[k].emplace_back(std::move(system));
   }
   
@@ -358,6 +361,10 @@ namespace ecs
   {
     if (stage < activeSystems.size())
     {
+      if (activeSystems[stage].empty())
+        return;
+      ProfileScope scope(activeSystems[stage][0]->stage.c_str());
+
       ECS_ASSERT_RETURN(!requireUpdate(), );
       for (auto *system : activeSystems[stage])
       {
