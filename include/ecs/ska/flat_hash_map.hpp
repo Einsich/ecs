@@ -757,12 +757,11 @@ namespace ska
 
       void swap(sherwood_v3_table &other)
       {
-        using std::swap;
         swap_pointers(other);
-        swap(static_cast<ArgumentHash &>(*this), static_cast<ArgumentHash &>(other));
-        swap(static_cast<ArgumentEqual &>(*this), static_cast<ArgumentEqual &>(other));
+        std::swap(static_cast<ArgumentHash &>(*this), static_cast<ArgumentHash &>(other));
+        std::swap(static_cast<ArgumentEqual &>(*this), static_cast<ArgumentEqual &>(other));
         if (AllocatorTraits::propagate_on_container_swap::value)
-          swap(static_cast<EntryAlloc &>(*this), static_cast<EntryAlloc &>(other));
+          std::swap(static_cast<EntryAlloc &>(*this), static_cast<EntryAlloc &>(other));
       }
 
       size_t size() const
@@ -832,20 +831,18 @@ namespace ska
 
       void swap_pointers(sherwood_v3_table &other)
       {
-        using std::swap;
-        swap(hash_policy, other.hash_policy);
-        swap(entries, other.entries);
-        swap(num_slots_minus_one, other.num_slots_minus_one);
-        swap(num_elements, other.num_elements);
-        swap(max_lookups, other.max_lookups);
-        swap(_max_load_factor, other._max_load_factor);
+        std::swap(hash_policy, other.hash_policy);
+        std::swap(entries, other.entries);
+        std::swap(num_slots_minus_one, other.num_slots_minus_one);
+        std::swap(num_elements, other.num_elements);
+        std::swap(max_lookups, other.max_lookups);
+        std::swap(_max_load_factor, other._max_load_factor);
       }
 
       template <typename Key, typename... Args>
       SKA_NOINLINE(std::pair<iterator, bool>)
       emplace_new_key(int8_t distance_from_desired, EntryPointer current_entry, Key &&key, Args &&...args)
       {
-        using std::swap;
         if (num_slots_minus_one == 0 || distance_from_desired == max_lookups || num_elements + 1 > (num_slots_minus_one + 1) * static_cast<double>(_max_load_factor))
         {
           grow();
@@ -858,8 +855,8 @@ namespace ska
           return {{current_entry}, true};
         }
         value_type to_insert(std::forward<Key>(key), std::forward<Args>(args)...);
-        swap(distance_from_desired, current_entry->distance_from_desired);
-        swap(to_insert, current_entry->value);
+        std::swap(distance_from_desired, current_entry->distance_from_desired);
+        std::swap(to_insert, current_entry->value);
         iterator result = {current_entry};
         for (++distance_from_desired, ++current_entry;; ++current_entry)
         {
@@ -871,8 +868,8 @@ namespace ska
           }
           else if (current_entry->distance_from_desired < distance_from_desired)
           {
-            swap(distance_from_desired, current_entry->distance_from_desired);
-            swap(to_insert, current_entry->value);
+            std::swap(distance_from_desired, current_entry->distance_from_desired);
+            std::swap(to_insert, current_entry->value);
             ++distance_from_desired;
           }
           else
@@ -880,7 +877,7 @@ namespace ska
             ++distance_from_desired;
             if (distance_from_desired == max_lookups)
             {
-              swap(to_insert, result.current->value);
+              std::swap(to_insert, result.current->value);
               grow();
               return emplace(std::move(to_insert));
             }
