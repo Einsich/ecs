@@ -32,12 +32,13 @@ namespace ecs
     ska::flat_hash_map<int, ecs::vector<int>> archetypes;
     bool noArchetype = false;
   };
-
+  uint get_next_query_id();
   struct QueryDescription
   {
-    const ecs::string file, name;
-    const ecs::vector<ArgumentDescription> arguments;
-    const ecs::vector<ComponentDescription> requiredComponents, requiredNotComponents;
+    uint uniqueId;
+    ecs::string file, name;
+    ecs::vector<ArgumentDescription> arguments;
+    ecs::vector<ComponentDescription> requiredComponents, requiredNotComponents;
     QueryCache *cache = nullptr;
     bool noArchetype = false;
 
@@ -49,7 +50,7 @@ namespace ecs
                      ecs::vector<ArgumentDescription> &&arguments,
                      ecs::vector<ComponentDescription> &&required_components,
                      ecs::vector<ComponentDescription> &&required_not_components)
-        : file(file), name(name),
+        : uniqueId(get_next_query_id()), file(file), name(name),
           arguments(std::move(arguments)),
           requiredComponents(std::move(required_components)),
           requiredNotComponents(std::move(required_not_components)),
@@ -63,7 +64,7 @@ namespace ecs
 
   struct OrderedDescription
   {
-    const ecs::vector<ecs::string> before, after, tags;
+    ecs::vector<ecs::string> before, after, tags;
     OrderedDescription(ecs::vector<ecs::string> &&before, ecs::vector<ecs::string> &&after, ecs::vector<ecs::string> &&tags)
         : before(std::move(before)),
           after(std::move(after)),
@@ -74,9 +75,9 @@ namespace ecs
 
   struct SystemDescription : public QueryDescription, public OrderedDescription
   {
-    const ecs::string stage;
+    ecs::string stage;
     using SystemHandler = std::function<void()>;
-    const SystemHandler system;
+    SystemHandler system;
     SystemDescription(const char *file,
                       const char *name,
                       QueryCache *cache,
@@ -99,8 +100,8 @@ namespace ecs
   {
     using BroadcastEventHandler = std::function<void(const Event &)>;
     using UnicastEventHandler = std::function<void(EntityId, const Event &)>;
-    const BroadcastEventHandler broadcastEventHandler;
-    const UnicastEventHandler unicastEventHandler;
+    BroadcastEventHandler broadcastEventHandler;
+    UnicastEventHandler unicastEventHandler;
     EventDescription(const char *file,
                      const char *name,
                      QueryCache *cache,
@@ -124,8 +125,8 @@ namespace ecs
   {
     using BroadcastRequestHandler = std::function<void(Request &)>;
     using UnicastRequestHandler = std::function<void(EntityId, Request &)>;
-    const BroadcastRequestHandler broadcastRequestHandler;
-    const UnicastRequestHandler unicastRequestHandler;
+    BroadcastRequestHandler broadcastRequestHandler;
+    UnicastRequestHandler unicastRequestHandler;
     RequestDescription(const char *file,
                        const char *name,
                        QueryCache *cache,
@@ -144,11 +145,36 @@ namespace ecs
     {
     }
   };
+  struct QueryHandle
+  {
+    uint uniqueId = -1u;
+  };
+  struct SystemHandle
+  {
+    uint stageId = -1u;
+    uint uniqueId = -1u;
+  };
+  struct EventHandle
+  {
+    uint typeId = -1u;
+    uint uniqueId = -1u;
+  };
+  struct RequestHandle
+  {
+    uint typeId = -1u;
+    uint uniqueId = -1u;
+  };
 
-  void register_query(QueryDescription &&query);
-  void register_system(SystemDescription &&system);
-  void register_event(EventDescription &&event, event_t event_id);
-  void register_request(RequestDescription &&request, request_t event_id);
+
+  QueryHandle register_query(QueryDescription &&query);
+  SystemHandle register_system(SystemDescription &&system);
+  EventHandle register_event(EventDescription &&event, event_t event_id);
+  RequestHandle register_request(RequestDescription &&request, request_t event_id);
+
+  bool remove_query(QueryHandle handle, bool free_cache);
+  bool remove_system(SystemHandle handle, bool free_cache);
+  bool remove_event(EventHandle handle, bool free_cache);
+  bool remove_request(RequestHandle handle, bool free_cache);
 
   struct FileRegistrationHelper
   {

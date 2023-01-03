@@ -330,20 +330,6 @@ namespace ecs
     }
   }
 
-  SystemDescription &QueryManager::addSystem(SystemDescription &&system)
-  {
-    auto it = stagesMap.find(system.stage);
-    if (it == stagesMap.end())
-      it = stagesMap.insert({system.stage, stagesMap.size()}).first;
-    uint k = it->second;
-    if (k >= systems.size())
-    {
-      systems.resize(k + 1);
-      activeSystems.resize(k + 1);
-    }
-    return systems[k].emplace_back(std::move(system));
-  }
-  
   stage_id QueryManager::findStageId(const char *stage_name) const
   {
     auto it = stagesMap.find_as(stage_name);

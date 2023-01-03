@@ -53,7 +53,6 @@ namespace ecs
     void sendRequest(ecs::Request &request, request_t request_id) const;
     void sendRequest(EntityId eid, ecs::Request &request, request_t request_id) const;
 
-    SystemDescription &addSystem(SystemDescription &&system);
 
     stage_id findStageId(const char *stage_name) const;
     void performStage(const char *stage) const;
