@@ -18,6 +18,7 @@ namespace ecs
   uint add_archetype(ecs::vector<ComponentDescription> &&descriptions, SizePolicy chunk_power);
   uint add_archetype(const ecs::vector<ComponentPrefab> &descriptions, SizePolicy chunk_power);
   EntityId create_entity_immediate(prefab_id id, ecs::vector<ComponentPrefab> &&overrides_list = {});
+  EntityId create_entity_immediate(const char *prefab_name, ecs::vector<ComponentPrefab> &&overrides_list = {});
   EntityId create_entity(prefab_id id, ecs::vector<ComponentPrefab> &&overrides_list = {});
   EntityId create_entity(const char *prefab_name, ecs::vector<ComponentPrefab> &&overrides_list = {});
 
