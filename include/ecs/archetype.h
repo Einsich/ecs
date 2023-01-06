@@ -31,9 +31,9 @@ namespace ecs
     {
       data.push_back((byte *)malloc(chunk_size));
     }
-    byte *get(uint chunk, uint offset)
+    byte *get(uint chunk, uint offset, uint sizeoff) const
     {
-      return data[chunk] + offset;
+      return data[chunk] + offset * sizeoff; 
     }
   };
 

@@ -1,7 +1,7 @@
 #include <ecs/type_description_storage.h>
 #include <ecs/singleton.h>
 
-USE_DESCRIPTION_STORAGE(ecs::SingletonDescription, register_singleton, singleton_name_to_index, get_all_registered_singletons, get_next_singleton_index)
+USE_DESCRIPTION_STORAGE(ecs::SingletonDescription, update_singleton, register_singleton, singleton_name_to_index, get_all_registered_singletons, get_next_singleton_index)
 
 namespace ecs
 {
