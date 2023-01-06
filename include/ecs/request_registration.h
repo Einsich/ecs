@@ -11,7 +11,7 @@ namespace ecs
     extern int get_next_request_index();
     extern void register_request(int, RequestTypeDescription);
     RequestIndex<T>::value = get_next_request_index();
-    register_request(RequestIndex<T>::value, RequestTypeDescription{name});
+    register_request(RequestIndex<T>::value, RequestTypeDescription{name, sizeof(T)});
   }
   template <typename T>
   struct RequestRegistrationHelper

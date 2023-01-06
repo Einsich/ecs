@@ -13,6 +13,7 @@ namespace ecs
   struct RequestTypeDescription
   {
     const ecs::string name;
+    const uint sizeOf;
   };
 
   int request_name_to_index(const char *name);
