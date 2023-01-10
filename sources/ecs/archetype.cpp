@@ -87,7 +87,7 @@ namespace ecs
         }
         if (fabric.hasAwaiter)
           fabric.await_contructor(memory, override, true);
-        else if (fabric.hasAwaiter)
+        else if (fabric.hasPrefabCtor)
           fabric.prefab_constructor(memory, override, true);
         else
           type.move(memory, override.get_raw_memory());
@@ -97,7 +97,7 @@ namespace ecs
       {
         if (fabric.hasAwaiter)
           fabric.await_contructor(memory, component, true);
-        else if (fabric.hasAwaiter)
+        else if (fabric.hasPrefabCtor)
           fabric.prefab_constructor(memory, component, true);
         else
           type.copy(memory, component.get_raw_memory());
