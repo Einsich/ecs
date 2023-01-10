@@ -27,7 +27,7 @@ static void test_deffered_creation_implementation()
 static void registration_pull_deffered_creation()
 {
   ecs::register_query(ecs::QueryDescription(
-  "",
+  "C:/Users/Lord/Documents/ecs/sources/tests/test2/deffered_creation.inl:9",
   "get_next_node",
   &get_next_node__cache__,
   {
@@ -39,7 +39,7 @@ static void registration_pull_deffered_creation()
   ));
 
   ecs::register_system(ecs::SystemDescription(
-  "",
+  "C:/Users/Lord/Documents/ecs/sources/tests/test2/deffered_creation.inl:18",
   "no_arguments",
   &no_arguments__cache__,
   {},
@@ -52,7 +52,7 @@ static void registration_pull_deffered_creation()
   &no_arguments_implementation));
 
   ecs::register_system(ecs::SystemDescription(
-  "",
+  "C:/Users/Lord/Documents/ecs/sources/tests/test2/deffered_creation.inl:48",
   "test_deffered_creation",
   &test_deffered_creation__cache__,
   {

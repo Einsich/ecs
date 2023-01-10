@@ -44,7 +44,7 @@ static void test_request_single_handler(ecs::EntityId eid, ecs::Request &request
 static void registration_pull_main()
 {
   ecs::register_query(ecs::QueryDescription(
-  "",
+  "C:/Users/Lord/Documents/ecs/sources/tests/test0/main.inl:55",
   "test_single_query",
   &test_single_query__cache__,
   {
@@ -56,7 +56,7 @@ static void registration_pull_main()
   ));
 
   ecs::register_system(ecs::SystemDescription(
-  "",
+  "C:/Users/Lord/Documents/ecs/sources/tests/test0/main.inl:49",
   "test",
   &test__cache__,
   {
@@ -74,7 +74,7 @@ static void registration_pull_main()
   &test_implementation));
 
   ecs::register_event(ecs::EventDescription(
-  "",
+  "C:/Users/Lord/Documents/ecs/sources/tests/test0/main.inl:62",
   "test_event",
   &test_event__cache__,
   {
@@ -89,7 +89,7 @@ static void registration_pull_main()
   ecs::EventIndex<MyEvent>::value);
 
   ecs::register_request(ecs::RequestDescription(
-  "",
+  "C:/Users/Lord/Documents/ecs/sources/tests/test0/main.inl:68",
   "test_request",
   &test_request__cache__,
   {},

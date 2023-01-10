@@ -324,6 +324,9 @@ void parse_system(std::vector<ParserSystemDescription> &systemsDescriptions,
     auto args_range = get_match({name_range.end, system.end}, args_regex);
 
     std::string systemPath = file_info.filePath + ":" + std::to_string(file_info.findLine(system.begin - file.begin()));
+
+    std::replace(systemPath.begin(), systemPath.end(), '\\', '/');
+
     if (definition_range.empty())
     {
       log_error("system has wrong definition %s", systemPath.c_str());
@@ -560,10 +563,10 @@ static void fill_common_query_part(
   const char *name = descr.sys_name.c_str();
   write(outFile,
         "  %s(%s(\n"
-        "  \"\",\n"
+        "  \"%s\",\n"
         "  \"%s\",\n"
         "  &%s__cache__,\n",
-        register_func, description, name, name);
+        register_func, description, descr.sys_file.c_str(), name, name);
   fill_arguments(outFile, descr.args, is_event);
   fill_requared_arguments(outFile, descr.req_args, true);
   fill_requared_arguments(outFile, descr.req_not_args, !is_query);
