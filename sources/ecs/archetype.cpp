@@ -70,6 +70,7 @@ namespace ecs
     {
       const ComponentPrefab &component = prefabs[i];
       const auto &type = types[component.typeIndex];
+      const auto &fabric = *type.typeFabric;
       byte *memory = components[i].data[chunk] + offset * type.sizeOf;
       ECS_ASSERT(component.nameHash == components[i].description.nameHash);
       if (j < m && overrides_list[j].nameHash == component.nameHash)
@@ -84,20 +85,20 @@ namespace ecs
                     type_name(override.typeIndex));
           continue;
         }
-        if (type.awaitConstructor)
-          type.awaitConstructor(memory, override, true);
-        else if (type.prefabConstructor)
-          type.prefabConstructor(memory, override, true);
+        if (fabric.hasAwaiter)
+          fabric.await_contructor(memory, override, true);
+        else if (fabric.hasAwaiter)
+          fabric.prefab_constructor(memory, override, true);
         else
           type.move(memory, override.get_raw_memory());
         j++;
       }
       else
       {
-        if (type.awaitConstructor)
-          type.awaitConstructor(memory, component, false);
-        else if (type.prefabConstructor)
-          type.prefabConstructor(memory, component, false);
+        if (fabric.hasAwaiter)
+          fabric.await_contructor(memory, component, true);
+        else if (fabric.hasAwaiter)
+          fabric.prefab_constructor(memory, component, true);
         else
           type.copy(memory, component.get_raw_memory());
       }
@@ -164,7 +165,7 @@ namespace ecs
     for (ComponentContainer &container : components)
     {
       const auto &type = types[container.description.typeIndex];
-      if (!type.destructor)
+      if (type.typeFabric->trivialDestruction)
       {
 #if ECS_OPTIMIZED_DESTRUCTION == 0
         for (auto &chunk : container.data)

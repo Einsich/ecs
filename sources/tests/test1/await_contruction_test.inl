@@ -9,43 +9,54 @@ struct EntityDependance
   ecs::EntityId eid;
 };
 
-static bool await_component(const ecs::ComponentPrefab &prefab)
+struct DependanceFabric final : ecs::DefaultTypeFabric<EntityDependance>
 {
+  DependanceFabric(): DefaultTypeFabric(ecs::DefaultType, false, true){}
 
-  auto eid = prefab.get<ecs::EntityId>();
-  if (eid.description && eid.description->state == ecs::EntityState::CreatedNotInited)
-    return false;
-  ECS_LOG("await");
-  print(eid);
-  return true;
-}
+  void await_contructor(void *raw_memory, const ecs::ComponentPrefab &prefab, bool) const override
+  {
+    auto eid = prefab.get<ecs::EntityId>();
+    new (raw_memory) EntityDependance{eid};
+  }
 
-static void await_constructor(void *raw_memory, const ecs::ComponentPrefab &prefab, bool )
-{
-  auto eid = prefab.get<ecs::EntityId>();
-  new (raw_memory) EntityDependance{eid};
-}
+  bool component_awaiter(const ecs::ComponentPrefab &prefab) const override
+  {
+    auto eid = prefab.get<ecs::EntityId>();
+    if (eid.description && eid.description->state == ecs::EntityState::CreatedNotInited)
+      return false;
+    ECS_LOG("await");
+    print(eid);
+    return true;
+  }
+} depFabric;
+
 
 struct RandomWaiter
 {
 };
 static int globalT = 0;
 
-static bool random_wait(const ecs::ComponentPrefab &prefab)
+struct RandomFabric final : ecs::DefaultTypeFabric<EntityDependance>
 {
-  int time = prefab.get<int>();
-  globalT++;
-  ECS_LOG("wait %d / %d", globalT, time);
+  RandomFabric(): DefaultTypeFabric(ecs::DefaultType, false, true){}
 
-  return globalT >= time;
-}
+  void await_contructor(void *, const ecs::ComponentPrefab &, bool ) const override
+  {
+  }
 
-static void rand_await_constructor(void *, const ecs::ComponentPrefab &, bool )
-{
-}
+  bool component_awaiter(const ecs::ComponentPrefab &prefab) const override
+  {
+    int time = prefab.get<int>();
+    globalT++;
+    ECS_LOG("wait %d / %d", globalT, time);
 
-ECS_TYPE_REGISTRATION(EntityDependance, "EntityDependance", ecs::DefaultType, nullptr, &await_component, &await_constructor)
-ECS_TYPE_REGISTRATION(RandomWaiter, "RandomWaiter", ecs::DefaultType, nullptr, &random_wait, &rand_await_constructor)
+    return globalT >= time;
+  }
+} randFabric;
+
+
+ECS_TYPE_REGISTRATION_WITH_FABRIC(EntityDependance, "EntityDependance", &depFabric)
+ECS_TYPE_REGISTRATION_WITH_FABRIC(RandomWaiter, "RandomWaiter", &randFabric)
 
 EVENT()
 test_event(const PrepareTest &)

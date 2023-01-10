@@ -18,45 +18,56 @@ namespace ecs
     PODType = TrivialCopyConstructor | TrivialMoveConstructor | TrivialDestructor,
   };
   struct ComponentPrefab;
-  using PrefabConstructor = void (*)(void *, const ComponentPrefab &, bool is_rvalue);
-  using CopyConstructor = void (*)(void *, const void *);
-  using MoveConstructor = void (*)(void *, void *);
-  using Destructor = void (*)(void *);
-  using ComponentAwaiter = bool (*)(const ComponentPrefab &);
-  using AwaitConstructor = void (*)(void *, const ComponentPrefab &, bool is_rvalue);
+  struct TypeFabric
+  {
+    const bool trivialCopy = false;
+    const bool trivialMove = false;
+    const bool trivialDestruction = false;
+    const bool hasPrefabCtor = false;
+    const bool hasAwaiter = false;
+    TypeFabric(Type type, bool has_prefab_ctor, bool has_awaiter):
+      trivialCopy(type&TrivialCopyConstructor),
+      trivialMove(type&TrivialMoveConstructor),
+      trivialDestruction(type&TrivialDestructor),
+      hasPrefabCtor(has_prefab_ctor),
+      hasAwaiter(has_awaiter)
+    {}
+
+    virtual void copy_constructor(void *raw_memory, const void *source) const = 0;
+    virtual void move_constructor(void *raw_memory, void *source) const = 0;
+    virtual void prefab_constructor(void *raw_memory, const ComponentPrefab &prefab, bool is_rvalue) const = 0;
+    virtual void destructor(void *memory) const = 0;
+    virtual bool component_awaiter(const ComponentPrefab &prefab) const = 0;
+    virtual void await_contructor(void *raw_memory, const ComponentPrefab &prefab, bool is_rvalue) const = 0;
+  };
 
   struct TypeAnnotation
   {
     const ecs::string name;
     const uint sizeOf;
-    const PrefabConstructor prefabConstructor = nullptr;
-    const CopyConstructor copyConstructor = nullptr;
-    const MoveConstructor moveConstructor = nullptr;
-    const ComponentAwaiter componentAwaiter = nullptr;
-    const AwaitConstructor awaitConstructor = nullptr;
-    const Destructor destructor = nullptr;
+    const TypeFabric *typeFabric = nullptr;
 
     void ECS_INLINE copy(void *dst, const void *src) const
     {
-      if (copyConstructor)
-        copyConstructor(dst, src);
-      else
+      if (typeFabric->trivialCopy)
         memcpy(dst, src, sizeOf);
+      else
+        typeFabric->copy_constructor(dst, src);
     }
     void ECS_INLINE move(void *dst, void *src) const
     {
-      if (moveConstructor)
-        moveConstructor(dst, src);
-      else
+      if (typeFabric->trivialMove)
       {
         memcpy(dst, src, sizeOf);
         memset(src, 0, sizeOf);
       }
+      else
+        typeFabric->move_constructor(dst, src);
     }
     void ECS_INLINE destruct(void *dst) const
     {
-      if (destructor)
-        destructor(dst);
+      if (!typeFabric->trivialDestruction)
+        typeFabric->destructor(dst);
 #if ECS_OPTIMIZED_DESTRUCTION == 0
       else
         memset(dst, ECS_CLEAR_MEM_PATTERN, sizeOf);

@@ -19,7 +19,7 @@ namespace ecs
       const auto &type = types[descr.typeIndex];
       if (descr.accessType == AccessType::Copy)
       {
-        if (type.copyConstructor != nullptr)
+        if (!type.typeFabric->trivialCopy)
         {
           ECS_ERROR("%s in %s copy component %s %s with not trivial copy ctor",
                     file.c_str(), name.c_str(), type.name.c_str(), descr.name.c_str());

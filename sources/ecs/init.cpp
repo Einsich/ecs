@@ -8,19 +8,29 @@
 
 namespace ecs
 {
+  #define ECS_BASE_TYPES\
+    TYPE(ecs::EntityId, EntityId)\
+    TYPE(bool, bool)\
+    TYPE(int, int)\
+    TYPE(unsigned int, uint)\
+    TYPE(float, float)\
+    TYPE(double, double)\
+    TYPE(char, char)\
+    TYPE(unsigned char, byte)
+
+  #define TYPE(CPP_TYPE, NAME)\
+  static DefaultTypeFabric<CPP_TYPE> fabric##NAME(ecs::PODType);
+  ECS_BASE_TYPES
+  #undef TYPE
 
   void init(bool register_base_types)
   {
     if (register_base_types)
     {
-      type_registration<ecs::EntityId, ecs::PODType>("EntityId");
-      type_registration<bool, ecs::PODType>("bool");
-      type_registration<int, ecs::PODType>("int");
-      type_registration<unsigned int, ecs::PODType>("uint");
-      type_registration<float, ecs::PODType>("float");
-      type_registration<double, ecs::PODType>("double");
-      type_registration<char, ecs::PODType>("char");
-      type_registration<unsigned char, ecs::PODType>("byte");
+    #define TYPE(CPP_TYPE, NAME)\
+    type_registration<CPP_TYPE>(#NAME, &fabric##NAME);
+    ECS_BASE_TYPES
+    #undef TYPE
     }
     register_event<ecs::OnEntityCreated>("OnEntityCreated", true);
     register_event<ecs::OnEntityDestroyed>("OnEntityDestroyed", true);
@@ -37,8 +47,8 @@ namespace ecs
     extern void perform_deffered_events();
     perform_deffered_events();
   }
-  
-  
+
+
   void default_log_function(const char *format, ...)
   {
     va_list args;
@@ -50,10 +60,10 @@ namespace ecs
   LogFunction ecs_log = &default_log_function;
   LogFunction ecs_error = &default_log_function;
 
-  
+
   void default_push_function(const char *){}
   void default_pop_function(){}
-  
+
   ProfilerPush ecs_profiler_push = &default_push_function;
   ProfilerPop ecs_profiler_pop = &default_pop_function;
   bool ecs_profiler_enabled = false;

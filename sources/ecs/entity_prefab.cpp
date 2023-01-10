@@ -17,7 +17,7 @@ namespace ecs
         have_collisions = true;
         break;
       }
-      if (types[comp.typeIndex].awaitConstructor)
+      if (types[comp.typeIndex].typeFabric->hasAwaiter)
       {
         requireAwaitCreation = true;
         break;
