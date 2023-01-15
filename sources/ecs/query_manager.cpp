@@ -143,14 +143,14 @@ namespace ecs
 
   template <typename Description>
   void system_sort(const ecs::vector<ecs::string> &applicationTags,
-                   const ecs::vector<Description> &all_queries,
+                   const ecs::vector<ecs::unique_ptr<Description>> &all_queries,
                    ecs::vector<Description *> &sorted_queries)
   {
     sorted_queries.clear();
-    for (const Description &callable : all_queries)
+    for (const auto &callable : all_queries)
     {
-      if (tagSatisfaction(applicationTags, callable.tags))
-        sorted_queries.push_back((Description *)&callable);
+      if (tagSatisfaction(applicationTags, callable->tags))
+        sorted_queries.push_back(callable.get());
     }
     topological_sort(sorted_queries);
   }
@@ -158,16 +158,16 @@ namespace ecs
   void QueryManager::clearCache()
   {
     for (auto &q : queries)
-      q.cache->archetypes.clear();
+      q->cache->archetypes.clear();
     for (auto &q : systems)
       for (auto &s : q)
-        s.cache->archetypes.clear();
+        s->cache->archetypes.clear();
     for (auto &e : events)
       for (auto &q : e)
-        q.cache->archetypes.clear();
+        q->cache->archetypes.clear();
     for (auto &e : requests)
       for (auto &q : e)
-        q.cache->archetypes.clear();
+        q->cache->archetypes.clear();
   }
 
   void QueryManager::invalidate()
@@ -261,7 +261,7 @@ namespace ecs
     rebuildDependencyGraph();
     const Archetype &archetype = get_archetype_manager().archetypes[archetype_idx];
     for (auto &q : queries)
-      update_cache(archetype, archetype_idx, q, *q.cache);
+      update_cache(archetype, archetype_idx, *q, *q->cache);
     for (auto &s : activeSystems)
       for (auto &q : s)
       update_cache(archetype, archetype_idx, *q, *q->cache);

@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <functional> //only for eventsQueue
 #include <assert.h>
+#include <memory>
 
 namespace ecs
 {
@@ -19,6 +20,12 @@ namespace ecs
   using queue = std::queue<T>;
   template <typename T, std::size_t N>
   using array = std::array<T, N>;
+  template <typename T>
+  using unique_ptr = std::unique_ptr<T>;
+  template <typename T>
+  using unique_ptr = std::unique_ptr<T>;
+
+  using std::make_unique;
 
   using any = std::any;
 

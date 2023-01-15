@@ -9,11 +9,11 @@ namespace ecs
 
     ecs::vector<ecs::string> tags;
 
-    ecs::vector<QueryDescription> queries;
+    ecs::vector<ecs::unique_ptr<QueryDescription>> queries;
     ska::flat_hash_map<ecs::string, stage_id> stagesMap;
-    ecs::vector<ecs::vector<SystemDescription>> systems;
-    ecs::vector<ecs::vector<EventDescription>> events;
-    ecs::vector<ecs::vector<RequestDescription>> requests;
+    ecs::vector<ecs::vector<ecs::unique_ptr<SystemDescription>>> systems;
+    ecs::vector<ecs::vector<ecs::unique_ptr<EventDescription>>> events;
+    ecs::vector<ecs::vector<ecs::unique_ptr<RequestDescription>>> requests;
 
     ecs::vector<ecs::vector<SystemDescription *>> activeSystems;
     ecs::vector<ecs::vector<EventDescription *>> activeEvents;

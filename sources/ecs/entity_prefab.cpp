@@ -52,6 +52,16 @@ namespace ecs
 
   static PrefabStorage storage;
 
+  prefab_id create_entity_prefab(const char *name, ecs::vector<ComponentPrefab> &&components, SizePolicy chunk_power)
+  {
+    return create_entity_prefab(EntityPrefab(name, std::move(components), chunk_power));
+  }
+  prefab_id create_entity_prefab(const char *name, const ecs::vector<ComponentPrefab> &components, SizePolicy chunk_power)
+  {
+    auto componentsCopy = components;
+    return create_entity_prefab(EntityPrefab(name, std::move(componentsCopy), chunk_power));
+  }
+
   prefab_id create_entity_prefab(EntityPrefab &&prefab)
   {
     if (prefab.components.empty())

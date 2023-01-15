@@ -44,13 +44,13 @@ namespace ecs
 
     void validate() const;
 
-    QueryDescription(const char *file,
-                     const char *name,
+    QueryDescription(ecs::string &&file,
+                     ecs::string &&name,
                      QueryCache *cache,
                      ecs::vector<ArgumentDescription> &&arguments,
                      ecs::vector<ComponentDescription> &&required_components,
                      ecs::vector<ComponentDescription> &&required_not_components)
-        : uniqueId(get_next_query_id()), file(file), name(name),
+        : uniqueId(get_next_query_id()), file(std::move(file)), name(std::move(name)),
           arguments(std::move(arguments)),
           requiredComponents(std::move(required_components)),
           requiredNotComponents(std::move(required_not_components)),
@@ -78,8 +78,8 @@ namespace ecs
     ecs::string stage;
     using SystemHandler = std::function<void()>;
     SystemHandler system;
-    SystemDescription(const char *file,
-                      const char *name,
+    SystemDescription(ecs::string &&file,
+                      ecs::string &&name,
                       QueryCache *cache,
                       ecs::vector<ArgumentDescription> &&arguments,
                       ecs::vector<ComponentDescription> &&required_components,
@@ -89,7 +89,7 @@ namespace ecs
                       ecs::vector<ecs::string> &&after,
                       ecs::vector<ecs::string> &&tags,
                       SystemHandler system)
-        : QueryDescription(file, name, cache, std::move(arguments), std::move(required_components), std::move(required_not_components)),
+        : QueryDescription(std::move(file), std::move(name), cache, std::move(arguments), std::move(required_components), std::move(required_not_components)),
           OrderedDescription(std::move(before), std::move(after), std::move(tags)),
           stage(std::move(stage)), system(system)
     {
@@ -102,8 +102,8 @@ namespace ecs
     using UnicastEventHandler = std::function<void(EntityId, const Event &)>;
     BroadcastEventHandler broadcastEventHandler;
     UnicastEventHandler unicastEventHandler;
-    EventDescription(const char *file,
-                     const char *name,
+    EventDescription(ecs::string &&file,
+                     ecs::string &&name,
                      QueryCache *cache,
                      ecs::vector<ArgumentDescription> &&arguments,
                      ecs::vector<ComponentDescription> &&required_components,
@@ -113,7 +113,7 @@ namespace ecs
                      ecs::vector<ecs::string> &&tags,
                      BroadcastEventHandler broadcast_event,
                      UnicastEventHandler unicast_event)
-        : QueryDescription(file, name, cache, std::move(arguments), std::move(required_components), std::move(required_not_components)),
+        : QueryDescription(std::move(file), std::move(name), cache, std::move(arguments), std::move(required_components), std::move(required_not_components)),
           OrderedDescription(std::move(before), std::move(after), std::move(tags)),
           broadcastEventHandler(broadcast_event),
           unicastEventHandler(unicast_event)
@@ -127,8 +127,8 @@ namespace ecs
     using UnicastRequestHandler = std::function<void(EntityId, Request &)>;
     BroadcastRequestHandler broadcastRequestHandler;
     UnicastRequestHandler unicastRequestHandler;
-    RequestDescription(const char *file,
-                       const char *name,
+    RequestDescription(ecs::string &&file,
+                       ecs::string &&name,
                        QueryCache *cache,
                        ecs::vector<ArgumentDescription> &&arguments,
                        ecs::vector<ComponentDescription> &&required_components,
@@ -138,7 +138,7 @@ namespace ecs
                        ecs::vector<ecs::string> &&tags,
                        BroadcastRequestHandler broadcast_request,
                        UnicastRequestHandler unicast_request)
-        : QueryDescription(file, name, cache, std::move(arguments), std::move(required_components), std::move(required_not_components)),
+        : QueryDescription(std::move(file), std::move(name), cache, std::move(arguments), std::move(required_components), std::move(required_not_components)),
           OrderedDescription(std::move(before), std::move(after), std::move(tags)),
           broadcastRequestHandler(broadcast_request),
           unicastRequestHandler(unicast_request)
@@ -166,10 +166,47 @@ namespace ecs
   };
 
 
-  QueryHandle register_query(QueryDescription &&query);
-  SystemHandle register_system(SystemDescription &&system);
-  EventHandle register_event(EventDescription &&event, event_t event_id);
-  RequestHandle register_request(RequestDescription &&request, request_t event_id);
+  QueryHandle register_query(ecs::string &&file,
+                             ecs::string &&name,
+                             QueryCache *cache,
+                             ecs::vector<ArgumentDescription> &&arguments,
+                             ecs::vector<ComponentDescription> &&required_components,
+                             ecs::vector<ComponentDescription> &&required_not_components);
+  SystemHandle register_system(ecs::string &&file,
+                               ecs::string &&name,
+                               QueryCache *cache,
+                               ecs::vector<ArgumentDescription> &&arguments,
+                               ecs::vector<ComponentDescription> &&required_components,
+                               ecs::vector<ComponentDescription> &&required_not_components,
+                               ecs::string &&stage,
+                               ecs::vector<ecs::string> &&before,
+                               ecs::vector<ecs::string> &&after,
+                               ecs::vector<ecs::string> &&tags,
+                               SystemDescription::SystemHandler system);
+  EventHandle register_event(ecs::string &&file,
+                             ecs::string &&name,
+                             QueryCache *cache,
+                             ecs::vector<ArgumentDescription> &&arguments,
+                             ecs::vector<ComponentDescription> &&required_components,
+                             ecs::vector<ComponentDescription> &&required_not_components,
+                             ecs::vector<ecs::string> &&before,
+                             ecs::vector<ecs::string> &&after,
+                             ecs::vector<ecs::string> &&tags,
+                             EventDescription::BroadcastEventHandler broadcast_event,
+                             EventDescription::UnicastEventHandler unicast_event,
+                             event_t event_id);
+  RequestHandle register_request(ecs::string &&file,
+                                 ecs::string &&name,
+                                 QueryCache *cache,
+                                 ecs::vector<ArgumentDescription> &&arguments,
+                                 ecs::vector<ComponentDescription> &&required_components,
+                                 ecs::vector<ComponentDescription> &&required_not_components,
+                                 ecs::vector<ecs::string> &&before,
+                                 ecs::vector<ecs::string> &&after,
+                                 ecs::vector<ecs::string> &&tags,
+                                 RequestDescription::BroadcastRequestHandler broadcast_request,
+                                 RequestDescription::UnicastRequestHandler unicast_request,
+                                 request_t request_id);
 
   bool remove_query(QueryHandle handle, bool free_cache);
   bool remove_system(SystemHandle handle, bool free_cache);

@@ -17,6 +17,8 @@ namespace ecs
   };
 
   prefab_id create_entity_prefab(EntityPrefab &&prefab);
+  prefab_id create_entity_prefab(const char *name, ecs::vector<ComponentPrefab> &&components_, SizePolicy chunk_power = SizePolicy::Hundreds);
+  prefab_id create_entity_prefab(const char *name, const ecs::vector<ComponentPrefab> &components_, SizePolicy chunk_power = SizePolicy::Hundreds);
   prefab_id get_prefab_id(const char *name);
   prefab_id get_prefab_id(const ecs::string &name);
   const EntityPrefab &get_prefab(prefab_id id);

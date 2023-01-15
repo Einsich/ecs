@@ -40,21 +40,43 @@ namespace ecs
   }
   void update_cache(QueryDescription &desription);
 
-  QueryHandle register_query(QueryDescription &&query)
+  QueryHandle register_query(ecs::string &&file,
+                             ecs::string &&name,
+                             QueryCache *cache,
+                             ecs::vector<ArgumentDescription> &&arguments,
+                             ecs::vector<ComponentDescription> &&required_components,
+                             ecs::vector<ComponentDescription> &&required_not_components)
   {
     QueryHandle h;
-    update_cache(query_manager.queries.emplace_back(std::move(query)));
+    auto &ptr = query_manager.queries.emplace_back(ecs::make_unique<ecs::QueryDescription>(
+        std::move(file),
+        std::move(name),
+        cache,
+        std::move(arguments),
+        std::move(required_components),
+        std::move(required_not_components)));
+    update_cache(*ptr.get());
     query_manager.queryInvalidated = true;
-    h.uniqueId = query_manager.queries.back().uniqueId;
+    h.uniqueId = ptr->uniqueId;
     return h;
   }
-  
-  SystemHandle register_system(SystemDescription &&system)
+
+  SystemHandle register_system(ecs::string &&file,
+                               ecs::string &&name,
+                               QueryCache *cache,
+                               ecs::vector<ArgumentDescription> &&arguments,
+                               ecs::vector<ComponentDescription> &&required_components,
+                               ecs::vector<ComponentDescription> &&required_not_components,
+                               ecs::string &&stage,
+                               ecs::vector<ecs::string> &&before,
+                               ecs::vector<ecs::string> &&after,
+                               ecs::vector<ecs::string> &&tags,
+                               SystemDescription::SystemHandler system)
   {
     SystemHandle h;
-    auto it = query_manager.stagesMap.find(system.stage);
+    auto it = query_manager.stagesMap.find(stage);
     if (it == query_manager.stagesMap.end())
-      it = query_manager.stagesMap.insert({system.stage, query_manager.stagesMap.size()}).first;
+      it = query_manager.stagesMap.insert({stage, query_manager.stagesMap.size()}).first;
     uint k = it->second;
     if (k >= query_manager.systems.size())
     {
@@ -62,50 +84,106 @@ namespace ecs
       query_manager.activeSystems.resize(k + 1);
     }
 
-    update_cache(query_manager.systems[k].emplace_back(std::move(system)));
+    auto &ptr = query_manager.systems[k].emplace_back(ecs::make_unique<ecs::SystemDescription>(
+        std::move(file),
+        std::move(name),
+        cache,
+        std::move(arguments),
+        std::move(required_components),
+        std::move(required_not_components),
+        std::move(stage),
+        std::move(before),
+        std::move(after),
+        std::move(tags),
+        system));
+    update_cache(*ptr.get());
     query_manager.systemsInvalidated = true;
 
     h.stageId = k;
-    h.uniqueId = query_manager.systems[k].back().uniqueId;
+    h.uniqueId = ptr->uniqueId;
     return h;
   }
-  
-  EventHandle register_event(EventDescription &&event, event_t event_id)
+
+  EventHandle register_event(ecs::string &&file,
+                             ecs::string &&name,
+                             QueryCache *cache,
+                             ecs::vector<ArgumentDescription> &&arguments,
+                             ecs::vector<ComponentDescription> &&required_components,
+                             ecs::vector<ComponentDescription> &&required_not_components,
+                             ecs::vector<ecs::string> &&before,
+                             ecs::vector<ecs::string> &&after,
+                             ecs::vector<ecs::string> &&tags,
+                             EventDescription::BroadcastEventHandler broadcast_event,
+                             EventDescription::UnicastEventHandler unicast_event,
+                             event_t event_id)
   {
     EventHandle h;
     if (event_id == -1u)
     {
-      ECS_ERROR("event handler %s use unregistered event", event.name.c_str());
+      ECS_ERROR("event handler %s use unregistered event", name.c_str());
       return h;
     }
     if (event_id >= query_manager.events.size())
       query_manager.events.resize(event_id + 1);
 
-    update_cache(query_manager.events[event_id].emplace_back(std::move(event)));
+    auto &ptr = query_manager.events[event_id].emplace_back(ecs::make_unique<ecs::EventDescription>(
+        std::move(file),
+        std::move(name),
+        cache,
+        std::move(arguments),
+        std::move(required_components),
+        std::move(required_not_components),
+        std::move(before),
+        std::move(after),
+        std::move(tags),
+        broadcast_event,
+        unicast_event));
+    update_cache(*ptr.get());
     query_manager.eventsInvalidated = true;
-
     h.typeId = event_id;
-    h.uniqueId = query_manager.events[event_id].back().uniqueId;
+    h.uniqueId = ptr->uniqueId;
     return h;
   }
-  
-  RequestHandle register_request(RequestDescription &&request, request_t request_id)
+
+  RequestHandle register_request(ecs::string &&file,
+                                 ecs::string &&name,
+                                 QueryCache *cache,
+                                 ecs::vector<ArgumentDescription> &&arguments,
+                                 ecs::vector<ComponentDescription> &&required_components,
+                                 ecs::vector<ComponentDescription> &&required_not_components,
+                                 ecs::vector<ecs::string> &&before,
+                                 ecs::vector<ecs::string> &&after,
+                                 ecs::vector<ecs::string> &&tags,
+                                 RequestDescription::BroadcastRequestHandler broadcast_request,
+                                 RequestDescription::UnicastRequestHandler unicast_request,
+                                 request_t request_id)
   {
     RequestHandle h;
     if (request_id == -1u)
     {
-      ECS_ERROR("request handler %s use unregistered request", request.name.c_str());
+      ECS_ERROR("request handler %s use unregistered request", name.c_str());
       return h;
     }
     if (request_id >= query_manager.requests.size())
       query_manager.requests.resize(request_id + 1);
 
-    update_cache(query_manager.requests[request_id].emplace_back(std::move(request)));
-
+    auto &ptr = query_manager.requests[request_id].emplace_back(ecs::make_unique<ecs::RequestDescription>(
+        std::move(file),
+        std::move(name),
+        cache,
+        std::move(arguments),
+        std::move(required_components),
+        std::move(required_not_components),
+        std::move(before),
+        std::move(after),
+        std::move(tags),
+        broadcast_request,
+        unicast_request));
+    update_cache(*ptr.get());
     query_manager.requestsInvalidated = true;
 
     h.typeId = request_id;
-    h.uniqueId = query_manager.requests[request_id].back().uniqueId;
+    h.uniqueId = ptr->uniqueId;
     return h;
   }
 
@@ -114,11 +192,11 @@ namespace ecs
   {
     for (uint i = 0, n = queries.size(); i < n; i++)
     {
-      if (queries[i].uniqueId == unique_id)
+      if (queries[i]->uniqueId == unique_id)
       {
         if (free_cache)
         {
-          delete queries[i].cache;
+          delete queries[i]->cache;
         }
         queries.erase(queries.begin() + i);
         invalidated = true;
@@ -141,7 +219,7 @@ namespace ecs
     }
     return false;
   }
-  
+
   bool remove_event(EventHandle handle, bool free_cache)
   {
     if (handle.typeId < query_manager.events.size())
