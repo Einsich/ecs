@@ -32,7 +32,7 @@ static void stage_test3_implementation()
 
 static void registration_pull_main()
 {
-  ecs::register_system(ecs::SystemDescription(
+  ecs::register_system(
   "C:/Users/Lord/Documents/ecs/sources/tests/test3/main.inl:19",
   "stage_render",
   &stage_render__cache__,
@@ -43,9 +43,9 @@ static void registration_pull_main()
   {},
   {},
   {},
-  &stage_render_implementation));
+  &stage_render_implementation);
 
-  ecs::register_system(ecs::SystemDescription(
+  ecs::register_system(
   "C:/Users/Lord/Documents/ecs/sources/tests/test3/main.inl:25",
   "stage_test1",
   &stage_test1__cache__,
@@ -56,9 +56,9 @@ static void registration_pull_main()
   {"stage_test2"},
   {},
   {},
-  &stage_test1_implementation));
+  &stage_test1_implementation);
 
-  ecs::register_system(ecs::SystemDescription(
+  ecs::register_system(
   "C:/Users/Lord/Documents/ecs/sources/tests/test3/main.inl:31",
   "stage_test2",
   &stage_test2__cache__,
@@ -69,9 +69,9 @@ static void registration_pull_main()
   {},
   {},
   {},
-  &stage_test2_implementation));
+  &stage_test2_implementation);
 
-  ecs::register_system(ecs::SystemDescription(
+  ecs::register_system(
   "C:/Users/Lord/Documents/ecs/sources/tests/test3/main.inl:37",
   "stage_test3",
   &stage_test3__cache__,
@@ -82,7 +82,7 @@ static void registration_pull_main()
   {"stage_test1", "stage_test2"},
   {},
   {},
-  &stage_test3_implementation));
+  &stage_test3_implementation);
 
 }
 ECS_FILE_REGISTRATION(&registration_pull_main)

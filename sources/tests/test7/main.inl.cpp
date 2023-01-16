@@ -19,16 +19,16 @@ static void ecs_query_iteration_implementation()
 
 static void registration_pull_main()
 {
-  ecs::register_query(ecs::QueryDescription(
+  ecs::register_query(
   "C:/Users/Lord/Documents/ecs/sources/tests/test7/main.inl:154",
   "query",
   &query__cache__,
   {},
   {},
   {}
-  ));
+  );
 
-  ecs::register_system(ecs::SystemDescription(
+  ecs::register_system(
   "C:/Users/Lord/Documents/ecs/sources/tests/test7/main.inl:151",
   "ecs_query_iteration",
   &ecs_query_iteration__cache__,
@@ -39,7 +39,7 @@ static void registration_pull_main()
   {},
   {},
   {},
-  &ecs_query_iteration_implementation));
+  &ecs_query_iteration_implementation);
 
 }
 ECS_FILE_REGISTRATION(&registration_pull_main)

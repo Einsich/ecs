@@ -43,7 +43,7 @@ static void test_request_single_handler(ecs::EntityId eid, ecs::Request &request
 
 static void registration_pull_main()
 {
-  ecs::register_query(ecs::QueryDescription(
+  ecs::register_query(
   "C:/Users/Lord/Documents/ecs/sources/tests/test0/main.inl:55",
   "test_single_query",
   &test_single_query__cache__,
@@ -53,9 +53,9 @@ static void registration_pull_main()
   },
   {},
   {}
-  ));
+  );
 
-  ecs::register_system(ecs::SystemDescription(
+  ecs::register_system(
   "C:/Users/Lord/Documents/ecs/sources/tests/test0/main.inl:49",
   "test",
   &test__cache__,
@@ -71,9 +71,9 @@ static void registration_pull_main()
   {},
   {},
   {},
-  &test_implementation));
+  &test_implementation);
 
-  ecs::register_event(ecs::EventDescription(
+  ecs::register_event(
   "C:/Users/Lord/Documents/ecs/sources/tests/test0/main.inl:62",
   "test_event",
   &test_event__cache__,
@@ -85,10 +85,10 @@ static void registration_pull_main()
   {},
   {},
   {},
-  &test_event_handler, &test_event_single_handler),
+  &test_event_handler, &test_event_single_handler,
   ecs::EventIndex<MyEvent>::value);
 
-  ecs::register_request(ecs::RequestDescription(
+  ecs::register_request(
   "C:/Users/Lord/Documents/ecs/sources/tests/test0/main.inl:68",
   "test_request",
   &test_request__cache__,
@@ -100,7 +100,7 @@ static void registration_pull_main()
   {},
   {},
   {},
-  &test_request_handler, &test_request_single_handler),
+  &test_request_handler, &test_request_single_handler,
   ecs::RequestIndex<MyRequest>::value);
 
 }

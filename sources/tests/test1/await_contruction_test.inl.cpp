@@ -60,7 +60,7 @@ static void test_awaited_terminate_single_handler(ecs::EntityId eid, const ecs::
 
 static void registration_pull_await_contruction_test()
 {
-  ecs::register_query(ecs::QueryDescription(
+  ecs::register_query(
   "C:/Users/Lord/Documents/ecs/sources/tests/test1/await_contruction_test.inl:109",
   "get_next_node",
   &get_next_node__cache__,
@@ -70,9 +70,9 @@ static void registration_pull_await_contruction_test()
   },
   {},
   {}
-  ));
+  );
 
-  ecs::register_event(ecs::EventDescription(
+  ecs::register_event(
   "C:/Users/Lord/Documents/ecs/sources/tests/test1/await_contruction_test.inl:61",
   "test_event",
   &test_event__cache__,
@@ -82,10 +82,10 @@ static void registration_pull_await_contruction_test()
   {},
   {},
   {},
-  &test_event_handler, &test_event_single_handler),
+  &test_event_handler, &test_event_single_handler,
   ecs::EventIndex<PrepareTest>::value);
 
-  ecs::register_event(ecs::EventDescription(
+  ecs::register_event(
   "C:/Users/Lord/Documents/ecs/sources/tests/test1/await_contruction_test.inl:118",
   "test_awaited_creation",
   &test_awaited_creation__cache__,
@@ -101,10 +101,10 @@ static void registration_pull_await_contruction_test()
   {},
   {},
   {},
-  &test_awaited_creation_handler, &test_awaited_creation_single_handler),
+  &test_awaited_creation_handler, &test_awaited_creation_single_handler,
   ecs::EventIndex<ecs::OnEntityCreated>::value);
 
-  ecs::register_event(ecs::EventDescription(
+  ecs::register_event(
   "C:/Users/Lord/Documents/ecs/sources/tests/test1/await_contruction_test.inl:130",
   "test_awaited_delete",
   &test_awaited_delete__cache__,
@@ -118,10 +118,10 @@ static void registration_pull_await_contruction_test()
   {},
   {},
   {},
-  &test_awaited_delete_handler, &test_awaited_delete_single_handler),
+  &test_awaited_delete_handler, &test_awaited_delete_single_handler,
   ecs::EventIndex<ecs::OnEntityDestroyed>::value);
 
-  ecs::register_event(ecs::EventDescription(
+  ecs::register_event(
   "C:/Users/Lord/Documents/ecs/sources/tests/test1/await_contruction_test.inl:136",
   "test_awaited_terminate",
   &test_awaited_terminate__cache__,
@@ -135,7 +135,7 @@ static void registration_pull_await_contruction_test()
   {},
   {},
   {},
-  &test_awaited_terminate_handler, &test_awaited_terminate_single_handler),
+  &test_awaited_terminate_handler, &test_awaited_terminate_single_handler,
   ecs::EventIndex<ecs::OnEntityTerminated>::value);
 
 }

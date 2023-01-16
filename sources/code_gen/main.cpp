@@ -555,18 +555,17 @@ static void fill_common_query_part(
     std::ofstream &outFile,
     const ParserSystemDescription &descr,
     const char *register_func,
-    const char *description,
     bool is_query,
     bool is_event)
 {
 
   const char *name = descr.sys_name.c_str();
   write(outFile,
-        "  %s(%s(\n"
+        "  %s(\n"
         "  \"%s\",\n"
         "  \"%s\",\n"
         "  &%s__cache__,\n",
-        register_func, description, descr.sys_file.c_str(), name, name);
+        register_func, descr.sys_file.c_str(), name, name);
   fill_arguments(outFile, descr.args, is_event);
   fill_requared_arguments(outFile, descr.req_args, true);
   fill_requared_arguments(outFile, descr.req_not_args, !is_query);
@@ -576,8 +575,8 @@ void register_queries(std::ofstream &outFile, const std::vector<ParserSystemDesc
 {
   for (auto &query : descr)
   {
-    fill_common_query_part(outFile, query, "ecs::register_query", "ecs::QueryDescription", true, false);
-    write(outFile, "  ));\n\n");
+    fill_common_query_part(outFile, query, "ecs::register_query", true, false);
+    write(outFile, "  );\n\n");
   }
 }
 
@@ -586,12 +585,12 @@ void register_systems(std::ofstream &outFile, const std::vector<ParserSystemDesc
   for (auto &query : descr)
   {
     const char *name = query.sys_name.c_str();
-    fill_common_query_part(outFile, query, "ecs::register_system", "ecs::SystemDescription", false, false);
+    fill_common_query_part(outFile, query, "ecs::register_system", false, false);
     write(outFile, "  \"%s\",\n", query.stage.c_str());
     fill_string_array(outFile, query.before);
     fill_string_array(outFile, query.after);
     fill_string_array(outFile, query.tags);
-    write(outFile, "  &%s_implementation));\n\n", name);
+    write(outFile, "  &%s_implementation);\n\n", name);
   }
 }
 
@@ -601,12 +600,12 @@ void register_events(std::ofstream &outFile, const std::vector<ParserSystemDescr
   {
     const char *name = query.sys_name.c_str();
     const char *event_type = query.args[0].type.c_str();
-    fill_common_query_part(outFile, query, "ecs::register_event", "ecs::EventDescription", false, true);
+    fill_common_query_part(outFile, query, "ecs::register_event", false, true);
     fill_string_array(outFile, query.before);
     fill_string_array(outFile, query.after);
     fill_string_array(outFile, query.tags);
     write(outFile,
-          "  &%s_handler, &%s_single_handler),\n"
+          "  &%s_handler, &%s_single_handler,\n"
           "  ecs::EventIndex<%s>::value);\n\n",
           name, name, event_type);
   }
@@ -618,12 +617,12 @@ void register_requests(std::ofstream &outFile, const std::vector<ParserSystemDes
   {
     const char *name = query.sys_name.c_str();
     const char *event_type = query.args[0].type.c_str();
-    fill_common_query_part(outFile, query, "ecs::register_request", "ecs::RequestDescription", false, true);
+    fill_common_query_part(outFile, query, "ecs::register_request", false, true);
     fill_string_array(outFile, query.before);
     fill_string_array(outFile, query.after);
     fill_string_array(outFile, query.tags);
     write(outFile,
-          "  &%s_handler, &%s_single_handler),\n"
+          "  &%s_handler, &%s_single_handler,\n"
           "  ecs::RequestIndex<%s>::value);\n\n",
           name, name, event_type);
   }

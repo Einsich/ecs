@@ -60,7 +60,7 @@ static void get_node_parent(ecs::EntityId eid, Callable lambda)
 
 static void registration_pull_dijkstra()
 {
-  ecs::register_query(ecs::QueryDescription(
+  ecs::register_query(
   "C:/Users/Lord/Documents/ecs/sources/tests/test7/dijkstra.inl:58",
   "iterate_nodes",
   &iterate_nodes__cache__,
@@ -69,9 +69,9 @@ static void registration_pull_dijkstra()
   },
   {},
   {}
-  ));
+  );
 
-  ecs::register_query(ecs::QueryDescription(
+  ecs::register_query(
   "C:/Users/Lord/Documents/ecs/sources/tests/test7/dijkstra.inl:46",
   "get_node_edges",
   &get_node_edges__cache__,
@@ -80,9 +80,9 @@ static void registration_pull_dijkstra()
   },
   {},
   {}
-  ));
+  );
 
-  ecs::register_query(ecs::QueryDescription(
+  ecs::register_query(
   "C:/Users/Lord/Documents/ecs/sources/tests/test7/dijkstra.inl:66",
   "get_node_name",
   &get_node_name__cache__,
@@ -91,9 +91,9 @@ static void registration_pull_dijkstra()
   },
   {},
   {}
-  ));
+  );
 
-  ecs::register_query(ecs::QueryDescription(
+  ecs::register_query(
   "C:/Users/Lord/Documents/ecs/sources/tests/test7/dijkstra.inl:85",
   "get_node_dist",
   &get_node_dist__cache__,
@@ -102,9 +102,9 @@ static void registration_pull_dijkstra()
   },
   {},
   {}
-  ));
+  );
 
-  ecs::register_query(ecs::QueryDescription(
+  ecs::register_query(
   "C:/Users/Lord/Documents/ecs/sources/tests/test7/dijkstra.inl:111",
   "get_node_edges_dist",
   &get_node_edges_dist__cache__,
@@ -114,9 +114,9 @@ static void registration_pull_dijkstra()
   },
   {},
   {}
-  ));
+  );
 
-  ecs::register_query(ecs::QueryDescription(
+  ecs::register_query(
   "C:/Users/Lord/Documents/ecs/sources/tests/test7/dijkstra.inl:119",
   "get_node_parent_dist",
   &get_node_parent_dist__cache__,
@@ -126,9 +126,9 @@ static void registration_pull_dijkstra()
   },
   {},
   {}
-  ));
+  );
 
-  ecs::register_query(ecs::QueryDescription(
+  ecs::register_query(
   "C:/Users/Lord/Documents/ecs/sources/tests/test7/dijkstra.inl:141",
   "get_node_parent",
   &get_node_parent__cache__,
@@ -137,7 +137,7 @@ static void registration_pull_dijkstra()
   },
   {},
   {}
-  ));
+  );
 
 }
 ECS_FILE_REGISTRATION(&registration_pull_dijkstra)
