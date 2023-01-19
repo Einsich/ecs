@@ -11,6 +11,7 @@ namespace ecs
 
     ecs::vector<ecs::unique_ptr<QueryDescription>> queries;
     ska::flat_hash_map<ecs::string, stage_id> stagesMap;
+    ska::flat_hash_map<query_hash, QueryDescription*> allQueryMap;
     ecs::vector<ecs::vector<ecs::unique_ptr<SystemDescription>>> systems;
     ecs::vector<ecs::vector<ecs::unique_ptr<EventDescription>>> events;
     ecs::vector<ecs::vector<ecs::unique_ptr<RequestDescription>>> requests;
@@ -29,6 +30,7 @@ namespace ecs
     bool requireUpdate() const;
     void clearCache();
     void rebuildDependencyGraph();
+    void rebuildMultiThreadDescriptions();
     // should check all changes and update invalidated structures
     void performDefferedEvents();
     void invalidate();
@@ -57,6 +59,8 @@ namespace ecs
     stage_id findStageId(const char *stage_name) const;
     void performStage(const char *stage) const;
     void performStage(stage_id stage) const;
+
+    QueryDescription *findDescription(query_hash h) const;
 
   };
   QueryManager &get_query_manager();

@@ -6,7 +6,7 @@ namespace ecs
   uint get_next_query_id()
   {
     static uint queryId = 0;
-    return queryId++;
+    return ++queryId;
   }
 
   void QueryDescription::validate() const
@@ -58,6 +58,7 @@ namespace ecs
     update_cache(*ptr.get());
     query_manager.queryInvalidated = true;
     h.uniqueId = ptr->uniqueId;
+    query_manager.allQueryMap[h.uniqueId] = ptr.get();
     return h;
   }
 
@@ -101,6 +102,7 @@ namespace ecs
 
     h.stageId = k;
     h.uniqueId = ptr->uniqueId;
+    query_manager.allQueryMap[h.uniqueId] = ptr.get();
     return h;
   }
 
@@ -142,6 +144,7 @@ namespace ecs
     query_manager.eventsInvalidated = true;
     h.typeId = event_id;
     h.uniqueId = ptr->uniqueId;
+    query_manager.allQueryMap[h.uniqueId] = ptr.get();
     return h;
   }
 
@@ -184,6 +187,7 @@ namespace ecs
 
     h.typeId = request_id;
     h.uniqueId = ptr->uniqueId;
+    query_manager.allQueryMap[h.uniqueId] = ptr.get();
     return h;
   }
 
@@ -194,6 +198,7 @@ namespace ecs
     {
       if (queries[i]->uniqueId == unique_id)
       {
+        query_manager.allQueryMap.erase(unique_id);
         if (free_cache)
         {
           delete queries[i]->cache;

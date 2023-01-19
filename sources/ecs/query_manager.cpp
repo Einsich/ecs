@@ -75,6 +75,8 @@ namespace ecs
     for (uint i = 0; i < size; i++)
       nameMap[queries[i]->name] = i;
     for (uint i = 0; i < size; i++)
+      queries[i]->mtDescription.shouldWait.clear();
+    for (uint i = 0; i < size; i++)
     {
       for (const string &before : queries[i]->before)
       {
@@ -87,6 +89,7 @@ namespace ecs
             continue;
           }
           edge[i].push_back(it->second);
+          queries[i]->mtDescription.shouldWait.push_back(queries[it->second]);
         }
         else
         {
@@ -104,6 +107,7 @@ namespace ecs
             continue;
           }
           edge[it->second].push_back(i);
+          queries[it->second]->mtDescription.shouldWait.push_back(queries[i]);
         }
         else
         {
@@ -185,6 +189,7 @@ namespace ecs
 
   void QueryManager::rebuildDependencyGraph()
   {
+    bool requredUpdate = requireUpdate();
     if (systemsInvalidated)
     {
       ProfileScope scope("rebuild systems graph");
@@ -210,6 +215,10 @@ namespace ecs
       requestsInvalidated = false;
     }
     queryInvalidated = false;
+    if (requredUpdate)
+    {
+      rebuildMultiThreadDescriptions();
+    }
   }
 
   void QueryManager::performDefferedEvents()
@@ -358,6 +367,14 @@ namespace ecs
         system->system();
       }
     }
+  }
+
+  QueryDescription *QueryManager::findDescription(query_hash h) const
+  {
+    auto it = allQueryMap.find(h);
+    if (it != allQueryMap.end())
+      return it->second;
+    return nullptr;
   }
 
   stage_id find_stage(const char *stage)

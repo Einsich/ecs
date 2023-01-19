@@ -32,15 +32,27 @@ namespace ecs
     ska::flat_hash_map<int, ecs::vector<int>> archetypes;
     bool noArchetype = false;
   };
-  uint get_next_query_id();
+  using query_hash = uint;
+  query_hash get_next_query_id();
+  struct QueryDescription;
+  struct MultiThreadDescription
+  {
+    ecs::vector<ecs::QueryDescription *> shouldWait;
+    ecs::vector<ecs::QueryDescription *> hasDataRace;
+    //ecs::vector<ecs::QueryHandle> dependsOn;
+    int pendingCount = 0;
+    bool onlyMainThread = false;
+    bool valid = false;
+  };
   struct QueryDescription
   {
-    uint uniqueId;
+    query_hash uniqueId;
     ecs::string file, name;
     ecs::vector<ArgumentDescription> arguments;
     ecs::vector<ComponentDescription> requiredComponents, requiredNotComponents;
     QueryCache *cache = nullptr;
     bool noArchetype = false;
+    MultiThreadDescription mtDescription;
 
     void validate() const;
 
@@ -217,7 +229,6 @@ namespace ecs
   {
     FileRegistrationHelper(void (*pull_function)())
     {
-
       extern void file_registration(void (*)());
       file_registration(pull_function);
     }
