@@ -61,7 +61,7 @@ static void test_awaited_terminate_single_handler(ecs::EntityId eid, const ecs::
 static void registration_pull_await_contruction_test()
 {
   ecs::register_query(
-  "C:/Users/Lord/Documents/ecs/sources/tests/test1/await_contruction_test.inl:109",
+  "sources/tests/test1/await_contruction_test.inl:109",
   "get_next_node",
   &get_next_node__cache__,
   {
@@ -73,7 +73,7 @@ static void registration_pull_await_contruction_test()
   );
 
   ecs::register_event(
-  "C:/Users/Lord/Documents/ecs/sources/tests/test1/await_contruction_test.inl:61",
+  "sources/tests/test1/await_contruction_test.inl:61",
   "test_event",
   &test_event__cache__,
   {},
@@ -86,7 +86,7 @@ static void registration_pull_await_contruction_test()
   ecs::EventIndex<PrepareTest>::value);
 
   ecs::register_event(
-  "C:/Users/Lord/Documents/ecs/sources/tests/test1/await_contruction_test.inl:118",
+  "sources/tests/test1/await_contruction_test.inl:118",
   "test_awaited_creation",
   &test_awaited_creation__cache__,
   {
@@ -105,7 +105,7 @@ static void registration_pull_await_contruction_test()
   ecs::EventIndex<ecs::OnEntityCreated>::value);
 
   ecs::register_event(
-  "C:/Users/Lord/Documents/ecs/sources/tests/test1/await_contruction_test.inl:130",
+  "sources/tests/test1/await_contruction_test.inl:130",
   "test_awaited_delete",
   &test_awaited_delete__cache__,
   {
@@ -122,7 +122,7 @@ static void registration_pull_await_contruction_test()
   ecs::EventIndex<ecs::OnEntityDestroyed>::value);
 
   ecs::register_event(
-  "C:/Users/Lord/Documents/ecs/sources/tests/test1/await_contruction_test.inl:136",
+  "sources/tests/test1/await_contruction_test.inl:136",
   "test_awaited_terminate",
   &test_awaited_terminate__cache__,
   {

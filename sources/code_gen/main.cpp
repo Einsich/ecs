@@ -21,7 +21,7 @@ struct ParserFunctionArgument
   bool reference = false;
   bool optional = false;
   bool is_const = false;
-  ArgType argType;
+  ArgType argType = ArgType::ReadWrite;
   const char *get_type() const
   {
     switch (argType)
@@ -287,13 +287,11 @@ void parse_definition(Match &str, ParserSystemDescription &parserDescr)
         }
         else if (key == "job")
         {
-          if (args0.size() > 1)
-            parserDescr.isJob = args0[1].get();
+          parserDescr.isJob = args0[1].get();
         }
         else if (key == "stage")
         {
-          if (args0.size() > 1)
-            parserDescr.stage = args0[1].get();
+          parserDescr.stage = args0[1].get();
           if (args0.size() != 2)
             log_error("wrong stages count in %s", system);
 
@@ -630,7 +628,7 @@ void register_requests(std::ofstream &outFile, const std::vector<ParserSystemDes
 
 static int processed_files = 0;
 
-void process_inl_file(const fs::path &path)
+void process_inl_file(const fs::path &path, const fs::path &root)
 {
   Timer t;
   std::ifstream inFile;
@@ -647,7 +645,7 @@ void process_inl_file(const fs::path &path)
   std::vector<ParserSystemDescription> requestDescriptions;
   std::string pathStr = path.string();
   FileInfo fileInfo;
-  fileInfo.filePath = pathStr;
+  fileInfo.filePath = fs::relative(path, root).string();
   fileInfo.scanFile(str);
 
   parse_system(systemsDescriptions, str, fileInfo, system_full_regex, system_regex);
@@ -698,7 +696,7 @@ void process_inl_file(const fs::path &path)
   error_count = 0;
 }
 
-void process_folder(const std::string &path, bool force_rebuild)
+void process_folder(const std::string &path, const fs::path &root, bool force_rebuild)
 {
   if (!fs::exists(path))
   {
@@ -719,7 +717,7 @@ void process_folder(const std::string &path, bool force_rebuild)
             fs::last_write_time(cpp_file) < p.last_write_time();
 
         if (requireCodeGen)
-          process_inl_file(p.path());
+          process_inl_file(p.path(), root);
       }
     }
   }
@@ -730,17 +728,25 @@ int main(int argc, char **argv)
   std::vector<std::string> paths;
 
   std::string_view forceRebuildStr = "-force_rebuild";
+  std::string_view rootArg = "-root=";
+  fs::path root = fs::current_path();
   bool forceRebuild = false;
   for (int i = 1; i < argc; i++)
   {
     if (argv[i] == forceRebuildStr)
       forceRebuild = true;
+    else if (strstr(argv[i], rootArg.data()) == argv[i])
+    {
+      root = argv[i] + rootArg.size();
+    }
     else
       paths.emplace_back(argv[i]);
   }
 
+  printf("root %ls\n", root.c_str());
+
   for (const std::string &path : paths)
-    process_folder(path, forceRebuild);
+    process_folder(path, root, forceRebuild);
 
   if (processed_files == 0)
   {

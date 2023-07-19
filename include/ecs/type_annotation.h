@@ -44,7 +44,7 @@ namespace ecs
   struct TypeAnnotation
   {
     const ecs::string name;
-    const uint sizeOf;
+    const uint sizeOf = -1u;
     const TypeFabric *typeFabric = nullptr;
 
     void ECS_INLINE copy(void *dst, const void *src) const

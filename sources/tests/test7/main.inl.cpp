@@ -20,7 +20,7 @@ static void ecs_query_iteration_implementation()
 static void registration_pull_main()
 {
   ecs::register_query(
-  "C:/Users/Lord/Documents/ecs/sources/tests/test7/main.inl:154",
+  "sources/tests/test7/main.inl:153",
   "query",
   &query__cache__,
   {},
@@ -29,7 +29,7 @@ static void registration_pull_main()
   );
 
   ecs::register_system(
-  "C:/Users/Lord/Documents/ecs/sources/tests/test7/main.inl:151",
+  "sources/tests/test7/main.inl:150",
   "ecs_query_iteration",
   &ecs_query_iteration__cache__,
   {},

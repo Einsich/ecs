@@ -49,7 +49,7 @@ static void ecs_query_with_singleton_iteration_implementation()
 static void registration_pull_main()
 {
   ecs::register_query(
-  "C:/Users/Lord/Documents/ecs/sources/tests/test6/main.inl:144",
+  "sources/tests/test6/main.inl:144",
   "query",
   &query__cache__,
   {
@@ -61,7 +61,7 @@ static void registration_pull_main()
   );
 
   ecs::register_query(
-  "C:/Users/Lord/Documents/ecs/sources/tests/test6/main.inl:155",
+  "sources/tests/test6/main.inl:155",
   "query_with_singleton",
   &query_with_singleton__cache__,
   {
@@ -74,7 +74,7 @@ static void registration_pull_main()
   );
 
   ecs::register_system(
-  "C:/Users/Lord/Documents/ecs/sources/tests/test6/main.inl:127",
+  "sources/tests/test6/main.inl:127",
   "ecs_system_iteration",
   &ecs_system_iteration__cache__,
   {
@@ -90,7 +90,7 @@ static void registration_pull_main()
   &ecs_system_iteration_implementation);
 
   ecs::register_system(
-  "C:/Users/Lord/Documents/ecs/sources/tests/test6/main.inl:133",
+  "sources/tests/test6/main.inl:133",
   "ecs_system_with_singleton_iteration",
   &ecs_system_with_singleton_iteration__cache__,
   {
@@ -107,7 +107,7 @@ static void registration_pull_main()
   &ecs_system_with_singleton_iteration_implementation);
 
   ecs::register_system(
-  "C:/Users/Lord/Documents/ecs/sources/tests/test6/main.inl:141",
+  "sources/tests/test6/main.inl:141",
   "ecs_query_iteration",
   &ecs_query_iteration__cache__,
   {},
@@ -120,7 +120,7 @@ static void registration_pull_main()
   &ecs_query_iteration_implementation);
 
   ecs::register_system(
-  "C:/Users/Lord/Documents/ecs/sources/tests/test6/main.inl:152",
+  "sources/tests/test6/main.inl:152",
   "ecs_query_with_singleton_iteration",
   &ecs_query_with_singleton_iteration__cache__,
   {},

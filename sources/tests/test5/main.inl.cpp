@@ -48,7 +48,7 @@ static void soa_iteration_implementation()
 static void registration_pull_main()
 {
   ecs::register_query(
-  "C:/Users/Lord/Documents/ecs/sources/tests/test5/main.inl:223",
+  "sources/tests/test5/main.inl:223",
   "query",
   &query__cache__,
   {
@@ -60,7 +60,7 @@ static void registration_pull_main()
   );
 
   ecs::register_system(
-  "C:/Users/Lord/Documents/ecs/sources/tests/test5/main.inl:193",
+  "sources/tests/test5/main.inl:193",
   "array_iteration",
   &array_iteration__cache__,
   {},
@@ -73,7 +73,7 @@ static void registration_pull_main()
   &array_iteration_implementation);
 
   ecs::register_system(
-  "C:/Users/Lord/Documents/ecs/sources/tests/test5/main.inl:202",
+  "sources/tests/test5/main.inl:202",
   "array_ptr_iteration",
   &array_ptr_iteration__cache__,
   {},
@@ -86,7 +86,7 @@ static void registration_pull_main()
   &array_ptr_iteration_implementation);
 
   ecs::register_system(
-  "C:/Users/Lord/Documents/ecs/sources/tests/test5/main.inl:211",
+  "sources/tests/test5/main.inl:211",
   "ecs_system_iteration",
   &ecs_system_iteration__cache__,
   {
@@ -102,7 +102,7 @@ static void registration_pull_main()
   &ecs_system_iteration_implementation);
 
   ecs::register_system(
-  "C:/Users/Lord/Documents/ecs/sources/tests/test5/main.inl:220",
+  "sources/tests/test5/main.inl:220",
   "ecs_query_iteration",
   &ecs_query_iteration__cache__,
   {},
@@ -115,7 +115,7 @@ static void registration_pull_main()
   &ecs_query_iteration_implementation);
 
   ecs::register_system(
-  "C:/Users/Lord/Documents/ecs/sources/tests/test5/main.inl:228",
+  "sources/tests/test5/main.inl:228",
   "soa_iteration",
   &soa_iteration__cache__,
   {},

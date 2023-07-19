@@ -92,7 +92,6 @@ int main()
       break;
     }
   }
-  int N = 3000;
 
   struct Test
   {

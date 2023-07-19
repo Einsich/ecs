@@ -23,7 +23,7 @@ namespace ecs
         break;
       }
     }
-    static ComponentPrefab entityIdPrefab = ComponentPrefab("eid", EntityId());
+    static ComponentPrefab entityIdPrefab("eid", EntityId());
     components.push_back(entityIdPrefab);
     sort_prefabs_by_names(components);
 

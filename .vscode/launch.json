@@ -19,7 +19,8 @@
       "program": "${workspaceFolder}/code_gen/${config:launchOption.currentConfig.BuildType}/ecs_code_gen.exe",
       "cwd": "${workspaceFolder}",
       "args": [
-        "${workspaceFolder}/sources/tests"
+        "${workspaceFolder}/sources/tests",
+        "-root=${workspaceFolder}"
       ],
     },
   ]

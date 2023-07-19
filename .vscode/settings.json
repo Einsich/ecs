@@ -103,6 +103,11 @@
     "xlocmes": "cpp",
     "xlocmon": "cpp",
     "xloctime": "cpp",
-    "set": "cpp"
+    "set": "cpp",
+    "mutex": "cpp",
+    "ranges": "cpp",
+    "span": "cpp",
+    "stop_token": "cpp",
+    "thread": "cpp"
   }
 }
