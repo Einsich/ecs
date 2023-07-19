@@ -1,14 +1,15 @@
 @echo off
-set BUILD_TYPE=%1
+set BUILD_DIR=%1
 
-cd sources/code_gen
+if "%BUILD_DIR%" == "dbg" set BUILD_TYPE="Debug"
+if "%BUILD_DIR%" == "dev" set BUILD_TYPE="RelWithDebInfo"
+if "%BUILD_DIR%" == "rel" set BUILD_TYPE="Release"
 
-cmake -G Ninja -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang -DBUILD_TYPE=%BUILD_TYPE% -B ../../code_gen/%BUILD_TYPE%
+echo BUILD_TYPE = %BUILD_TYPE%
+pushd sources/code_gen
+cmake -G Ninja -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=%BUILD_TYPE% -B ../../code_gen/%BUILD_DIR%
+popd
 
-
-cd ../../code_gen/%BUILD_TYPE%
-
+pushd code_gen/%BUILD_DIR%
 ninja
-
-
-cd ../..
+popd
