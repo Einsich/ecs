@@ -12,23 +12,6 @@ namespace ecs
     using type = std::remove_pointer_t<std::remove_reference_t<T>>;
   };
 
-  template <typename OutType, typename InType>
-  OutType PERFORM_INLINE get_component(InType &arg)
-  {
-    using T = typename std::remove_cvref_t<OutType>;
-    if constexpr (is_singleton<T>())
-    {
-      return *arg;
-    }
-    else if constexpr (std::is_pointer<T>::value)
-    {
-      return arg ? arg++ : nullptr;
-    }
-    else
-    {
-      return *(arg++);
-    }
-  }
 
   template <typename OutType, typename InType>
   OutType PERFORM_INLINE get_component(InType arg, uint i)
@@ -40,28 +23,16 @@ namespace ecs
     }
     else if constexpr (std::is_pointer<T>::value)
     {
+      //__builtin_prefetch (arg + 1, 0);
       return arg ? arg + i : nullptr;
     }
     else
     {
+      //__builtin_prefetch (arg + 1, 0);
       return *(arg + i);
     }
   }
-  template <typename... Args, typename... PtrArgs, typename Callable, std::size_t... Is>
-  void PERFORM_INLINE perform_loop(std::tuple<PtrArgs...> &&dataPointers, Callable function, size_t n, std::index_sequence<Is...>)
-  {
-    for (size_t j = 0; j < n; ++j)
-    {
-      function(get_component<Args>(std::get<Is>(dataPointers))...);
-    }
-  }
 
-  template <typename... Args, typename... PtrArgs, typename Callable, std::size_t... Is>
-  void PERFORM_INLINE perform_query(std::tuple<PtrArgs...> &&dataPointers, Callable function, size_t j, std::index_sequence<Is...>)
-  {
-
-    function(get_component<Args>(std::get<Is>(dataPointers), j)...);
-  }
 
   template <typename T, typename T2 = void>
   struct storage_type
@@ -79,7 +50,7 @@ namespace ecs
   };
 
   template <typename T>
-  typename storage_type<T>::ptr_type PERFORM_INLINE get_component(bool valid_container, const ComponentContainer *container, uint chunk)
+  typename storage_type<T>::ptr_type PERFORM_INLINE get_container(bool valid_container, const ComponentContainer *container, uint chunk)
   {
     if constexpr (is_singleton<typename storage_type<T>::type>())
     {
@@ -91,10 +62,20 @@ namespace ecs
     }
   }
 
-  template <typename... Args, std::size_t... Is>
-  std::tuple<typename storage_type<Args>::ptr_type...> PERFORM_INLINE get_components(const ecs::vector<ComponentContainer> &containers, const ecs::vector<int> &indexes, uint chunk, std::index_sequence<Is...>)
+
+  template <typename... Args, typename Callable, std::size_t... Is>
+  void PERFORM_INLINE perform_loop(const ecs::vector<ComponentContainer> &containers, const ecs::vector<int> &indexes, uint chunk, Callable function, size_t n, std::index_sequence<Is...>)
   {
-    return {get_component<Args>(*(indexes.data() + Is) >= 0, containers.data() + *(indexes.data() + Is), chunk)...};
+    for (size_t j = 0; j < n; ++j)
+    {
+      function(get_component<Args>((typename storage_type<Args>::ptr_type)get_container<Args>(*(indexes.data() + Is) >= 0, containers.data() + *(indexes.data() + Is), chunk), j)...);
+    }
+  }
+  template <typename... Args, typename Callable, std::size_t... Is>
+  void PERFORM_INLINE perform_query(const ecs::vector<ComponentContainer> &containers, const ecs::vector<int> &indexes, uint chunk, Callable function, size_t j, std::index_sequence<Is...>)
+  {
+
+    function(get_component<Args>((typename storage_type<Args>::ptr_type)get_container<Args>(*(indexes.data() + Is) >= 0, containers.data() + *(indexes.data() + Is), chunk), j)...);
   }
 
   template <typename... Args, typename Callable>
@@ -112,7 +93,7 @@ namespace ecs
         return;
       }
     }
-    
+
     if constexpr (std::conjunction_v<is_singleton_type<typename clear_type<Args>::type>...>)
     {
       function(*get_singleton<typename clear_type<Args>::type>()...);
@@ -129,12 +110,12 @@ namespace ecs
       uint binN = archetype.entityCount >> archetype.chunkPower;
       for (uint binIdx = 0; binIdx < binN; ++binIdx)
       {
-        perform_loop<Args...>(get_components<Args...>(archetype.components, cachedArchetype, binIdx, indexes), function, archetype.chunkSize, indexes);
+        perform_loop<Args...>(archetype.components, cachedArchetype, binIdx, function, archetype.chunkSize, indexes);
       }
       uint lastBinSize = archetype.entityCount - (binN << archetype.chunkPower);
       if (lastBinSize > 0)
       {
-        perform_loop<Args...>(get_components<Args...>(archetype.components, cachedArchetype, binN, indexes), function, lastBinSize, indexes);
+        perform_loop<Args...>(archetype.components, cachedArchetype, binN, function, lastBinSize, indexes);
       }
     }
   }
@@ -177,7 +158,7 @@ namespace ecs
         uint binIdx = index >> archetype.chunkPower;
         uint inBinIdx = index & archetype.chunkMask;
 
-        perform_query<Args...>(get_components<Args...>(archetype.components, cachedArchetype, binIdx, indexes), function, inBinIdx, indexes);
+        perform_query<Args...>(archetype.components, cachedArchetype, binIdx, function, inBinIdx, indexes);
       }
     }
   }
