@@ -23,12 +23,12 @@ namespace ecs
     }
     else if constexpr (std::is_pointer<T>::value)
     {
-      //__builtin_prefetch (arg + 1, 0);
+      __builtin_prefetch(arg + i + 1, 0);
       return arg ? arg + i : nullptr;
     }
     else
     {
-      //__builtin_prefetch (arg + 1, 0);
+      __builtin_prefetch(arg + i + 1, 0);
       return *(arg + i);
     }
   }
