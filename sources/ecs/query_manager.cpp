@@ -89,7 +89,7 @@ namespace ecs
             continue;
           }
           edge[i].push_back(it->second);
-          queries[i]->mtDescription.shouldWait.push_back(queries[it->second]);
+          queries[it->second]->mtDescription.shouldWait.push_back(queries[i]);
         }
         else
         {
@@ -107,7 +107,7 @@ namespace ecs
             continue;
           }
           edge[it->second].push_back(i);
-          queries[it->second]->mtDescription.shouldWait.push_back(queries[i]);
+          queries[i]->mtDescription.shouldWait.push_back(queries[it->second]);
         }
         else
         {

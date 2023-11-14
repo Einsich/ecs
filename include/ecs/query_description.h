@@ -40,7 +40,7 @@ namespace ecs
     ecs::vector<ecs::QueryDescription *> shouldWait;
     ecs::vector<ecs::QueryDescription *> hasDataRace;
     //ecs::vector<ecs::QueryHandle> dependsOn;
-    int pendingCount = 0;
+    bool executed = false;
     bool onlyMainThread = false;
     bool valid = false;
   };

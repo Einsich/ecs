@@ -18,6 +18,8 @@ namespace ecs
   using vector = std::vector<T>;
   template <typename T>
   using queue = std::queue<T>;
+  template <typename T>
+  using list = std::list<T>;
   template <typename T, std::size_t N>
   using array = std::array<T, N>;
   template <typename T>
