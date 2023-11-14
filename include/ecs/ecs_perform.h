@@ -62,22 +62,36 @@ namespace ecs
     }
   }
 
-
-  template <typename... Args, typename Callable, std::size_t... Is>
-  void PERFORM_INLINE perform_loop(const ecs::vector<ComponentContainer> &containers, const ecs::vector<int> &indexes, uint chunk, Callable function, size_t n, std::index_sequence<Is...>)
+  template <typename... Args, typename Callable>
+  void PERFORM_INLINE perform_inner_loop(typename storage_type<Args>::ptr_type ...containers, Callable function, size_t n)
   {
     for (size_t j = 0; j < n; ++j)
     {
-      function(get_component<Args>((typename storage_type<Args>::ptr_type)get_container<Args>(*(indexes.data() + Is) >= 0, containers.data() + *(indexes.data() + Is), chunk), j)...);
+      function(get_component<Args>(containers, j)...);
     }
   }
-  template <typename... Args, typename Callable, std::size_t... Is>
-  void PERFORM_INLINE perform_query(const ecs::vector<ComponentContainer> &containers, const ecs::vector<int> &indexes, uint chunk, Callable function, size_t j, std::index_sequence<Is...>)
-  {
 
-    function(get_component<Args>((typename storage_type<Args>::ptr_type)get_container<Args>(*(indexes.data() + Is) >= 0, containers.data() + *(indexes.data() + Is), chunk), j)...);
+  template <typename... Args, typename Callable, std::size_t... Is>
+  void PERFORM_INLINE perform_loop(uint entity_count, uint chunk_power, uint chunk_size, const ComponentContainer *containers, const int *indexes, Callable function, std::index_sequence<Is...>)
+  {
+    uint binN = entity_count >> chunk_power;
+    for (uint binIdx = 0; binIdx < binN; ++binIdx)
+    {
+      perform_inner_loop<Args...>(get_container<Args>(*(indexes + Is) >= 0, containers + *(indexes + Is), binIdx)..., function, chunk_size);
+    }
+    uint lastBinSize = entity_count - (binN << chunk_power);
+    if (lastBinSize > 0)
+    {
+      perform_inner_loop<Args...>(get_container<Args>(*(indexes + Is) >= 0, containers + *(indexes + Is), binN)..., function, lastBinSize);
+    }
   }
 
+  template <typename... Args, typename Callable, std::size_t... Is>
+  void PERFORM_INLINE perform_query(const ComponentContainer *containers, const int *indexes, uint chunk, Callable function, size_t j, std::index_sequence<Is...>)
+  {
+
+    function(get_component<Args>(get_container<Args>(*(indexes + Is) >= 0, containers + *(indexes + Is), chunk), j)...);
+  }
   template <typename... Args, typename Callable>
   void PERFORM_INLINE perform_query(const QueryCache &cache, Callable function)
   {
@@ -106,17 +120,10 @@ namespace ecs
       const Archetype &archetype = manager.archetypes[p.first];
       if (archetype.entityCount == 0)
         continue;
+      const int *cachedComponentIdx = cachedArchetype.data();
+      const ComponentContainer *containers = archetype.components.data();
 
-      uint binN = archetype.entityCount >> archetype.chunkPower;
-      for (uint binIdx = 0; binIdx < binN; ++binIdx)
-      {
-        perform_loop<Args...>(archetype.components, cachedArchetype, binIdx, function, archetype.chunkSize, indexes);
-      }
-      uint lastBinSize = archetype.entityCount - (binN << archetype.chunkPower);
-      if (lastBinSize > 0)
-      {
-        perform_loop<Args...>(archetype.components, cachedArchetype, binN, function, lastBinSize, indexes);
-      }
+      perform_loop<Args...>(archetype.entityCount, archetype.chunkPower, archetype.chunkSize, containers, cachedComponentIdx, function, indexes);
     }
   }
 
@@ -154,11 +161,11 @@ namespace ecs
       {
         const ArchetypeManager &manager = get_archetype_manager();
         const Archetype &archetype = manager.archetypes[archetypeIdx];
-        const auto &cachedArchetype = it->second;
+        const ecs::vector<int> &cachedArchetype = it->second;
         uint binIdx = index >> archetype.chunkPower;
         uint inBinIdx = index & archetype.chunkMask;
 
-        perform_query<Args...>(archetype.components, cachedArchetype, binIdx, function, inBinIdx, indexes);
+        perform_query<Args...>(archetype.components.data(), cachedArchetype.data(), binIdx, function, inBinIdx, indexes);
       }
     }
   }
