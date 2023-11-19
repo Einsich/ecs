@@ -19,7 +19,7 @@ namespace ecs
     TYPE(unsigned char, byte)
 
   #define TYPE(CPP_TYPE, NAME)\
-  static DefaultTypeFabric<CPP_TYPE> fabric##NAME(ecs::PODType);
+  static DefaultTypeFabric<CPP_TYPE> fabric##NAME(#NAME, ecs::PODType);
   ECS_BASE_TYPES
   #undef TYPE
 
@@ -27,10 +27,6 @@ namespace ecs
   {
     if (register_base_types)
     {
-    #define TYPE(CPP_TYPE, NAME)\
-    type_registration<CPP_TYPE>(#NAME, &fabric##NAME);
-    ECS_BASE_TYPES
-    #undef TYPE
     }
     register_event<ecs::OnEntityCreated>("OnEntityCreated", true);
     register_event<ecs::OnEntityDestroyed>("OnEntityDestroyed", true);

@@ -7,7 +7,7 @@ namespace ecs
       : chunkPower((uint)chunk_power), chunkMask((1u << (uint)chunk_power) - 1u), chunkSize(1u << (uint)chunk_power)
   {
     components.resize(descriptions.size());
-    ComponentDescription eidDescr("eid", TypeIndex<EntityId>::value);
+    ComponentDescription eidDescr("eid", TypeIndex<EntityId>::fabric);
 
     sort_descriptions_by_names(descriptions);
     int i = 0;
@@ -46,20 +46,18 @@ namespace ecs
   }
   void Archetype::update_capacity()
   {
-    const auto &types = get_all_registered_types();
     if (entityCount > totalCapacity)
     {
       totalCapacity += chunkSize;
       for (ComponentContainer &container : components)
       {
-        container.allocate(chunkSize * types[container.description.typeIndex].sizeOf);
+        container.allocate(chunkSize * container.description.typeDeclaration->sizeOf);
       }
     }
   }
 
   void Archetype::add_entity(EntityDescription *entity, const EntityPrefab &prefabs_list, ecs::vector<ComponentPrefab> &&overrides_list)
   {
-    const auto &types = get_all_registered_types();
     uint chunk, offset;
     get_chunk_offset(entityCount, chunk, offset);
     entityCount++;
@@ -69,20 +67,18 @@ namespace ecs
     for (uint i = 0, n = prefabs.size(), m = overrides_list.size(); i < n; ++i)
     {
       const ComponentPrefab &component = prefabs[i];
-      const auto &type = types[component.typeIndex];
-      const auto &fabric = *type.typeFabric;
-      byte *memory = components[i].data[chunk] + offset * type.sizeOf;
+      const auto &fabric = *component.typeDeclaration;
+      byte *memory = components[i].data[chunk] + offset * fabric.sizeOf;
       ECS_ASSERT(component.nameHash == components[i].description.nameHash);
       if (j < m && overrides_list[j].nameHash == component.nameHash)
       {
         ComponentPrefab &override = overrides_list[j];
-        if (component.typeIndex != override.typeIndex)
+        if (component.typeDeclaration != override.typeDeclaration)
         {
           ECS_ERROR("prefab \"%s\" has type missmatch for component \"%s\", it's <%s> in prefab and <%s> in override",
                     prefabs_list.name.c_str(),
                     component.name.c_str(),
-                    type_name(component.typeIndex),
-                    type_name(override.typeIndex));
+                    fabric.name.c_str(), override.typeDeclaration->name.c_str());
           continue;
         }
         if (fabric.hasAwaiter)
@@ -90,7 +86,7 @@ namespace ecs
         else if (fabric.hasPrefabCtor)
           fabric.prefab_constructor(memory, override, true);
         else
-          type.move(memory, override.get_raw_memory());
+          fabric.move_constructor(memory, override.get_raw_memory());
         j++;
       }
       else
@@ -100,7 +96,7 @@ namespace ecs
         else if (fabric.hasPrefabCtor)
           fabric.prefab_constructor(memory, component, true);
         else
-          type.copy(memory, component.get_raw_memory());
+          fabric.copy_constructor(memory, component.get_raw_memory());
       }
     }
     entity->index = entityCount - 1;
@@ -112,7 +108,6 @@ namespace ecs
   void Archetype::destroy_entity(uint idx)
   {
     ECS_ASSERT(entityCount > 0);
-    const auto &types = get_all_registered_types();
     uint chunk, offset;
     get_chunk_offset(idx, chunk, offset);
     uint chunkLast, offsetLast;
@@ -124,13 +119,13 @@ namespace ecs
 
     for (ComponentContainer &container : components)
     {
-      const auto &type = types[container.description.typeIndex];
-      byte *component = container.data[chunk] + offset * type.sizeOf;
-      type.destruct(component);
+      const auto &fabric = *container.description.typeDeclaration;
+      byte *component = container.data[chunk] + offset * fabric.sizeOf;
+      fabric.destructor(component);
       // relocate last entity to new place
       if (idx != entityCount)
       {
-        type.move(component, container.data[chunkLast] + offsetLast * type.sizeOf);
+        fabric.move_constructor(component, container.data[chunkLast] + offsetLast * fabric.sizeOf);
         // TODO handle eid
       }
     }
@@ -138,8 +133,6 @@ namespace ecs
 
   void Archetype::destroy_all_entities(EntityPool &entity_pool)
   {
-    const auto &types = get_all_registered_types();
-
     {
       uint liveEntity = entityCount;
       for (auto &chunk : eidContainer->data)
@@ -164,12 +157,12 @@ namespace ecs
 
     for (ComponentContainer &container : components)
     {
-      const auto &type = types[container.description.typeIndex];
-      if (type.typeFabric->trivialDestruction)
+      const auto &fabric = *container.description.typeDeclaration;
+      if (fabric.trivialDestruction)
       {
 #if ECS_OPTIMIZED_DESTRUCTION == 0
         for (auto &chunk : container.data)
-          memset(chunk, ECS_CLEAR_MEM_PATTERN, chunkSize * type.sizeOf);
+          memset(chunk, ECS_CLEAR_MEM_PATTERN, chunkSize * fabric.sizeOf);
 #endif
         continue;
       }
@@ -188,8 +181,8 @@ namespace ecs
         }
         for (uint offset = 0; offset < entitiesInChunk; offset++)
         {
-          byte *component = chunk + offset * type.sizeOf;
-          type.destruct(component);
+          byte *component = chunk + offset *fabric.sizeOf;
+          fabric.destructor(component);
         }
       }
     }

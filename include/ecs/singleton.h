@@ -39,20 +39,8 @@ namespace ecs
     new (raw_memory) T();
   }
   template <typename T>
-  void register_singleton(const char *name, SingletonContructor constructor)
+  void register_singleton(const char *name)
   {
-    if (constructor == nullptr)
-    {
-      if constexpr (std::is_default_constructible_v<T>)
-      {
-        constructor = singleton_contructor<T>;
-      }
-      else
-      {
-        ECS_ASSERT(0);
-        return;
-      }
-    }
     bool persistent = std::is_base_of_v<ecs::PersistentSingleton, T>;
 
     extern int get_next_singleton_index();
@@ -63,7 +51,7 @@ namespace ecs
     ECS_ASSERT(SingletonIndex<T>::value == -1);
     SingletonIndex<T>::value = get_next_singleton_index();
     register_singleton(SingletonIndex<T>::value,
-                       SingletonDescription{name, constructor, singleton_destuctor<T>, sizeof(T), persistent});
+                       SingletonDescription{name, singleton_contructor<T>, singleton_destuctor<T>, sizeof(T), persistent});
   }
 
   template <typename T>
@@ -101,5 +89,3 @@ namespace ecs
 }
 #define ECS_REGISTER_SINGLETON(T) \
   static ecs::SingletonRegister<T> __CONCAT__(singletonRegistrator, __COUNTER__)(#T);
-#define ECS_REGISTER_SINGLETON_WITH_CONSTUCTOR(T, CONSTRUCTOR) \
-  static ecs::SingletonRegister<T> __CONCAT__(singletonRegistrator, __COUNTER__)(#T, CONSTRUCTOR);

@@ -1,15 +1,20 @@
 #include <ecs/type_annotation.h>
-#include <ecs/type_description_storage.h>
 
-USE_DESCRIPTION_STORAGE(ecs::TypeAnnotation, update_type, register_type, type_name_to_index, get_all_registered_types, get_next_type_index)
 
 namespace ecs
 {
-
-  const char *type_name(uint type_idx)
+  TypeFabric::TypeFabric(const char *name, Type type, bool has_prefab_ctor, bool has_awaiter, size_t size):
+    name(name),
+    trivialCopy(type&TrivialCopyConstructor),
+    trivialMove(type&TrivialMoveConstructor),
+    trivialDestruction(type&TrivialDestructor),
+    hasPrefabCtor(has_prefab_ctor),
+    hasAwaiter(has_awaiter),
+    sizeOf(size)
   {
-    const auto &types = ecs::get_all_registered_types();
-    return type_idx < types.size() ? types[type_idx].name.c_str() : nullptr;
+    if (linked_list_head != nullptr)
+      linked_list_head->nextFabric = this;
+    linked_list_head = this;
   }
 
 }

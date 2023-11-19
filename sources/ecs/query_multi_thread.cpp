@@ -12,7 +12,7 @@ namespace ecs
       {
         if (arg1.isSingleton)
         {
-          if (arg2.isSingleton && arg1.typeIndex == arg2.typeIndex &&
+          if (arg2.isSingleton && arg1.typeDeclaration == arg2.typeDeclaration &&
             (arg2.accessType == ecs::AccessType::ReadWrite ||
             arg1.accessType == ecs::AccessType::ReadWrite))
           {

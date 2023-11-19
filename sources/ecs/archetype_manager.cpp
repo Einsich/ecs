@@ -96,7 +96,6 @@ namespace ecs
       const ecs::vector<ComponentPrefab> &prefabs,
       const ecs::vector<ComponentPrefab> &overrides)
   {
-    const auto &types = get_all_registered_types();
     ecs::vector<AwaitPrefab> cache;
     for (uint i = 0, j = 0, n = prefabs.size(), m = overrides.size(); i < n; ++i)
     {
@@ -110,7 +109,7 @@ namespace ecs
         inPrefab = false;
         j++;
       }
-      if (types[component.typeIndex].typeFabric->hasAwaiter)
+      if (component.typeDeclaration->hasAwaiter)
         cache.emplace_back(AwaitPrefab{k, inPrefab});
     }
     return cache;
@@ -118,12 +117,11 @@ namespace ecs
 
   bool ArchetypeManager::AwaitEntityCreation::ready() const
   {
-    const auto &types = get_all_registered_types();
     const EntityPrefab &prefab = get_prefab(prefabId);
     for (const AwaitPrefab &awaitComp : awaitCache)
     {
       const auto &component = awaitComp.inPrefab ? prefab.components[awaitComp.idx] : overrides_list[awaitComp.idx];
-      if (!types[component.typeIndex].typeFabric->component_awaiter(component))
+      if (!component.typeDeclaration->component_awaiter(component))
         return false;
     }
     return true;

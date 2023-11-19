@@ -9,15 +9,14 @@ namespace ecs
       : name(name), components(std::move(components_)), chunkPower(chunk_power)
   {
     bool have_collisions = false;
-    const auto &types = get_all_registered_types();
     for (const auto &comp : components)
     {
-      if (comp.typeIndex == -1u)
+      if (comp.typeDeclaration == nullptr)
       {
         have_collisions = true;
         break;
       }
-      if (types[comp.typeIndex].typeFabric->hasAwaiter)
+      if (comp.typeDeclaration->hasAwaiter)
       {
         requireAwaitCreation = true;
         break;
@@ -34,9 +33,9 @@ namespace ecs
         have_collisions = true;
         ECS_ERROR("components with same name \"%s\" in \"%s\" prefab, with types <%s> <%s>",
                   components[i].name.c_str(),
-                  components[i-1].name.c_str(),
-                  type_name(components[i].typeIndex),
-                  type_name(components[i - 1].typeIndex));
+                  components[i - 1].name.c_str(),
+                  components[i].typeDeclaration->name.c_str(),
+                  components[i - 1].typeDeclaration->name.c_str());
       }
     }
     if (have_collisions)

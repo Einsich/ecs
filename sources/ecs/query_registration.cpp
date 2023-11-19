@@ -11,23 +11,22 @@ namespace ecs
 
   void QueryDescription::validate() const
   {
-    const auto &types = get_all_registered_types();
     for (const ArgumentDescription &descr : arguments)
     {
       if (descr.isSingleton)
         continue;
-      const auto &type = types[descr.typeIndex];
+
       if (descr.accessType == AccessType::Copy)
       {
-        if (!type.typeFabric->trivialCopy)
+        if (!descr.typeDeclaration->trivialCopy)
         {
           ECS_ERROR("%s in %s copy component %s %s with not trivial copy ctor",
-                    file.c_str(), name.c_str(), type.name.c_str(), descr.name.c_str());
+                    file.c_str(), name.c_str(), descr.typeDeclaration->name.c_str(), descr.name.c_str());
         }
-        else if (type.sizeOf > sizeof(float) * 4)
+        else if (descr.typeDeclaration->sizeOf > sizeof(float) * 4)
         {
           ECS_ERROR("%s in %s copy component %s %s with big sizeof == %d",
-                    file.c_str(), name.c_str(), type.name.c_str(), descr.name.c_str(), type.sizeOf);
+                    file.c_str(), name.c_str(), descr.typeDeclaration->name.c_str(), descr.name.c_str(), descr.typeDeclaration->sizeOf);
         }
       }
     }

@@ -7,9 +7,12 @@ namespace ecs
   template<typename T>
   struct DefaultTypeFabric : public TypeFabric
   {
-    DefaultTypeFabric(ecs::Type type = Type::DefaultType, bool has_prefab_ctor = false, bool has_awaiter = false):
-      TypeFabric(type, has_prefab_ctor, has_awaiter)
-    {}
+    DefaultTypeFabric(const char *name, ecs::Type type = Type::DefaultType, bool has_prefab_ctor = false, bool has_awaiter = false):
+      TypeFabric(name, type, has_prefab_ctor, has_awaiter, sizeof(T))
+    {
+      ECS_ASSERT(TypeIndex<T>::fabric == nullptr);
+      TypeIndex<T>::fabric = this;
+    }
 
     virtual void copy_constructor(void *raw_memory, const void *source) const override
     {
@@ -32,56 +35,11 @@ namespace ecs
   };
 
 
-  template <typename T>
-  const TypeAnnotation *get_type_annotation()
-  {
-    const auto &types = get_all_registered_types();
-    return TypeIndex<T>::value < (int)types.size() ? &types[TypeIndex<T>::value] : nullptr;
-  }
-
-  template <typename T>
-  void type_registration(const char *type_name, const TypeFabric *type_fabric)
-  {
-    ECS_ASSERT(type_fabric != nullptr);
-    extern int get_next_type_index();
-    extern void register_type(int, TypeAnnotation);
-
-    ECS_ASSERT(TypeIndex<T>::value == -1);
-    TypeIndex<T>::value = get_next_type_index();
-    register_type(
-        TypeIndex<T>::value,
-        TypeAnnotation{
-            type_name,
-            sizeof(T),
-            type_fabric});
-  }
-  template <typename T, Type type = Type::DefaultType>
-  struct RegistrationHelper
-  {
-    DefaultTypeFabric<T> fabric;
-    RegistrationHelper(const char *name): fabric(type)
-    {
-      type_registration<T>(name, &fabric);
-    }
-  };
-  template <typename T>
-  struct RegistrationHelperFabric
-  {
-    RegistrationHelperFabric(const char *name, const TypeFabric *explicit_type_fabric)
-    {
-      type_registration<T>(name, explicit_type_fabric);
-    }
-  };
 
 #define ECS_TYPE_REGISTRATION(TYPE,              \
                               NAME,              \
                               TYPE_TIP)          \
-  static ecs::RegistrationHelper<TYPE, TYPE_TIP> \
-      __CONCAT__(registrator, __COUNTER__)(NAME);
+  static ecs::DefaultTypeFabric<TYPE> \
+      __CONCAT__(registrator, __COUNTER__)(NAME, TYPE_TIP);
 
-#define ECS_TYPE_REGISTRATION_WITH_FABRIC(TYPE,        \
-                              NAME,                    \
-                              EXPLICIT_FABRIC)         \
-  static ecs::RegistrationHelperFabric<TYPE>           \
-      __CONCAT__(registrator, __COUNTER__)(NAME, EXPLICIT_FABRIC);
 }

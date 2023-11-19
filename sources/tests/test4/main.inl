@@ -22,11 +22,11 @@ ECS_TYPE_REGISTRATION(ecs::vector<float4>, "vector<f4>", ecs::TrivialMoveConstru
 int main()
 {
 
-  ecs::TypeAnnotation p4Annotation = *ecs::get_type_annotation<Point4>();
-  ecs::TypeAnnotation vecP4Annotation = *ecs::get_type_annotation<ecs::vector<Point4>>();
+  auto p4Annotation = *ecs::TypeIndex<Point4>::fabric;
+  auto vecP4Annotation = *ecs::TypeIndex<ecs::vector<Point4>>::fabric;
 
-  ecs::TypeAnnotation f4Annotation = *ecs::get_type_annotation<float4>();
-  ecs::TypeAnnotation vecF4Annotation = *ecs::get_type_annotation<ecs::vector<float4>>();
+  auto f4Annotation = *ecs::TypeIndex<float4>::fabric;
+  auto vecF4Annotation = *ecs::TypeIndex<ecs::vector<float4>>::fabric;
 
   ECS_LOG("Point4 %d", ecs::TypeIndex<Point4>::value);
   ECS_LOG("float %d", ecs::TypeIndex<float>::value);
@@ -39,32 +39,32 @@ int main()
   {
     TimeProfile a("copy constuctor Default");
     for (int i = 0; i < N; i++)
-      p4Annotation.copy(x + i, y + i);
+      p4Annotation.copy_constructor(x + i, y + i);
   }
   {
     TimeProfile a("copy constuctor POD");
     for (int i = 0; i < N; i++)
-      f4Annotation.copy(y + i, x + i);
+      f4Annotation.copy_constructor(y + i, x + i);
   }
   {
     TimeProfile a("destructor Default");
     for (int i = 0; i < N; i++)
-      p4Annotation.destruct(x + i);
+      p4Annotation.destructor(x + i);
   }
   {
     for (int i = 0; i < N; i++)
-      f4Annotation.destruct(y + i);
+      f4Annotation.destructor(y + i);
     TimeProfile a("destructor POD");
   }
   {
     TimeProfile a("move constuctor Default");
     for (int i = 0; i < N; i++)
-      vecP4Annotation.move(v + i, w + i);
+      vecP4Annotation.move_constructor(v + i, w + i);
   }
   {
     TimeProfile a("move constuctor Relocatable");
     for (int i = 0; i < N; i++)
-      vecF4Annotation.move(w + i, v + i);
+      vecF4Annotation.move_constructor(w + i, v + i);
   }
   std::fflush(stdout);
 }

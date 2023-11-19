@@ -21,8 +21,8 @@ namespace ecs
     bool optional;
     bool isSingleton;
 
-    ArgumentDescription(const char *name, int type_idx, AccessType access_type, bool optional, bool is_singleton)
-        : ComponentDescription(name, type_idx), accessType(access_type), optional(optional), isSingleton(is_singleton)
+    ArgumentDescription(const char *name, const TypeFabric *type_declaration, AccessType access_type, bool optional, bool is_singleton)
+        : ComponentDescription(name, type_declaration), accessType(access_type), optional(optional), isSingleton(is_singleton)
     {
     }
   };

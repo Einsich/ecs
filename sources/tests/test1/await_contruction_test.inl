@@ -11,7 +11,7 @@ struct EntityDependance
 
 struct DependanceFabric final : ecs::DefaultTypeFabric<EntityDependance>
 {
-  DependanceFabric(): DefaultTypeFabric(ecs::DefaultType, false, true){}
+  DependanceFabric(): DefaultTypeFabric("RandomWaiter", ecs::DefaultType, false, true){}
 
   void await_contructor(void *raw_memory, const ecs::ComponentPrefab &prefab, bool) const override
   {
@@ -38,7 +38,7 @@ static int globalT = 0;
 
 struct RandomFabric final : ecs::DefaultTypeFabric<EntityDependance>
 {
-  RandomFabric(): DefaultTypeFabric(ecs::DefaultType, false, true){}
+  RandomFabric(): DefaultTypeFabric("EntityDependance", ecs::DefaultType, false, true){}
 
   void await_contructor(void *, const ecs::ComponentPrefab &, bool ) const override
   {
@@ -54,9 +54,6 @@ struct RandomFabric final : ecs::DefaultTypeFabric<EntityDependance>
   }
 } randFabric;
 
-
-ECS_TYPE_REGISTRATION_WITH_FABRIC(EntityDependance, "EntityDependance", &depFabric)
-ECS_TYPE_REGISTRATION_WITH_FABRIC(RandomWaiter, "RandomWaiter", &randFabric)
 
 EVENT()
 test_event(const PrepareTest &)

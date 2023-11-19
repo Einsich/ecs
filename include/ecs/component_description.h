@@ -4,25 +4,26 @@
 
 namespace ecs
 {
+  struct TypeFabric;
   struct ComponentDescription
   {
     ecs::string name;
     uint nameHash;
-    uint typeIndex;
+    const TypeFabric *typeDeclaration;
     ComponentDescription() = default;
 
-    ComponentDescription(const char *name, int type_index)
-        : name(name), nameHash(ecs::hash(name)), typeIndex(type_index)
+    ComponentDescription(const char *name, const TypeFabric *type_declaration)
+        : name(name), nameHash(ecs::hash(name)), typeDeclaration(type_declaration)
     {
-      ECS_ASSERT(type_index >= 0);
+      ECS_ASSERT(type_declaration != nullptr);
     }
     bool fastCompare(const ComponentDescription &other) const
     {
-      return nameHash == other.nameHash && typeIndex == other.typeIndex;
+      return nameHash == other.nameHash && typeDeclaration == other.typeDeclaration;
     }
     bool slowCompare(const ComponentDescription &other) const
     {
-      return name == other.name && typeIndex == other.typeIndex;
+      return name == other.name && typeDeclaration == other.typeDeclaration;
     }
   };
 }

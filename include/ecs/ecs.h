@@ -72,15 +72,15 @@ namespace ecs
 
   // take into account is type singleton
   template <typename T>
-  int get_type_index()
+  const TypeFabric * get_type_index()
   {
     if constexpr (ecs::is_singleton<T>())
     {
-      return ecs::SingletonIndex<T>::value;
+      return ecs::SingletonIndex<T>::fabric;
     }
     else
     {
-      return ecs::TypeIndex<T>::value;
+      return ecs::TypeIndex<T>::fabric;
     }
   }
 
