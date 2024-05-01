@@ -22,14 +22,12 @@ ECS_TYPE_REGISTRATION(ecs::vector<float4>, "vector<f4>", ecs::TrivialMoveConstru
 int main()
 {
 
-  auto p4Annotation = *ecs::TypeIndex<Point4>::fabric;
-  auto vecP4Annotation = *ecs::TypeIndex<ecs::vector<Point4>>::fabric;
+  const ecs::TypeFabric &p4Annotation = *ecs::TypeIndex<Point4>::value;
+  const ecs::TypeFabric &vecP4Annotation = *ecs::TypeIndex<ecs::vector<Point4>>::value;
 
-  auto f4Annotation = *ecs::TypeIndex<float4>::fabric;
-  auto vecF4Annotation = *ecs::TypeIndex<ecs::vector<float4>>::fabric;
+  const ecs::TypeFabric &f4Annotation = *ecs::TypeIndex<float4>::value;
+  const ecs::TypeFabric &vecF4Annotation = *ecs::TypeIndex<ecs::vector<float4>>::value;
 
-  ECS_LOG("Point4 %d", ecs::TypeIndex<Point4>::value);
-  ECS_LOG("float %d", ecs::TypeIndex<float>::value);
   const int N = 1000;
   Point4 *x = new Point4[N];
   float4 *y = new float4[N];

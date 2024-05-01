@@ -1,5 +1,6 @@
 #pragma once
 #include <ecs/ecs_std.h>
+#include <ecs/type_annotation.h>
 
 namespace ecs
 {
@@ -7,25 +8,9 @@ namespace ecs
   {
   };
 
-  struct PersistentSingleton
-  {
-  };
 
-  template <typename T>
-  struct SingletonIndex
-  {
-    inline static int value = -1;
-  };
   using SingletonContructor = void (*)(void *);
   using SingletonDestructor = void (*)(void *);
-  struct SingletonDescription
-  {
-    ecs::string name;
-    const SingletonContructor contructor;
-    const SingletonDestructor destructor;
-    const uint sizeOf;
-    bool persistent;
-  };
 
   template <typename T>
   void singleton_destuctor(void *raw_memory)
@@ -38,41 +23,60 @@ namespace ecs
   {
     new (raw_memory) T();
   }
-  template <typename T>
-  void register_singleton(const char *name)
+
+  struct SingletonTypeFabric
   {
-    bool persistent = std::is_base_of_v<ecs::PersistentSingleton, T>;
+    ecs::string name;
+    size_t sizeOf;
+    const SingletonContructor contructor;
+    const SingletonDestructor destructor;
 
-    extern int get_next_singleton_index();
-    extern void register_singleton(int idx, SingletonDescription descr);
-    extern bool hasNewSingletonTypes;
+    SingletonTypeFabric *nextFabric = nullptr;
+    static inline SingletonTypeFabric *linked_list_head = nullptr;
 
-    hasNewSingletonTypes = true;
-    ECS_ASSERT(SingletonIndex<T>::value == -1);
-    SingletonIndex<T>::value = get_next_singleton_index();
-    register_singleton(SingletonIndex<T>::value,
-                       SingletonDescription{name, singleton_contructor<T>, singleton_destuctor<T>, sizeof(T), persistent});
-  }
-
-  template <typename T>
-  struct SingletonRegister
-  {
-    SingletonRegister(const char *name, SingletonContructor constructor = nullptr)
+    SingletonTypeFabric(const char *name, size_t sizeOf, SingletonContructor ctor, SingletonDestructor dtor):
+      name(name),
+      sizeOf(sizeOf),
+      contructor(ctor),
+      destructor(dtor)
     {
-      register_singleton<T>(name, constructor);
+      if (linked_list_head != nullptr)
+        linked_list_head->nextFabric = this;
+      linked_list_head = this;
+    }
+
+  };
+
+  template <typename T>
+  struct SingletonIndex
+  {
+    inline static const SingletonTypeFabric *value = nullptr;
+  };
+
+  template <typename T>
+  struct SingletonTypeRegistration : public SingletonTypeFabric
+  {
+    SingletonTypeRegistration(const char *name):
+    SingletonTypeFabric(name, sizeof(T), singleton_contructor<T>, singleton_destuctor<T>)
+    {
+      ECS_ASSERT(SingletonIndex<T>::value == nullptr);
+      SingletonIndex<T>::value = this;
+      extern bool hasNewSingletonTypes;
+      hasNewSingletonTypes = true;
     }
   };
+
 
   void preallocate_singletones();
   void init_singletones();
   void destroy_sinletons();
 
-  void *get_singleton(uint idx);
+  void *get_singleton(intptr_t idx);
 
   template <typename T>
   T *get_singleton()
   {
-    return (T *)get_singleton(SingletonIndex<std::remove_cvref_t<T>>::value);
+    return (T *)get_singleton((intptr_t)SingletonIndex<std::remove_cvref_t<T>>::value);
   }
 
   template <typename T>
@@ -88,4 +92,4 @@ namespace ecs
 
 }
 #define ECS_REGISTER_SINGLETON(T) \
-  static ecs::SingletonRegister<T> __CONCAT__(singletonRegistrator, __COUNTER__)(#T);
+  static ecs::SingletonTypeRegistration<T> __CONCAT__(singletonRegistrator, __COUNTER__)(#T);

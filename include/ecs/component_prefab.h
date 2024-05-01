@@ -33,13 +33,13 @@ namespace ecs
 
     template <typename T, typename U>
     ComponentPrefab(const char *name, const ComponentInitializer<T, U> &prefab)
-        : ComponentDescription(name, TypeIndex<T>::fabric), raw_component(prefab.value), raw_pointer_getter(get_raw_mem<U>)
+        : ComponentDescription(name, TypeIndex<T>::value), raw_component(prefab.value), raw_pointer_getter(get_raw_mem<U>)
     {
     }
 
     template <typename T, typename U>
     ComponentPrefab(const char *name, ComponentInitializer<T, U> &&prefab)
-        : ComponentDescription(name, TypeIndex<T>::fabric), raw_component(std::move(prefab.value)), raw_pointer_getter(get_raw_mem<U>)
+        : ComponentDescription(name, TypeIndex<T>::value), raw_component(std::move(prefab.value)), raw_pointer_getter(get_raw_mem<U>)
     {
     }
 
@@ -61,18 +61,18 @@ namespace ecs
     }
     template <typename T>
     ComponentPrefab(const char *name, const T &prefab)
-        : ComponentDescription(name, TypeIndex<T>::fabric), raw_component(prefab), raw_pointer_getter(get_raw_mem<T>)
+        : ComponentDescription(name, TypeIndex<T>::value), raw_component(prefab), raw_pointer_getter(get_raw_mem<T>)
     {
     }
     template <typename T>
     ComponentPrefab(const char *name, T &prefab)
-        : ComponentDescription(name, TypeIndex<T>::fabric), raw_component(prefab), raw_pointer_getter(get_raw_mem<T>)
+        : ComponentDescription(name, TypeIndex<T>::value), raw_component(prefab), raw_pointer_getter(get_raw_mem<T>)
     {
     }
 
     template <typename T>
     ComponentPrefab(const char *name, T &&prefab)
-        : ComponentDescription(name, TypeIndex<T>::fabric), raw_component(std::move(prefab)), raw_pointer_getter(get_raw_mem<T>)
+        : ComponentDescription(name, TypeIndex<T>::value), raw_component(std::move(prefab)), raw_pointer_getter(get_raw_mem<T>)
     {
     }
 

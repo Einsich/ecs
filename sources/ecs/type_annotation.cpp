@@ -5,12 +5,12 @@ namespace ecs
 {
   TypeFabric::TypeFabric(const char *name, Type type, bool has_prefab_ctor, bool has_awaiter, size_t size):
     name(name),
+    sizeOf(size),
     trivialCopy(type&TrivialCopyConstructor),
     trivialMove(type&TrivialMoveConstructor),
     trivialDestruction(type&TrivialDestructor),
     hasPrefabCtor(has_prefab_ctor),
-    hasAwaiter(has_awaiter),
-    sizeOf(size)
+    hasAwaiter(has_awaiter)
   {
     if (linked_list_head != nullptr)
       linked_list_head->nextFabric = this;

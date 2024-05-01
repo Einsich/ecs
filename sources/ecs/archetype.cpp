@@ -7,7 +7,7 @@ namespace ecs
       : chunkPower((uint)chunk_power), chunkMask((1u << (uint)chunk_power) - 1u), chunkSize(1u << (uint)chunk_power)
   {
     components.resize(descriptions.size());
-    ComponentDescription eidDescr("eid", TypeIndex<EntityId>::fabric);
+    ComponentDescription eidDescr("eid", TypeIndex<EntityId>::value);
 
     sort_descriptions_by_names(descriptions);
     int i = 0;

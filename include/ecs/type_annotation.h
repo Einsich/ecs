@@ -44,7 +44,6 @@ namespace ecs
   template <typename T>
   struct TypeIndex
   {
-    inline static int value = -1;
-    inline static const TypeFabric *fabric = nullptr;
+    inline static const TypeFabric *value = nullptr;
   };
 }

@@ -76,11 +76,11 @@ namespace ecs
   {
     if constexpr (ecs::is_singleton<T>())
     {
-      return ecs::SingletonIndex<T>::fabric;
+      return nullptr;
     }
     else
     {
-      return ecs::TypeIndex<T>::fabric;
+      return ecs::TypeIndex<T>::value;
     }
   }
 

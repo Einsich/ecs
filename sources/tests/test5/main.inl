@@ -35,13 +35,18 @@ static void move(vec4 &pos, const vec4 &vel, float dt)
 
 struct GameObject
 {
-  // ecs::string name;
-  // ecs::string text;
   mat4 data1[20];
   vec4 vel;
-  mat4 data2[20];
+  //mat4 data2[20];
   vec4 pos;
+  //mat4 data3[20];
 };
+// 3872 -> 133
+// 2592 -> 161
+// 1312 -> 96
+// 32 -> 29
+// 32 -> 40
+
 
 ECS_TYPE_REGISTRATION(vec4, "vec4", ecs::PODType)
 ECS_TYPE_REGISTRATION(mat4, "mat4", ecs::PODType)
@@ -93,9 +98,10 @@ int main()
        },
        ecs::SizePolicy::Thousands});
 
-  int N = 100000;
+  int N = 10000;
   {
     TimeProfile a("go array creation");
+    go_array.reserve(N);
     for (int i = 0; i < N; i++)
     {
       GameObject &go = go_array.emplace_back();
@@ -107,6 +113,7 @@ int main()
   }
   {
     TimeProfile a("go pointers array creation");
+    go_ptr_array.reserve(N);
     for (int i = 0; i < N; i++)
     {
       GameObject &go = *go_ptr_array.emplace_back(new GameObject());
@@ -164,7 +171,7 @@ int main()
   {
     order.push_back(i);
   }
-  int n = 4 * 3 * 2 * 20;
+  int n = 4 * 3 * 2 * 1;
 
   for (int i = 0; i < n; i++)
   {
@@ -231,8 +238,8 @@ soa_iteration()
   int n = soa_pos.size();
   vec4 *pos = soa_pos.data();
   const vec4 *vel = soa_vel.data();
-  for (int i = 0; i < n; ++i, ++pos, ++vel)
+  for (int i = 0; i < n; ++i)
   {
-    move(*pos, *vel, dt);
+    move(pos[i], vel[i], dt);
   }
 }

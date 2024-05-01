@@ -10,8 +10,8 @@ namespace ecs
     DefaultTypeFabric(const char *name, ecs::Type type = Type::DefaultType, bool has_prefab_ctor = false, bool has_awaiter = false):
       TypeFabric(name, type, has_prefab_ctor, has_awaiter, sizeof(T))
     {
-      ECS_ASSERT(TypeIndex<T>::fabric == nullptr);
-      TypeIndex<T>::fabric = this;
+      ECS_ASSERT(TypeIndex<T>::value == nullptr);
+      TypeIndex<T>::value = this;
     }
 
     virtual void copy_constructor(void *raw_memory, const void *source) const override
